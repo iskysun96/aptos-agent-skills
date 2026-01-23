@@ -63,29 +63,67 @@ aptos move coverage source --module marketplace
 
 ### Publishing/Deployment
 
+**IMPORTANT:** Use `deploy-object` to deploy as objects (modern pattern), NOT `publish` (creates resource account).
+
 ```bash
-# Publish to devnet (default)
-aptos move publish --named-addresses my_addr=<your_address>
+# ✅ CORRECT: Deploy as object (recommended)
+aptos move deploy-object --address-name <named_address>
 
-# Publish to testnet
-aptos move publish \
-    --network testnet \
-    --named-addresses my_addr=<your_address>
+# Example: Deploy marketplace contract as object
+aptos move deploy-object --address-name marketplace_addr
 
-# Publish to mainnet
-aptos move publish \
-    --network mainnet \
-    --named-addresses my_addr=<your_address>
+# Deploy with auto-confirm (skips yes/no prompts)
+aptos move deploy-object --address-name marketplace_addr --assume-yes
 
-# Publish with profile
-aptos move publish \
-    --profile my_profile \
-    --named-addresses my_addr=<your_address>
+# Deploy to specific network
+aptos move deploy-object --address-name marketplace_addr --network testnet
+aptos move deploy-object --address-name marketplace_addr --network mainnet
 
-# Upgrade existing module
-aptos move publish \
-    --named-addresses my_addr=<your_address> \
-    --upgrade
+# Deploy with specific profile
+aptos move deploy-object --address-name marketplace_addr --profile my_profile
+
+# Upgrade existing object deployment
+aptos move upgrade-object \
+    --address-name marketplace_addr \
+    --object-address 0x123abc...
+
+# Upgrade with auto-confirm
+aptos move upgrade-object \
+    --address-name marketplace_addr \
+    --object-address 0x123abc... \
+    --assume-yes
+```
+
+**Deployment Prompts:**
+
+When deploying, the CLI will ask two questions:
+
+1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X - Y] Octas at a gas unit price of Z Octas? [yes/no]"
+2. **Object address confirmation**: "Do you want to publish this package at object address 0x... [yes/no]"
+
+To skip prompts, use `--assume-yes` flag (automatically answers "yes").
+
+**Note on Move.toml:**
+
+For object deployment, set named addresses to `_` (placeholder) in Move.toml:
+
+```toml
+[addresses]
+marketplace_addr = "_"
+```
+
+The CLI will override this with the actual deployment address.
+
+---
+
+**Legacy: Publishing to Resource Account** (❌ Not recommended for new projects)
+
+```bash
+# ❌ OLD: Publish to resource account (legacy pattern)
+aptos move publish --named-addresses my_addr=default
+
+# This creates a resource account, which is deprecated.
+# Use deploy-object instead for modern object-based deployment.
 ```
 
 ### Account Management

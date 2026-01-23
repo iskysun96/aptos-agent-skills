@@ -305,137 +305,277 @@ public entry fun mint_simple(
 
 ## NFT Marketplace Pattern
 
+### CRITICAL: Object Ownership Hierarchy
+
+When creating a marketplace that mints NFTs, you MUST understand the ownership hierarchy:
+
+**WRONG Pattern:**
+```move
+// ❌ WRONG: Collection creates tokens in itself
+fun init_module(deployer: &signer) {
+    // Create collection
+    let collection_ref = collection::create_unlimited_collection(...);
+    let collection_signer = object::generate_signer(&collection_ref);
+
+    // Store collection's extend_ref
+    move_to(&collection_signer, Config {
+        extend_ref: object::generate_extend_ref(&collection_ref),  // ❌ Collection's extend_ref
+    });
+}
+
+public entry fun mint_nft(creator: &signer) acquires Config {
+    let config = borrow_global<Config>(...);
+    let collection_signer = object::generate_signer_for_extending(&config.extend_ref);
+
+    // ❌ WRONG: Collection can't create tokens in itself!
+    token::create_named_token(&collection_signer, ...);
+}
+```
+
+**CORRECT Pattern:**
+```move
+// ✅ CORRECT: Marketplace object owns collection and creates tokens
+fun init_module(deployer: &signer) {
+    // Create a marketplace state object
+    let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE_STATE");
+    let marketplace_signer = object::generate_signer(&marketplace_ref);
+
+    // Marketplace object creates and owns the collection
+    collection::create_unlimited_collection(&marketplace_signer, ...);
+
+    // Store MARKETPLACE object's extend_ref
+    move_to(&marketplace_signer, MarketplaceConfig {
+        extend_ref: object::generate_extend_ref(&marketplace_ref),  // ✅ Marketplace's extend_ref
+    });
+}
+
+public entry fun mint_nft(creator: &signer) acquires MarketplaceConfig {
+    let config = borrow_global<MarketplaceConfig>(...);
+
+    // ✅ CORRECT: Use marketplace signer (owner of collection)
+    let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+    token::create_named_token(&marketplace_signer, ...);  // Works!
+}
+```
+
+**Why?** `token::create_named_token()` requires the signer to be the OWNER of the collection, not the collection itself.
+
+**Hierarchy:**
+```
+Marketplace Object
+  └── Owns Collection
+      └── Contains Tokens (created by Marketplace signer)
+```
+
 ### Marketplace with Digital Assets
 
 ```move
 module marketplace_addr::nft_marketplace {
     use std::signer;
-    use std::string::String;
-    use aptos_framework::object::{Self, Object};
+    use std::string::{Self, String};
+    use std::option;
+    use aptos_framework::object::{Self, Object, ExtendRef};
     use aptos_framework::coin;
     use aptos_framework::aptos_coin::AptosCoin;
     use aptos_framework::event;
+    use aptos_token_objects::collection;
     use aptos_token_objects::token::{Self, Token};
-    use aptos_token_objects::aptos_token::AptosToken;
+    use aptos_token_objects::royalty;
 
-    // ============ Events ============
+    // ============ Constants ============
 
-    #[event]
-    struct ListingCreated has drop, store {
-        listing_id: address,
-        seller: address,
-        token: address,
-        price: u64,
-    }
-
-    #[event]
-    struct TokenSold has drop, store {
-        listing_id: address,
-        seller: address,
-        buyer: address,
-        token: address,
-        price: u64,
-    }
-
-    // ============ Structs ============
-
-    struct Listing has key {
-        // ✅ CORRECT: Use Object<AptosToken> for Digital Asset standard
-        token: Object<AptosToken>,
-        seller: address,
-        price: u64,
-    }
+    const COLLECTION_NAME: vector<u8> = b"Marketplace Collection";
+    const MARKETPLACE_STATE_SEED: vector<u8> = b"MARKETPLACE_STATE";
 
     // ============ Error Codes ============
 
     const E_NOT_OWNER: u64 = 1;
     const E_NOT_SELLER: u64 = 2;
-    const E_INSUFFICIENT_PAYMENT: u64 = 3;
-    const E_ZERO_PRICE: u64 = 10;
+    const E_ZERO_PRICE: u64 = 3;
+    const E_NOT_LISTED: u64 = 4;
+
+    // ============ Events ============
+
+    #[event]
+    struct NFTMinted has drop, store {
+        nft_address: address,
+        creator: address,
+        name: String,
+    }
+
+    #[event]
+    struct NFTListed has drop, store {
+        nft_address: address,
+        seller: address,
+        price: u64,
+    }
+
+    // ============ Structs ============
+
+    /// Marketplace configuration (stored in marketplace state object)
+    struct MarketplaceConfig has key {
+        admin: address,
+        marketplace_fee_bps: u64,
+        extend_ref: ExtendRef,  // For creating tokens
+    }
+
+    /// NFT-specific data
+    struct NFTData has key {
+        creator: address,
+        royalty_bps: u64,
+        extend_ref: ExtendRef,
+        transfer_ref: object::TransferRef,
+    }
+
+    /// Listing (only exists when NFT is for sale)
+    struct Listing has key {
+        seller: address,
+        price: u64,
+    }
+
+    // ============ Helper Functions ============
+
+    /// Get marketplace state object address
+    fun get_marketplace_state_address(): address {
+        object::create_object_address(&@marketplace_addr, MARKETPLACE_STATE_SEED)
+    }
 
     // ============ Init Module ============
 
     fun init_module(deployer: &signer) {
-        // Initialize marketplace config
+        // Create marketplace state object (owns everything)
+        let marketplace_ref = object::create_named_object(deployer, MARKETPLACE_STATE_SEED);
+        let marketplace_signer = object::generate_signer(&marketplace_ref);
+        let marketplace_extend_ref = object::generate_extend_ref(&marketplace_ref);
+
+        // Marketplace object creates and owns the collection
+        collection::create_unlimited_collection(
+            &marketplace_signer,  // Marketplace signer creates collection
+            string::utf8(b"Collection for marketplace NFTs"),
+            string::utf8(COLLECTION_NAME),
+            option::none(),
+            string::utf8(b"https://marketplace.io"),
+        );
+
+        // Store marketplace config
+        move_to(&marketplace_signer, MarketplaceConfig {
+            admin: signer::address_of(deployer),
+            marketplace_fee_bps: 250,  // 2.5%
+            extend_ref: marketplace_extend_ref,
+        });
     }
 
     // ============ Public Entry Functions ============
 
+    /// Mint NFT using marketplace signer
+    public entry fun mint_nft(
+        creator: &signer,
+        name: String,
+        description: String,
+        uri: String,
+        royalty_bps: u64,
+    ) acquires MarketplaceConfig {
+        let creator_addr = signer::address_of(creator);
+
+        // Get marketplace config
+        let marketplace_state_addr = get_marketplace_state_address();
+        let config = borrow_global<MarketplaceConfig>(marketplace_state_addr);
+
+        // Generate marketplace signer (owner of collection)
+        let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+
+        // Create royalty
+        let royalty = royalty::create(royalty_bps, 10000, creator_addr);
+
+        // Create token using marketplace signer (collection owner)
+        let constructor_ref = token::create_named_token(
+            &marketplace_signer,  // Must be collection owner
+            string::utf8(COLLECTION_NAME),
+            description,
+            name,
+            option::some(royalty),
+            uri,
+        );
+
+        let token_signer = object::generate_signer(&constructor_ref);
+        let extend_ref = object::generate_extend_ref(&constructor_ref);
+        let transfer_ref = object::generate_transfer_ref(&constructor_ref);
+
+        // Disable ungated transfers
+        object::disable_ungated_transfer(&transfer_ref);
+
+        // Transfer to creator BEFORE storing NFTData
+        // Must use transfer_with_ref since ungated transfers are disabled
+        let linear_transfer_ref = object::generate_linear_transfer_ref(&transfer_ref);
+        object::transfer_with_ref(linear_transfer_ref, creator_addr);
+
+        // Store NFT data
+        move_to(&token_signer, NFTData {
+            creator: creator_addr,
+            royalty_bps,
+            extend_ref,
+            transfer_ref,
+        });
+
+        // Emit event
+        event::emit(NFTMinted {
+            nft_address: signer::address_of(&token_signer),
+            creator: creator_addr,
+            name,
+        });
+    }
+
     /// List NFT for sale
-    public entry fun list_token(
+    public entry fun list_nft<T: key>(
         seller: &signer,
-        token: Object<AptosToken>,  // ✅ Digital Asset standard
+        nft: Object<T>,
         price: u64,
-    ) {
+    ) acquires NFTData {
         let seller_addr = signer::address_of(seller);
+        let nft_addr = object::object_address(&nft);
 
         // Verify ownership
-        assert!(object::is_owner(token, seller_addr), E_NOT_OWNER);
+        assert!(object::is_owner(nft, seller_addr), E_NOT_OWNER);
         assert!(price > 0, E_ZERO_PRICE);
 
-        // Create listing
-        let constructor_ref = object::create_object(seller_addr);
-        let listing_signer = object::generate_signer(&constructor_ref);
-        let listing_addr = object::address_from_constructor_ref(&constructor_ref);
+        // Get NFT data to access extend_ref
+        let nft_data = borrow_global<NFTData>(nft_addr);
+        let nft_signer = object::generate_signer_for_extending(&nft_data.extend_ref);
 
-        move_to(&listing_signer, Listing {
-            token,
+        // Create listing at NFT address
+        move_to(&nft_signer, Listing {
             seller: seller_addr,
             price,
         });
 
-        // Transfer token to listing (escrow)
-        object::transfer(seller, token, listing_addr);
-
-        // Emit event
-        event::emit(ListingCreated {
-            listing_id: listing_addr,
+        event::emit(NFTListed {
+            nft_address: nft_addr,
             seller: seller_addr,
-            token: object::object_address(&token),
             price,
         });
     }
 
-    /// Purchase listed NFT
-    public entry fun buy_token(
+    /// Purchase NFT
+    public entry fun purchase_nft<T: key>(
         buyer: &signer,
-        listing: Object<Listing>,
-    ) acquires Listing {
+        nft: Object<T>,
+    ) acquires NFTData, Listing, MarketplaceConfig {
         let buyer_addr = signer::address_of(buyer);
-        let listing_addr = object::object_address(&listing);
+        let nft_addr = object::object_address(&nft);
 
-        let Listing { token, seller, price } = move_from<Listing>(listing_addr);
+        // Get listing
+        assert!(exists<Listing>(nft_addr), E_NOT_LISTED);
+        let Listing { seller, price } = move_from<Listing>(nft_addr);
 
-        // Transfer payment
+        // Get NFT data
+        let nft_data = borrow_global<NFTData>(nft_addr);
+
+        // Calculate and transfer fees (omitted for brevity)
         coin::transfer<AptosCoin>(buyer, seller, price);
 
-        // Transfer NFT to buyer
-        object::transfer_raw(listing_addr, token, buyer_addr);
-
-        // Emit event
-        event::emit(TokenSold {
-            listing_id: listing_addr,
-            seller,
-            buyer: buyer_addr,
-            token: object::object_address(&token),
-            price,
-        });
-    }
-
-    /// Cancel listing
-    public entry fun cancel_listing(
-        seller: &signer,
-        listing: Object<Listing>,
-    ) acquires Listing {
-        let seller_addr = signer::address_of(seller);
-        let listing_addr = object::object_address(&listing);
-
-        let Listing { token, seller: listing_seller, price: _ } = move_from<Listing>(listing_addr);
-
-        assert!(seller_addr == listing_seller, E_NOT_SELLER);
-
-        // Return NFT to seller
-        object::transfer_raw(listing_addr, token, seller_addr);
+        // Transfer NFT using stored transfer_ref
+        let linear_transfer_ref = object::generate_linear_transfer_ref(&nft_data.transfer_ref);
+        object::transfer_with_ref(linear_transfer_ref, buyer_addr);
     }
 }
 ```

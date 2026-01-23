@@ -229,9 +229,66 @@ public fun is_item_owner(user_addr: address, item: Object<Item>): bool {
 
 ## Pattern 3: Object Transfers
 
+### CRITICAL: Understanding Transfer Functions
+
+There are TWO ways to transfer objects, and using the wrong one will cause errors:
+
+**1. `object::transfer()` - For ungated transfers**
+- Requires ungated transfers to be ENABLED
+- Anyone can call this function
+- Used for freely transferable objects
+
+**2. `object::transfer_with_ref()` - For controlled transfers**
+- Requires a `TransferRef` (generated during object creation)
+- Works even when ungated transfers are DISABLED
+- Used for controlled, permission-based transfers
+
+### Common Mistake: Wrong Transfer Function
+
+**❌ WRONG: Using `object::transfer()` after disabling ungated transfers**
+```move
+public fun create_and_transfer_item(creator: &signer) {
+    let constructor_ref = object::create_object(signer::address_of(creator));
+    let transfer_ref = object::generate_transfer_ref(&constructor_ref);
+
+    // Disable ungated transfers
+    object::disable_ungated_transfer(&transfer_ref);
+
+    let token_obj = object::object_from_constructor_ref<Token>(&constructor_ref);
+
+    // ❌ ERROR: "The object does not have ungated transfers enabled"
+    object::transfer(creator, token_obj, recipient_addr);
+}
+```
+
+**✅ CORRECT: Using `object::transfer_with_ref()` when ungated transfers are disabled**
+```move
+public fun create_and_transfer_item(creator: &signer, recipient: address): Object<Item> {
+    let constructor_ref = object::create_object(signer::address_of(creator));
+    let transfer_ref = object::generate_transfer_ref(&constructor_ref);
+
+    // Disable ungated transfers
+    object::disable_ungated_transfer(&transfer_ref);
+
+    let object_signer = object::generate_signer(&constructor_ref);
+
+    // ✅ Transfer BEFORE storing (while we still have transfer_ref)
+    let linear_transfer_ref = object::generate_linear_transfer_ref(&transfer_ref);
+    object::transfer_with_ref(linear_transfer_ref, recipient);
+
+    // Store data with transfer_ref for future transfers
+    move_to(&object_signer, Item {
+        name: string::utf8(b"Item"),
+        transfer_ref,  // Store for later use
+    });
+
+    object::object_from_constructor_ref<Item>(&constructor_ref)
+}
+```
+
 ### Transfer with TransferRef
 
-**When to use:** Controlled transfers that you manage (marketplaces, escrows)
+**When to use:** Controlled transfers that you manage (marketplaces, escrows, NFTs with disabled ungated transfers)
 
 ```move
 public entry fun transfer_item(
@@ -247,6 +304,7 @@ public entry fun transfer_item(
     let item_data = borrow_global_mut<Item>(item_addr);
 
     // Transfer using stored TransferRef
+    // CRITICAL: Must use transfer_with_ref when ungated transfers are disabled
     let linear_transfer_ref = object::generate_linear_transfer_ref(&item_data.transfer_ref);
     object::transfer_with_ref(linear_transfer_ref, recipient);
 
@@ -257,7 +315,7 @@ public entry fun transfer_item(
 
 ### Ungated Transfer (Allow anyone to transfer)
 
-**When to use:** Freely transferable objects (standard NFTs, currencies)
+**When to use:** Freely transferable objects (standard NFTs with ungated transfers, currencies)
 
 ```move
 /// Enable ungated transfers in constructor
@@ -280,12 +338,25 @@ public fun create_transferable_item(creator: &signer, name: String): Object<Item
 
 /// Transfer function (callable by anyone if ungated)
 public entry fun transfer_ungated_item(
+    sender: &signer,
     item: Object<Item>,
     recipient: address
-) acquires Item {
-    // No ownership check needed - ungated transfers allowed
-    object::transfer(signer, item, recipient);
+) {
+    // ✅ Can use object::transfer() because ungated transfers are enabled
+    object::transfer(sender, item, recipient);
 }
+```
+
+### Decision Tree: Which Transfer Function?
+
+```
+Did you call object::disable_ungated_transfer()?
+├─ YES → Use object::transfer_with_ref()
+│         Requires: TransferRef stored in your struct
+│
+└─ NO (ungated transfers enabled by default)
+    └─ Use object::transfer()
+       Works without TransferRef
 ```
 
 ---

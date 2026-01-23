@@ -350,6 +350,160 @@ struct Vault<phantom CoinType> has key {  // ✅ Added phantom
 
 ---
 
+## Object-Related Errors
+
+### Error: "An object does not exist at this address"
+
+**Cause:** Trying to access a resource at an object address that hasn't been created yet
+
+**Common Scenarios:**
+
+**Scenario 1: Collection owner can't create tokens**
+```move
+// ❌ WRONG: Storing collection's extend_ref
+fun init_module(deployer: &signer) {
+    let collection_ref = collection::create_unlimited_collection(...);
+    let collection_signer = object::generate_signer(&collection_ref);
+
+    move_to(&collection_signer, Config {
+        extend_ref: object::generate_extend_ref(&collection_ref),  // Wrong ref!
+    });
+}
+
+public entry fun mint_nft() acquires Config {
+    let config = borrow_global<Config>(...);
+    let signer = object::generate_signer_for_extending(&config.extend_ref);
+
+    // ❌ ERROR: Collection can't create tokens in itself
+    token::create_named_token(&signer, ...);
+}
+```
+
+**Fix:**
+```move
+// ✅ CORRECT: Create marketplace object that OWNS the collection
+fun init_module(deployer: &signer) {
+    // Create marketplace state object
+    let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE_STATE");
+    let marketplace_signer = object::generate_signer(&marketplace_ref);
+
+    // Marketplace creates collection (marketplace is the owner)
+    collection::create_unlimited_collection(&marketplace_signer, ...);
+
+    // Store MARKETPLACE object's extend_ref
+    move_to(&marketplace_signer, MarketplaceConfig {
+        extend_ref: object::generate_extend_ref(&marketplace_ref),
+    });
+}
+
+public entry fun mint_nft() acquires MarketplaceConfig {
+    let config = borrow_global<MarketplaceConfig>(...);
+
+    // Use marketplace signer (collection owner)
+    let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+    token::create_named_token(&marketplace_signer, ...);  // ✅ Works!
+}
+```
+
+**Scenario 2: init_module never ran**
+```move
+// During deployment, init_module failed an assertion
+fun init_module(deployer: &signer) {
+    assert!(signer::address_of(deployer) == @marketplace_addr, E_NOT_AUTHORIZED);
+    // If this fails, MarketplaceConfig is never created
+    move_to(deployer, MarketplaceConfig { ... });
+}
+```
+
+**Fix:**
+- Verify `@marketplace_addr` resolves to correct address during deployment
+- For object deployment, use `aptos move deploy-object` not `publish`
+- Check deployment transaction succeeded
+
+**Scenario 3: Wrong address calculation**
+```move
+// ❌ WRONG: Incorrect seed or creator address
+let obj_addr = object::create_object_address(&wrong_creator, b"SEED");
+let config = borrow_global<Config>(obj_addr);  // Doesn't exist at this address
+```
+
+**Fix:**
+```move
+// ✅ Use correct creator address and seed
+let obj_addr = object::create_object_address(&@marketplace_addr, b"MARKETPLACE_STATE");
+let config = borrow_global<MarketplaceConfig>(obj_addr);
+```
+
+### Error: "The object does not have ungated transfers enabled"
+
+**Cause:** Trying to use `object::transfer()` on an object with disabled ungated transfers
+
+**Example:**
+```move
+public entry fun mint_and_transfer(creator: &signer, recipient: address) {
+    let constructor_ref = token::create_named_token(...);
+    let transfer_ref = object::generate_transfer_ref(&constructor_ref);
+
+    // Disable ungated transfers
+    object::disable_ungated_transfer(&transfer_ref);
+
+    let token_obj = object::object_from_constructor_ref<Token>(&constructor_ref);
+
+    // ❌ ERROR: ungated transfers are disabled!
+    object::transfer(creator, token_obj, recipient);
+}
+```
+
+**Fix:**
+```move
+public entry fun mint_and_transfer(creator: &signer, recipient: address) {
+    let constructor_ref = token::create_named_token(...);
+    let transfer_ref = object::generate_transfer_ref(&constructor_ref);
+
+    // Disable ungated transfers
+    object::disable_ungated_transfer(&transfer_ref);
+
+    // ✅ Use transfer_with_ref instead
+    let linear_transfer_ref = object::generate_linear_transfer_ref(&transfer_ref);
+    object::transfer_with_ref(linear_transfer_ref, recipient);
+
+    // Store transfer_ref for future transfers
+    let token_signer = object::generate_signer(&constructor_ref);
+    move_to(&token_signer, TokenData { transfer_ref, ... });
+}
+```
+
+**Rule:**
+- `object::disable_ungated_transfer()` called? → Use `object::transfer_with_ref()`
+- Ungated transfers enabled (default)? → Use `object::transfer()`
+
+### Error: "Object address derivation mismatch"
+
+**Cause:** Named object address doesn't match expected address
+
+**Example:**
+```move
+// Created object with one seed
+let obj = object::create_named_object(creator, b"SEED_V1");
+
+// Later, trying to access with different seed
+let obj_addr = object::create_object_address(&creator_addr, b"SEED_V2");  // Wrong seed!
+let data = borrow_global<Data>(obj_addr);  // Doesn't exist
+```
+
+**Fix:**
+```move
+// ✅ Use consistent seeds
+const SEED: vector<u8> = b"MY_OBJECT_SEED";
+
+// Creation
+let obj = object::create_named_object(creator, SEED);
+
+// Access
+let obj_addr = object::create_object_address(&creator_addr, SEED);
+let data = borrow_global<Data>(obj_addr);  // ✅ Correct
+```
+
 ## Deployment Errors
 
 ### Error: "Insufficient APT balance"

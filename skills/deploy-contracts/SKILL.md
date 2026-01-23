@@ -37,6 +37,65 @@ Before deploying, verify ALL items:
 - [ ] Dependencies specified with correct versions
 - [ ] Network URLs configured
 
+## Object Deployment (Modern Pattern)
+
+### CRITICAL: Use Correct Deployment Command
+
+There are TWO ways to deploy contracts. For modern object-based contracts, use `deploy-object`:
+
+**✅ CORRECT: Object Deployment (Modern Pattern)**
+```bash
+aptos move deploy-object \
+    --address-name my_addr \
+    --profile devnet \
+    --assume-yes
+```
+
+**What this does:**
+1. Creates an object to host your contract code
+2. Deploys the package to that object's address
+3. Returns the object address (deterministic, based on deployer + package name)
+4. Object address becomes your contract address
+
+**❌ WRONG: Using Regular Publish for Object Contracts**
+```bash
+# ❌ Don't use this for object-based contracts
+aptos move publish \
+    --named-addresses my_addr=<address>
+```
+
+**When to use each:**
+- `deploy-object`: Modern contracts using objects (RECOMMENDED)
+- `publish`: Legacy account-based deployment (older pattern)
+
+**How to tell if you need object deployment:**
+- Your contract creates named objects in `init_module`
+- Your contract uses `object::create_named_object()`
+- You want a deterministic contract address
+- Documentation says "deploy as object"
+
+### Alternative Object Deployment Commands
+
+**Option 1: `deploy-object` (Recommended - Simplest)**
+```bash
+aptos move deploy-object --address-name my_addr --profile devnet
+```
+- Automatically creates object and deploys code
+- Object address is deterministic
+- Best for most use cases
+
+**Option 2: `create-object-and-publish-package` (Advanced)**
+```bash
+aptos move create-object-and-publish-package \
+    --address-name my_addr \
+    --named-addresses my_addr=default
+```
+- More complex command with more options
+- Use only if you need specific object configuration
+- Generally not needed
+
+**Recommendation:** Always use `deploy-object` unless you have a specific reason to use the alternative.
+
 ## Deployment Workflow
 
 ### Step 1: Test Locally

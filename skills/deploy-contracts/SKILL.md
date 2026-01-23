@@ -71,12 +71,16 @@ echo $?
 aptos init --network devnet --profile devnet
 
 # Fund account
-aptos account fund-with-faucet --profile devnet
+aptos account fund-with-faucet --account default --profile devnet
 
-# Deploy
-aptos move publish \
+# Deploy as object (modern pattern)
+aptos move deploy-object \
+    --address-name my_addr \
     --profile devnet \
-    --named-addresses my_addr=<devnet_address>
+    --assume-yes
+
+# Save the object address from output for future upgrades
+# Output: "Code was successfully deployed to object address 0x..."
 
 # Verify deployment
 aptos account list --account <devnet_address> --profile devnet
@@ -91,14 +95,17 @@ aptos account list --account <devnet_address> --profile devnet
 aptos init --network testnet --profile testnet
 
 # Fund account
-aptos account fund-with-faucet \
-    --account <testnet_address> \
-    --profile testnet
+aptos account fund-with-faucet --account default --profile testnet
 
-# Deploy to testnet
-aptos move publish \
+# Deploy to testnet as object (modern pattern)
+aptos move deploy-object \
+    --address-name my_addr \
     --profile testnet \
-    --named-addresses my_addr=<testnet_address>
+    --assume-yes
+
+# IMPORTANT: Save the object address from output
+# You'll need it for upgrades and function calls
+# Output: "Code was successfully deployed to object address 0x..."
 
 # Expected output:
 # {
@@ -106,7 +113,7 @@ aptos move publish \
 #     "transaction_hash": "0x...",
 #     "gas_used": 1234,
 #     "success": true,
-#     ...
+#     "vm_status": "Executed successfully"
 #   }
 # }
 ```
@@ -141,11 +148,24 @@ aptos init --network mainnet --profile mainnet
 # IMPORTANT: Backup your private key securely!
 # The private key is in ~/.aptos/config.yaml
 
-# Deploy to mainnet
-aptos move publish \
+# Deploy to mainnet as object (modern pattern)
+aptos move deploy-object \
+    --address-name my_addr \
     --profile mainnet \
-    --named-addresses my_addr=<mainnet_address> \
     --max-gas 20000  # Optional: set gas limit
+
+# Review prompts carefully before confirming:
+# 1. Gas confirmation: Review gas costs
+# 2. Object address: Note the object address for future reference
+
+# OR use --assume-yes to auto-confirm (only if you're confident)
+aptos move deploy-object \
+    --address-name my_addr \
+    --profile mainnet \
+    --assume-yes
+
+# SAVE THE OBJECT ADDRESS from output
+# You'll need it for upgrades and documentation
 
 # Confirm deployment
 # Review transaction in explorer:

@@ -9,7 +9,91 @@ description: Scaffold new Aptos Move V2 project with proper structure and config
 
 This skill creates a new Aptos Move project with proper directory structure, Move.toml configuration, and initial setup.
 
-## Core Workflow
+## Project Types
+
+Choose the appropriate scaffolding method based on your project type:
+
+1. **Move-only projects** (Smart contracts only): Use `aptos move init`
+2. **Full-stack dApps** (Smart contracts + Frontend): Use `create-aptos-dapp`
+
+---
+
+## Full-Stack dApp Scaffolding (Recommended for Web Apps)
+
+### Using create-aptos-dapp
+
+For full-stack applications with frontend, use the official `create-aptos-dapp` tool:
+
+```bash
+# Using npx (recommended)
+npx create-aptos-dapp@latest
+
+# Or using pnpm
+pnpm create aptos-dapp@latest
+
+# Or using yarn
+yarn create aptos-dapp
+```
+
+### Available Templates
+
+The CLI will prompt you to select a template:
+
+1. **Boilerplate Template** ⭐ **Use this for basic projects**
+   - Basic starter dApp with wallet integration
+   - Simple UI implementation
+   - All necessary infrastructure
+   - Best for custom projects
+
+2. **NFT Minting dApp Template**
+   - End-to-end NFT minting functionality
+   - Pre-made UI for NFT creation
+
+3. **Token Minting dApp Template**
+   - Fungible asset minting
+   - Token management UI
+
+4. **Token Staking dApp Template**
+   - Staking mechanisms
+   - Rewards management
+
+5. **Custom Indexer Template**
+   - Custom indexer support
+   - Advanced data querying
+
+**Recommendation:** Use the **Boilerplate Template** for general-purpose projects, not the specific feature templates.
+
+### What create-aptos-dapp Provides
+
+- ✅ Complete Move project structure (Move.toml, sources/, tests/)
+- ✅ Frontend scaffolding (React + Vite + TypeScript)
+- ✅ Wallet integration (Aptos Wallet Adapter)
+- ✅ Styled with Tailwind CSS + shadcn/ui
+- ✅ Package management (npm/pnpm) with compatible libraries
+- ✅ Development server setup
+
+### Project Structure (create-aptos-dapp)
+
+```
+my-dapp/
+├── move/                   # Move smart contracts
+│   ├── Move.toml
+│   ├── sources/
+│   └── tests/
+├── frontend/              # React frontend
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.ts
+├── .gitignore
+└── README.md
+```
+
+---
+
+## Move-Only Project Scaffolding
+
+For smart contracts without frontend, use `aptos move init`:
 
 ### Step 1: Initialize Project
 
@@ -211,14 +295,17 @@ aptos move coverage source --module <module_name>
 ## Deployment
 
 ```bash
-# Deploy to devnet
-aptos move publish --named-addresses my_addr=<your_address>
+# Deploy to devnet as object (modern pattern)
+aptos move deploy-object --address-name my_addr
 
-# Deploy to testnet
-aptos move publish --network testnet --named-addresses my_addr=<your_address>
+# Deploy to testnet as object
+aptos move deploy-object --address-name my_addr --network testnet
 
-# Deploy to mainnet
-aptos move publish --network mainnet --named-addresses my_addr=<your_address>
+# Deploy to mainnet as object
+aptos move deploy-object --address-name my_addr --network mainnet
+
+# Use --assume-yes to skip prompts
+aptos move deploy-object --address-name my_addr --assume-yes
 ```
 
 ## Security
@@ -360,7 +447,9 @@ local = "../my-other-module"
 
 ## ALWAYS Rules
 
-- ✅ ALWAYS run `aptos move init` to create project
+- ✅ ALWAYS use `create-aptos-dapp` for full-stack dApps (frontend + contracts)
+- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
+- ✅ ALWAYS run `aptos move init` for Move-only projects
 - ✅ ALWAYS configure Move.toml with proper dependencies
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions

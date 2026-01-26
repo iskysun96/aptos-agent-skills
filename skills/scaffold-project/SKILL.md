@@ -1,13 +1,17 @@
 ---
 name: scaffold-project
-description: Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos project", "scaffold move app", "init move module".
+description:
+  Scaffold new Aptos Move V2 project with proper structure and configuration.
+  Use when "create move project", "new aptos project", "scaffold move app",
+  "init move module".
 ---
 
 # Scaffold Project Skill
 
 ## Overview
 
-This skill creates a new Aptos Move project with proper directory structure, Move.toml configuration, and initial setup.
+This skill creates a new Aptos Move project with proper directory structure,
+Move.toml configuration, and initial setup.
 
 ## Project Types
 
@@ -22,7 +26,8 @@ Choose the appropriate scaffolding method based on your project type:
 
 ### Using create-aptos-dapp
 
-For full-stack applications with frontend, use the official `create-aptos-dapp` tool:
+For full-stack applications with frontend, use the official `create-aptos-dapp`
+tool:
 
 ```bash
 # Using npx (recommended)
@@ -61,7 +66,8 @@ The CLI will prompt you to select a template:
    - Custom indexer support
    - Advanced data querying
 
-**Recommendation:** Use the **Boilerplate Template** for general-purpose projects, not the specific feature templates.
+**Recommendation:** Use the **Boilerplate Template** for general-purpose
+projects, not the specific feature templates.
 
 ### What create-aptos-dapp Provides
 
@@ -102,11 +108,13 @@ aptos move init --name <project_name>
 ```
 
 **Example:**
+
 ```bash
 aptos move init --name my_nft_marketplace
 ```
 
 This creates:
+
 ```
 my_nft_marketplace/
 ├── Move.toml
@@ -171,6 +179,7 @@ mkdir -p tests/unit tests/integration
 ```
 
 **Recommended structure:**
+
 ```
 project/
 ├── Move.toml
@@ -255,7 +264,7 @@ module my_addr::main_tests {
 
 **Create `README.md`:**
 
-```markdown
+````markdown
 # Project Name
 
 Brief description of your Move module.
@@ -291,6 +300,7 @@ aptos move test --coverage
 # View coverage report
 aptos move coverage source --module <module_name>
 ```
+````
 
 ## Deployment
 
@@ -318,7 +328,8 @@ aptos move deploy-object --address-name my_addr --assume-yes
 ## License
 
 MIT
-```
+
+````
 
 ### Step 7: Initialize Git (Optional)
 
@@ -330,7 +341,7 @@ echo "node_modules/" >> .gitignore
 
 git add .
 git commit -m "Initial commit: Scaffold Aptos Move project"
-```
+````
 
 ### Step 8: Verify Setup
 
@@ -448,13 +459,14 @@ local = "../my-other-module"
 ## ALWAYS Rules
 
 - ✅ ALWAYS use `create-aptos-dapp` for full-stack dApps (frontend + contracts)
-- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
+- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not
+  specific feature templates)
 - ✅ ALWAYS run `aptos move init` for Move-only projects
 - ✅ ALWAYS configure Move.toml with proper dependencies
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions
 - ✅ ALWAYS verify project compiles after scaffolding
-- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS use named addresses (my*addr = "*")
 - ✅ ALWAYS set up dev-addresses for testing
 
 ## NEVER Rules
@@ -504,15 +516,18 @@ aptos move test
 ## References
 
 **Official Documentation:**
+
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
 - Project Structure: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**
+
 - `write-contracts` - Write modules after scaffolding
 - `generate-tests` - Create test suite
 - `use-aptos-cli` - CLI commands reference
 
 ---
 
-**Remember:** Proper scaffolding sets up your project for success. Don't skip Move.toml configuration.
+**Remember:** Proper scaffolding sets up your project for success. Don't skip
+Move.toml configuration.

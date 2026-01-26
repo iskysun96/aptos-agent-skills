@@ -1,13 +1,16 @@
 ---
 name: use-aptos-cli
-description: Reference for Aptos CLI commands for Move development. Use when "run aptos", "compile move", "test contract", "aptos command".
+description:
+  Reference for Aptos CLI commands for Move development. Use when "run aptos",
+  "compile move", "test contract", "aptos command".
 ---
 
 # Use Aptos CLI Skill
 
 ## Overview
 
-Comprehensive reference for Aptos CLI commands used in Move development workflow.
+Comprehensive reference for Aptos CLI commands used in Move development
+workflow.
 
 **Installation:** https://aptos.dev/build/cli
 
@@ -63,7 +66,8 @@ aptos move coverage source --module marketplace
 
 ### Publishing/Deployment
 
-**IMPORTANT:** Use `deploy-object` to deploy as objects (modern pattern), NOT `publish` (creates resource account).
+**IMPORTANT:** Use `deploy-object` to deploy as objects (modern pattern), NOT
+`publish` (creates resource account).
 
 ```bash
 # ✅ CORRECT: Deploy as object (recommended)
@@ -98,8 +102,10 @@ aptos move upgrade-object \
 
 When deploying, the CLI will ask two questions:
 
-1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X - Y] Octas at a gas unit price of Z Octas? [yes/no]"
-2. **Object address confirmation**: "Do you want to publish this package at object address 0x... [yes/no]"
+1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X
+   - Y] Octas at a gas unit price of Z Octas? [yes/no]"
+2. **Object address confirmation**: "Do you want to publish this package at
+   object address 0x... [yes/no]"
 
 To skip prompts, use `--assume-yes` flag (automatically answers "yes").
 
@@ -379,6 +385,7 @@ aptos move coverage source --module my_module
 ## Network URLs
 
 ### Devnet
+
 ```
 REST: https://fullnode.devnet.aptoslabs.com/v1
 Faucet: https://faucet.devnet.aptoslabs.com
@@ -386,6 +393,7 @@ Explorer: https://explorer.aptoslabs.com/?network=devnet
 ```
 
 ### Testnet
+
 ```
 REST: https://fullnode.testnet.aptoslabs.com/v1
 Faucet: https://faucet.testnet.aptoslabs.com
@@ -393,6 +401,7 @@ Explorer: https://explorer.aptoslabs.com/?network=testnet
 ```
 
 ### Mainnet
+
 ```
 REST: https://fullnode.mainnet.aptoslabs.com/v1
 Explorer: https://explorer.aptoslabs.com/?network=mainnet
@@ -466,18 +475,18 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 
 ## Quick Reference
 
-| Command | Purpose |
-|---------|---------|
-| `aptos move init` | Create new project |
-| `aptos move compile` | Compile Move code |
-| `aptos move test` | Run tests |
-| `aptos move test --coverage` | Test with coverage |
-| `aptos move publish` | Deploy module |
-| `aptos move run` | Execute entry function |
-| `aptos move view` | Call view function |
-| `aptos account fund-with-faucet` | Get test tokens |
-| `aptos account list` | View account resources |
-| `aptos init` | Initialize CLI config |
+| Command                          | Purpose                |
+| -------------------------------- | ---------------------- |
+| `aptos move init`                | Create new project     |
+| `aptos move compile`             | Compile Move code      |
+| `aptos move test`                | Run tests              |
+| `aptos move test --coverage`     | Test with coverage     |
+| `aptos move publish`             | Deploy module          |
+| `aptos move run`                 | Execute entry function |
+| `aptos move view`                | Call view function     |
+| `aptos account fund-with-faucet` | Get test tokens        |
+| `aptos account list`             | View account resources |
+| `aptos init`                     | Initialize CLI config  |
 
 ## ALWAYS Rules
 
@@ -499,11 +508,14 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 ## References
 
 **Official Documentation:**
+
 - CLI Guide: https://aptos.dev/build/cli
-- Working with Move Contracts: https://aptos.dev/build/cli/working-with-move-contracts
+- Working with Move Contracts:
+  https://aptos.dev/build/cli/working-with-move-contracts
 - CLI Reference: https://aptos.dev/build/cli/cli-reference
 
 **Related Skills:**
+
 - `scaffold-project` - Initialize projects
 - `write-contracts` - Write modules to compile
 - `generate-tests` - Create tests to run
@@ -512,4 +524,5 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 
 ---
 
-**Remember:** Test locally, deploy to testnet, verify, then mainnet. Always use --coverage.
+**Remember:** Test locally, deploy to testnet, verify, then mainnet. Always use
+--coverage.

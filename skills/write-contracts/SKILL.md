@@ -1,13 +1,18 @@
 ---
 name: write-contracts
-description: Generate and refactor Aptos Move V2 smart contracts following object-centric patterns, modern syntax, and security best practices. Use when "write move contract", "create smart contract", "build module", "refactor move code", "implement move function".
+description:
+  Generate and refactor Aptos Move V2 smart contracts following object-centric
+  patterns, modern syntax, and security best practices. Use when "write move
+  contract", "create smart contract", "build module", "refactor move code",
+  "implement move function".
 ---
 
 # Write Contracts Skill
 
 ## Overview
 
-This skill guides you in writing secure, modern Aptos Move V2 smart contracts. Always follow this workflow:
+This skill guides you in writing secure, modern Aptos Move V2 smart contracts.
+Always follow this workflow:
 
 1. **Search first**: Check aptos-core/move-examples for similar patterns
 2. **Use objects**: Always use `Object<T>` references (never raw addresses)
@@ -192,55 +197,79 @@ public entry fun burn_object(owner: &signer, obj: Object<MyObject>) acquires MyO
 When writing Move contracts, you MUST:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
-- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts (collections, marketplaces, minting)
-- ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
-- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
-- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()` or `collection::create_unlimited_collection()`
-- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or `token::create()` (unnamed)
-- ✅ **ALWAYS set royalties** when creating collections using `royalty::create()`
+
+- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts
+  (collections, marketplaces, minting)
+- ✅ **ALWAYS import** `aptos_token_objects::collection` and
+  `aptos_token_objects::token` modules
+- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic
+  `Object<T>`)
+- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()`
+  or `collection::create_unlimited_collection()`
+- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or
+  `token::create()` (unnamed)
+- ✅ **ALWAYS set royalties** when creating collections using
+  `royalty::create()`
 - ✅ **ALWAYS verify collection exists** before minting tokens
 - ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete NFT patterns
 
 ### Object Model
+
 - ✅ Use `Object<T>` for all object references (NOT addresses)
-- ✅ Generate all refs (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
+- ✅ Generate all refs (TransferRef, DeleteRef) in constructor before
+  ConstructorRef destroyed
 - ✅ Return `Object<T>` from constructor functions (NEVER return ConstructorRef)
 - ✅ Use `object::owner(obj)` to verify ownership
 - ✅ Use `object::generate_signer(&constructor_ref)` for object signers
 
 ### Security
-- ✅ Verify signer authority in ALL entry functions: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-- ✅ Verify object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
+
+- ✅ Verify signer authority in ALL entry functions:
+  `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
+- ✅ Verify object ownership:
+  `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
 - ✅ Validate ALL inputs:
   - Non-zero amounts: `assert!(amount > 0, E_ZERO_AMOUNT)`
   - Within limits: `assert!(amount <= MAX_AMOUNT, E_AMOUNT_TOO_HIGH)`
   - Non-zero addresses: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
-  - String lengths: `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
+  - String lengths:
+    `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - ✅ Use `phantom` for type witnesses: `struct Vault<phantom CoinType>`
 - ✅ Protect critical fields from mem::swap attacks
 
 ### Error Handling
+
 - ✅ Define clear error constants: `const E_NOT_OWNER: u64 = 1;`
 - ✅ Use descriptive error names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE, etc.)
 - ✅ Group related errors (1-9: auth, 10-19: amounts, 20-29: validation)
 
 ### Modern Syntax
-- ✅ Use inline functions for iteration: `inline fun for_each<T>(v: &vector<T>, f: |&T|)`
+
+- ✅ Use inline functions for iteration:
+  `inline fun for_each<T>(v: &vector<T>, f: |&T|)`
 - ✅ Use lambdas for operations: `for_each(&items, |item| { process(item); })`
 - ✅ Use proper imports: `use std::string::String;` not `use std::string;`
-- ✅ Use receiver-style method calls: `obj.is_owner(user)` instead of `is_owner(obj, user)` (define first param as `self`)
-- ✅ Use vector indexed expressions: `&mut vector[index]` instead of `vector::borrow_mut(&mut v, index)`
-- ✅ Use direct named addresses: `@marketplace_addr` instead of helper functions that just return `@marketplace_addr`
+- ✅ Use receiver-style method calls: `obj.is_owner(user)` instead of
+  `is_owner(obj, user)` (define first param as `self`)
+- ✅ Use vector indexed expressions: `&mut vector[index]` instead of
+  `vector::borrow_mut(&mut v, index)`
+- ✅ Use direct named addresses: `@marketplace_addr` instead of helper functions
+  that just return `@marketplace_addr`
 
 ### Initialization
-- ✅ Use `init_module(deployer: &signer)` for contract initialization on deployment
-- ✅ Put all initialization logic (registry creation, admin setup) inside `init_module`
+
+- ✅ Use `init_module(deployer: &signer)` for contract initialization on
+  deployment
+- ✅ Put all initialization logic (registry creation, admin setup) inside
+  `init_module`
 - ✅ `init_module` must be private (no `public` keyword)
 - ✅ `init_module` takes at most one parameter of type `&signer`
 
 ### Events
+
 - ✅ Define events with `#[event]` attribute and `has drop, store` abilities
-- ✅ Emit events for ALL significant activities (create, transfer, update, delete)
+- ✅ Emit events for ALL significant activities (create, transfer, update,
+  delete)
 - ✅ Use `event::emit<EventType>(event_instance)` to emit events
 - ✅ Include relevant context in events (addresses, amounts, IDs)
 
@@ -249,19 +278,26 @@ When writing Move contracts, you MUST:
 When writing Move contracts, you MUST NEVER:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
-- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to Digital Asset)
-- ❌ **NEVER import** `aptos_token::token` (legacy module - use `aptos_token_objects::token` instead)
-- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>` specifically)
+
+- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to
+  Digital Asset)
+- ❌ **NEVER import** `aptos_token::token` (legacy module - use
+  `aptos_token_objects::token` instead)
+- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>`
+  specifically)
 - ❌ **NEVER create tokens** without a parent collection
 - ❌ **NEVER skip royalty configuration** when creating collections
-- ❌ **NEVER use** `token::create_token_script()` or other legacy token functions
+- ❌ **NEVER use** `token::create_token_script()` or other legacy token
+  functions
 
 ### Legacy Patterns
+
 - ❌ NEVER use resource accounts (use named objects instead)
 - ❌ NEVER use raw addresses for objects (use `Object<T>`)
 - ❌ NEVER use `account::create_resource_account()` (deprecated)
 
 ### Security Violations
+
 - ❌ NEVER return ConstructorRef from public functions
 - ❌ NEVER expose `&mut` references in public functions
 - ❌ NEVER skip signer verification in entry functions
@@ -269,13 +305,16 @@ When writing Move contracts, you MUST NEVER:
 - ❌ NEVER allow ungated transfers without good reason
 
 ### Bad Practices
+
 - ❌ NEVER skip input validation
 - ❌ NEVER use magic numbers for errors
 - ❌ NEVER ignore overflow/underflow checks
 - ❌ NEVER deploy without 100% test coverage
-- ❌ NEVER create helper functions that just return named addresses (use `@addr` directly)
+- ❌ NEVER create helper functions that just return named addresses (use `@addr`
+  directly)
 - ❌ NEVER forget to emit events for significant activities
-- ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs vector[i])
+- ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs
+  vector[i])
 - ❌ NEVER skip `init_module` for contracts that need initialization
 
 ## Common Patterns
@@ -534,7 +573,8 @@ module marketplace_addr::marketplace {
 }
 ```
 
-**INCORRECT:** Don't create separate init functions or helper functions for named addresses
+**INCORRECT:** Don't create separate init functions or helper functions for
+named addresses
 
 ```move
 // ❌ WRONG: Separate public init function
@@ -765,21 +805,283 @@ public fun update_item(registry: &mut Registry, index: u64, value: u64) {
 }
 ```
 
+### Pattern 11: Enum Types (Move V2)
+
+**CORRECT:** Use enums for variant types
+
+```move
+module my_addr::order_book {
+    use std::string::String;
+
+    /// Enum for order types
+    enum OrderType {
+        Market,
+        Limit { price: u64 },
+        StopLimit { stop_price: u64, limit_price: u64 },
+    }
+
+    /// Enum for order status
+    enum OrderStatus {
+        Pending,
+        PartiallyFilled { filled_amount: u64 },
+        Filled,
+        Cancelled { reason: String },
+    }
+
+    struct Order has key {
+        id: u64,
+        order_type: OrderType,
+        status: OrderStatus,
+        amount: u64,
+    }
+
+    /// Create different order types
+    public fun create_market_order(amount: u64): Order {
+        Order {
+            id: generate_id(),
+            order_type: OrderType::Market,
+            status: OrderStatus::Pending,
+            amount,
+        }
+    }
+
+    public fun create_limit_order(amount: u64, price: u64): Order {
+        Order {
+            id: generate_id(),
+            order_type: OrderType::Limit { price },
+            status: OrderStatus::Pending,
+            amount,
+        }
+    }
+
+    /// Pattern matching with enums
+    public fun get_order_price(order: &Order): Option<u64> {
+        match &order.order_type {
+            OrderType::Market => option::none(),
+            OrderType::Limit { price } => option::some(*price),
+            OrderType::StopLimit { stop_price: _, limit_price } => option::some(*limit_price),
+        }
+    }
+
+    /// Update order status with pattern matching
+    public fun update_status(order: &mut Order, new_status: OrderStatus) {
+        // Validate state transitions
+        match (&order.status, &new_status) {
+            (OrderStatus::Pending, _) => {
+                // Can transition to any status from Pending
+                order.status = new_status;
+            },
+            (OrderStatus::PartiallyFilled { .. }, OrderStatus::Filled) => {
+                // Can go from partially filled to filled
+                order.status = new_status;
+            },
+            (OrderStatus::PartiallyFilled { .. }, OrderStatus::Cancelled { .. }) => {
+                // Can cancel partially filled orders
+                order.status = new_status;
+            },
+            _ => abort E_INVALID_STATE_TRANSITION,
+        }
+    }
+}
+```
+
+### Pattern 12: Friend Functions
+
+**CORRECT:** Use friend functions for controlled module access
+
+```move
+module my_addr::core_protocol {
+    friend my_addr::admin_module;
+    friend my_addr::upgrade_module;
+
+    struct ProtocolConfig has key {
+        fee_percentage: u64,
+        paused: bool,
+        admin: address,
+    }
+
+    /// Only accessible by friend modules
+    public(friend) fun update_fee(config: &mut ProtocolConfig, new_fee: u64) {
+        assert!(new_fee <= MAX_FEE_PERCENTAGE, E_FEE_TOO_HIGH);
+        config.fee_percentage = new_fee;
+    }
+
+    /// Only accessible by friend modules
+    public(friend) fun emergency_pause(config: &mut ProtocolConfig) {
+        config.paused = true;
+    }
+
+    /// Public function - anyone can read
+    public fun get_fee(config: &ProtocolConfig): u64 {
+        config.fee_percentage
+    }
+}
+
+module my_addr::admin_module {
+    use my_addr::core_protocol;
+
+    /// Admin module can call friend functions
+    public entry fun admin_update_fee(
+        admin: &signer,
+        new_fee: u64
+    ) acquires core_protocol::ProtocolConfig {
+        let admin_addr = signer::address_of(admin);
+        let config = borrow_global_mut<core_protocol::ProtocolConfig>(@my_addr);
+
+        assert!(admin_addr == config.admin, E_NOT_ADMIN);
+
+        // Can call friend function
+        core_protocol::update_fee(config, new_fee);
+    }
+}
+
+module my_addr::user_module {
+    use my_addr::core_protocol;
+
+    public fun try_update_fee() {
+        // ❌ COMPILE ERROR: Cannot call friend function from non-friend module
+        // core_protocol::update_fee(&mut config, 100);
+
+        // ✅ OK: Can call public functions
+        let fee = core_protocol::get_fee(&config);
+    }
+}
+```
+
+### Pattern 13: Package Visibility
+
+**CORRECT:** Use package visibility for internal modules
+
+```move
+// In Move.toml, modules are in same package
+module my_protocol::internal_helpers {
+    /// Only visible within the package
+    public(package) fun calculate_rewards(
+        staked_amount: u64,
+        duration: u64
+    ): u64 {
+        // Complex calculation only for internal use
+        staked_amount * duration * REWARD_RATE / PRECISION
+    }
+
+    /// Only visible within the package
+    public(package) fun validate_parameters(
+        amount: u64,
+        duration: u64
+    ) {
+        assert!(amount >= MIN_STAKE, E_AMOUNT_TOO_LOW);
+        assert!(duration >= MIN_DURATION, E_DURATION_TOO_SHORT);
+        assert!(duration <= MAX_DURATION, E_DURATION_TOO_LONG);
+    }
+}
+
+module my_protocol::staking {
+    use my_protocol::internal_helpers;
+
+    struct StakeInfo has key {
+        amount: u64,
+        start_time: u64,
+        duration: u64,
+    }
+
+    /// Public entry function uses package functions
+    public entry fun stake(
+        user: &signer,
+        amount: u64,
+        duration: u64
+    ) {
+        // Can use package function
+        internal_helpers::validate_parameters(amount, duration);
+
+        let rewards = internal_helpers::calculate_rewards(amount, duration);
+
+        move_to(user, StakeInfo {
+            amount,
+            start_time: timestamp::now_seconds(),
+            duration,
+        });
+    }
+}
+
+// External module (different package)
+module external::client {
+    use my_protocol::internal_helpers;
+
+    public fun try_use_helpers() {
+        // ❌ COMPILE ERROR: Cannot access package functions from outside
+        // internal_helpers::calculate_rewards(100, 30);
+    }
+}
+```
+
+### Pattern 14: Advanced Type Parameters
+
+**CORRECT:** Use phantom types and type witnesses
+
+```move
+module my_addr::typed_vault {
+    use std::signer;
+
+    /// Phantom type parameter for compile-time type safety
+    struct Vault<phantom AssetType> has key {
+        balance: u64,
+        // AssetType doesn't appear in fields
+    }
+
+    /// Type witnesses
+    struct USD {}
+    struct EUR {}
+    struct BTC {}
+
+    /// Create typed vault
+    public fun create_vault<AssetType>(creator: &signer) {
+        move_to(creator, Vault<AssetType> {
+            balance: 0,
+        });
+    }
+
+    /// Type-safe deposit
+    public fun deposit<AssetType>(
+        account: &signer,
+        amount: u64
+    ) acquires Vault {
+        let vault = borrow_global_mut<Vault<AssetType>>(
+            signer::address_of(account)
+        );
+        vault.balance = vault.balance + amount;
+    }
+
+    /// Cannot mix types - this won't compile
+    public fun invalid_transfer() {
+        let account = &signer::create_signer_for_test(@0x1);
+
+        // Create USD vault
+        create_vault<USD>(account);
+
+        // ❌ COMPILE ERROR: Cannot deposit EUR into USD vault
+        // deposit<EUR>(account, 100);
+
+        // ✅ OK: Correct type
+        deposit<USD>(account, 100);
+    }
+}
+```
+
 ## Edge Cases to Handle
 
-| Scenario | Check | Error Code |
-|----------|-------|------------|
-| Zero amounts | `assert!(amount > 0, E_ZERO_AMOUNT)` | E_ZERO_AMOUNT |
-| Excessive amounts | `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)` | E_AMOUNT_TOO_HIGH |
-| Empty vectors | `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)` | E_EMPTY_VECTOR |
-| Empty strings | `assert!(string::length(&s) > 0, E_EMPTY_STRING)` | E_EMPTY_STRING |
-| Strings too long | `assert!(string::length(&s) <= MAX, E_STRING_TOO_LONG)` | E_STRING_TOO_LONG |
-| Zero address | `assert!(addr != @0x0, E_ZERO_ADDRESS)` | E_ZERO_ADDRESS |
-| Overflow | `assert!(a <= MAX_U64 - b, E_OVERFLOW)` | E_OVERFLOW |
-| Underflow | `assert!(a >= b, E_UNDERFLOW)` | E_UNDERFLOW |
-| Division by zero | `assert!(divisor > 0, E_DIVISION_BY_ZERO)` | E_DIVISION_BY_ZERO |
-| Unauthorized access | `assert!(signer == expected, E_UNAUTHORIZED)` | E_UNAUTHORIZED |
-| Not object owner | `assert!(object::owner(obj) == user, E_NOT_OWNER)` | E_NOT_OWNER |
+| Scenario            | Check                                                   | Error Code         |
+| ------------------- | ------------------------------------------------------- | ------------------ |
+| Zero amounts        | `assert!(amount > 0, E_ZERO_AMOUNT)`                    | E_ZERO_AMOUNT      |
+| Excessive amounts   | `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)`             | E_AMOUNT_TOO_HIGH  |
+| Empty vectors       | `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)`       | E_EMPTY_VECTOR     |
+| Empty strings       | `assert!(string::length(&s) > 0, E_EMPTY_STRING)`       | E_EMPTY_STRING     |
+| Strings too long    | `assert!(string::length(&s) <= MAX, E_STRING_TOO_LONG)` | E_STRING_TOO_LONG  |
+| Zero address        | `assert!(addr != @0x0, E_ZERO_ADDRESS)`                 | E_ZERO_ADDRESS     |
+| Overflow            | `assert!(a <= MAX_U64 - b, E_OVERFLOW)`                 | E_OVERFLOW         |
+| Underflow           | `assert!(a >= b, E_UNDERFLOW)`                          | E_UNDERFLOW        |
+| Division by zero    | `assert!(divisor > 0, E_DIVISION_BY_ZERO)`              | E_DIVISION_BY_ZERO |
+| Unauthorized access | `assert!(signer == expected, E_UNAUTHORIZED)`           | E_UNAUTHORIZED     |
+| Not object owner    | `assert!(object::owner(obj) == user, E_NOT_OWNER)`      | E_NOT_OWNER        |
 
 ## Complete Example: NFT Collection
 
@@ -919,28 +1221,35 @@ module my_addr::nft_collection {
 ## References
 
 **Official Documentation:**
+
 - Digital Asset Standard: https://aptos.dev/build/smart-contracts/digital-asset
 - Digital Asset (Standards): https://aptos.dev/standards/digital-asset/
 - Your First NFT Tutorial: https://aptos.dev/tutorials/your-first-nft/
 - Object Model: https://aptos.dev/build/smart-contracts/object
-- Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
+- Security Guidelines:
+  https://aptos.dev/build/smart-contracts/move-security-guidelines
 - Move Book: https://aptos.dev/build/smart-contracts/book
 
 **Example Repositories:**
+
 - aptos-core/aptos-move/move-examples/
 - aptos-core/aptos-move/framework/aptos-token-objects/
 
 **Pattern Documentation (Local):**
-- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs
+
+- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard -
+  CRITICAL for NFTs
 - `../../patterns/OBJECTS.md` - Comprehensive object model guide
 - `../../patterns/SECURITY.md` - Security checklist and patterns
 - `../../patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples
 
 **Related Skills:**
+
 - `generate-tests` - Write tests for contracts (use AFTER writing contracts)
 - `security-audit` - Audit contracts before deployment
 - `search-aptos-examples` - Find similar examples (use BEFORE writing)
 
 ---
 
-**Remember:** Search examples first, use objects always, verify security, validate inputs, test everything.
+**Remember:** Search examples first, use objects always, verify security,
+validate inputs, test everything.

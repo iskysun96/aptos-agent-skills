@@ -1,10 +1,12 @@
 # Aptos Move V2 Security Patterns
 
-**Purpose:** Security checklist and patterns for secure Aptos Move V2 smart contracts.
+**Purpose:** Security checklist and patterns for secure Aptos Move V2 smart
+contracts.
 
 **Target:** AI assistants generating Move V2 smart contracts
 
-**Critical Note:** Security is non-negotiable. Every pattern here must be followed. User funds depend on it.
+**Critical Note:** Security is non-negotiable. Every pattern here must be
+followed. User funds depend on it.
 
 ---
 
@@ -13,45 +15,60 @@
 Before deploying any Move module, verify ALL items in this checklist:
 
 ### Access Control
+
 - [ ] All `entry` functions verify signer authority with `assert!`
 - [ ] Object ownership verified with `object::owner()` before operations
 - [ ] Admin-only functions check caller is admin address
-- [ ] Function visibility uses least-privilege (private > public(friend) > public > entry)
+- [ ] Function visibility uses least-privilege (private > public(friend) >
+      public > entry)
 - [ ] No public functions that modify state without checks
 
 ### Input Validation
-- [ ] Numeric inputs checked for zero where appropriate: `assert!(amount > 0, E_ZERO_AMOUNT)`
+
+- [ ] Numeric inputs checked for zero where appropriate:
+      `assert!(amount > 0, E_ZERO_AMOUNT)`
 - [ ] Numeric inputs checked for overflow: `assert!(a <= MAX - b, E_OVERFLOW)`
-- [ ] Vector lengths validated: `assert!(vector::length(&items) > 0, E_EMPTY_VECTOR)`
-- [ ] String lengths checked: `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
+- [ ] Vector lengths validated:
+      `assert!(vector::length(&items) > 0, E_EMPTY_VECTOR)`
+- [ ] String lengths checked:
+      `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - [ ] Addresses validated as non-zero: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
-- [ ] Enum-like values within expected range: `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
+- [ ] Enum-like values within expected range:
+      `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
 
 ### Object Safety
+
 - [ ] ConstructorRef never returned from public functions
-- [ ] All refs (TransferRef, DeleteRef, ExtendRef) generated in constructor before ConstructorRef destroyed
+- [ ] All refs (TransferRef, DeleteRef, ExtendRef) generated in constructor
+      before ConstructorRef destroyed
 - [ ] Object signer only used during construction or with ExtendRef
 - [ ] Ungated transfers disabled unless explicitly needed
 - [ ] DeleteRef only generated for truly burnable objects
 
 ### Reference Safety
+
 - [ ] No `&mut` references exposed in public function signatures
 - [ ] Critical fields protected from `mem::swap` attacks
 - [ ] Mutable borrows minimized in scope
-- [ ] No storing mutable references (impossible in Move, but watch for workarounds)
+- [ ] No storing mutable references (impossible in Move, but watch for
+      workarounds)
 
 ### Arithmetic Safety
+
 - [ ] All additions checked for overflow
 - [ ] All subtractions checked for underflow
 - [ ] Division by zero prevented: `assert!(divisor > 0, E_DIVISION_BY_ZERO)`
 - [ ] Use `checked_add`, `checked_sub`, `checked_mul` from safe math libraries
 
 ### Generic Type Safety
-- [ ] Use `phantom` for generic types not stored in fields: `struct Vault<phantom CoinType>`
+
+- [ ] Use `phantom` for generic types not stored in fields:
+      `struct Vault<phantom CoinType>`
 - [ ] Type witnesses used for authorization where appropriate
 - [ ] Generic function constraints appropriate (`drop`, `copy`, `store`, `key`)
 
 ### Testing
+
 - [ ] 100% line coverage achieved: `aptos move test --coverage`
 - [ ] All error paths tested with `#[expected_failure(abort_code = E_CODE)]`
 - [ ] Access control tested with multiple signers (owner, attacker)
@@ -59,6 +76,7 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] Edge cases covered (empty vectors, max values, boundary conditions)
 
 ### Reentrancy
+
 - [ ] State updates before external calls (checks-effects-interactions pattern)
 - [ ] No recursive calls that could manipulate state unexpectedly
 - [ ] Watch for reentrancy through events or other modules
@@ -584,18 +602,18 @@ public entry fun withdraw_vulnerable(
 
 ## Common Vulnerabilities
 
-| Vulnerability | Example | Impact | Fix |
-|---------------|---------|--------|-----|
-| Missing access control | No signer verification | Anyone can call admin functions | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)` |
-| Missing ownership check | No `object::owner()` check | Anyone can modify any object | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
-| Integer overflow | `balance = balance + amount` | Balance wraps to 0 | Check `assert!(balance <= MAX_U64 - amount, E_OVERFLOW)` |
-| Integer underflow | `balance = balance - amount` | Balance wraps to MAX | Check `assert!(balance >= amount, E_INSUFFICIENT)` |
-| Division by zero | `result = a / b` | Abort without clear error | Check `assert!(b > 0, E_DIVISION_BY_ZERO)` |
-| Returning ConstructorRef | `return constructor_ref` | Caller can destroy object | Return `Object<T>` instead |
-| Exposing &mut | `public fun get_mut(): &mut T` | mem::swap attacks | Expose specific operations only |
-| No input validation | Accept any `amount` | Zero amounts, overflow | Validate all inputs |
-| Ungated transfers | Enable for sensitive objects | Unwanted transfers | Only enable when appropriate |
-| Missing test coverage | Some paths not tested | Bugs in production | Achieve 100% coverage |
+| Vulnerability            | Example                        | Impact                          | Fix                                                                        |
+| ------------------------ | ------------------------------ | ------------------------------- | -------------------------------------------------------------------------- |
+| Missing access control   | No signer verification         | Anyone can call admin functions | Add `assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN)`      |
+| Missing ownership check  | No `object::owner()` check     | Anyone can modify any object    | Add `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)` |
+| Integer overflow         | `balance = balance + amount`   | Balance wraps to 0              | Check `assert!(balance <= MAX_U64 - amount, E_OVERFLOW)`                   |
+| Integer underflow        | `balance = balance - amount`   | Balance wraps to MAX            | Check `assert!(balance >= amount, E_INSUFFICIENT)`                         |
+| Division by zero         | `result = a / b`               | Abort without clear error       | Check `assert!(b > 0, E_DIVISION_BY_ZERO)`                                 |
+| Returning ConstructorRef | `return constructor_ref`       | Caller can destroy object       | Return `Object<T>` instead                                                 |
+| Exposing &mut            | `public fun get_mut(): &mut T` | mem::swap attacks               | Expose specific operations only                                            |
+| No input validation      | Accept any `amount`            | Zero amounts, overflow          | Validate all inputs                                                        |
+| Ungated transfers        | Enable for sensitive objects   | Unwanted transfers              | Only enable when appropriate                                               |
+| Missing test coverage    | Some paths not tested          | Bugs in production              | Achieve 100% coverage                                                      |
 
 ---
 
@@ -604,6 +622,7 @@ public entry fun withdraw_vulnerable(
 For each contract, write tests that cover:
 
 ### Access Control Tests
+
 ```move
 #[test(owner = @0x1, attacker = @0x2)]
 #[expected_failure(abort_code = E_NOT_OWNER)]
@@ -614,6 +633,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 ```
 
 ### Input Validation Tests
+
 ```move
 #[test(user = @0x1)]
 #[expected_failure(abort_code = E_ZERO_AMOUNT)]
@@ -629,6 +649,7 @@ public fun test_excessive_amount_rejected(user: &signer) {
 ```
 
 ### Edge Case Tests
+
 ```move
 #[test(user = @0x1)]
 public fun test_max_amount_allowed(user: &signer) {
@@ -648,13 +669,16 @@ public fun test_empty_vector_handling(user: &signer) {
 ## Additional Resources
 
 **Official Security Guidelines:**
+
 - https://aptos.dev/build/smart-contracts/move-security-guidelines
 - https://aptos.dev/build/smart-contracts/object
 
 **Related Patterns:**
+
 - `OBJECTS.md` - Object model security implications
 - `TESTING.md` - Security testing patterns
 
 ---
 
-**Remember:** Security is not optional. Every checklist item must pass before deployment. User funds depend on your code's correctness.
+**Remember:** Security is not optional. Every checklist item must pass before
+deployment. User funds depend on your code's correctness.

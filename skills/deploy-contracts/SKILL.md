@@ -1,16 +1,15 @@
 ---
 name: deploy-contracts
 description:
-  Deploy Aptos Move V2 contracts to devnet, testnet, or mainnet. Use when
-  "deploy contract", "publish module", "deploy to testnet/mainnet".
+  Deploy Aptos Move V2 contracts to devnet, testnet, or mainnet. Use when "deploy contract", "publish module", "deploy
+  to testnet/mainnet".
 ---
 
 # Deploy Contracts Skill
 
 ## Overview
 
-This skill guides safe deployment of Move contracts to Aptos networks. **Always
-deploy to testnet before mainnet.**
+This skill guides safe deployment of Move contracts to Aptos networks. **Always deploy to testnet before mainnet.**
 
 ## Pre-Deployment Checklist
 
@@ -48,8 +47,7 @@ Before deploying, verify ALL items:
 
 ### CRITICAL: Use Correct Deployment Command
 
-There are TWO ways to deploy contracts. For modern object-based contracts, use
-`deploy-object`:
+There are TWO ways to deploy contracts. For modern object-based contracts, use `deploy-object`:
 
 **✅ CORRECT: Object Deployment (Modern Pattern)**
 
@@ -111,8 +109,7 @@ aptos move create-object-and-publish-package \
 - Use only if you need specific object configuration
 - Generally not needed
 
-**Recommendation:** Always use `deploy-object` unless you have a specific reason
-to use the alternative.
+**Recommendation:** Always use `deploy-object` unless you have a specific reason to use the alternative.
 
 ## Deployment Workflow
 
@@ -272,8 +269,7 @@ Create deployment record:
 ```markdown
 # Deployment Record
 
-**Date:** 2026-01-23 **Network:** Mainnet **Module:** my_module **Address:**
-0x123abc... **Transaction:** 0x456def...
+**Date:** 2026-01-23 **Network:** Mainnet **Module:** my_module **Address:** 0x123abc... **Transaction:** 0x456def...
 
 ## Verification
 
@@ -547,5 +543,4 @@ aptos move publish \
 
 ---
 
-**Remember:** Security audit → 100% tests → Testnet → Thorough testing →
-Mainnet. Never skip testnet.
+**Remember:** Security audit → 100% tests → Testnet → Thorough testing → Mainnet. Never skip testnet.

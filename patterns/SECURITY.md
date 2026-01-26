@@ -1,12 +1,10 @@
 # Aptos Move V2 Security Patterns
 
-**Purpose:** Security checklist and patterns for secure Aptos Move V2 smart
-contracts.
+**Purpose:** Security checklist and patterns for secure Aptos Move V2 smart contracts.
 
 **Target:** AI assistants generating Move V2 smart contracts
 
-**Critical Note:** Security is non-negotiable. Every pattern here must be
-followed. User funds depend on it.
+**Critical Note:** Security is non-negotiable. Every pattern here must be followed. User funds depend on it.
 
 ---
 
@@ -19,28 +17,22 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] All `entry` functions verify signer authority with `assert!`
 - [ ] Object ownership verified with `object::owner()` before operations
 - [ ] Admin-only functions check caller is admin address
-- [ ] Function visibility uses least-privilege (private > public(friend) >
-      public > entry)
+- [ ] Function visibility uses least-privilege (private > public(friend) > public > entry)
 - [ ] No public functions that modify state without checks
 
 ### Input Validation
 
-- [ ] Numeric inputs checked for zero where appropriate:
-      `assert!(amount > 0, E_ZERO_AMOUNT)`
+- [ ] Numeric inputs checked for zero where appropriate: `assert!(amount > 0, E_ZERO_AMOUNT)`
 - [ ] Numeric inputs checked for overflow: `assert!(a <= MAX - b, E_OVERFLOW)`
-- [ ] Vector lengths validated:
-      `assert!(vector::length(&items) > 0, E_EMPTY_VECTOR)`
-- [ ] String lengths checked:
-      `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
+- [ ] Vector lengths validated: `assert!(vector::length(&items) > 0, E_EMPTY_VECTOR)`
+- [ ] String lengths checked: `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - [ ] Addresses validated as non-zero: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
-- [ ] Enum-like values within expected range:
-      `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
+- [ ] Enum-like values within expected range: `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
 
 ### Object Safety
 
 - [ ] ConstructorRef never returned from public functions
-- [ ] All refs (TransferRef, DeleteRef, ExtendRef) generated in constructor
-      before ConstructorRef destroyed
+- [ ] All refs (TransferRef, DeleteRef, ExtendRef) generated in constructor before ConstructorRef destroyed
 - [ ] Object signer only used during construction or with ExtendRef
 - [ ] Ungated transfers disabled unless explicitly needed
 - [ ] DeleteRef only generated for truly burnable objects
@@ -50,8 +42,7 @@ Before deploying any Move module, verify ALL items in this checklist:
 - [ ] No `&mut` references exposed in public function signatures
 - [ ] Critical fields protected from `mem::swap` attacks
 - [ ] Mutable borrows minimized in scope
-- [ ] No storing mutable references (impossible in Move, but watch for
-      workarounds)
+- [ ] No storing mutable references (impossible in Move, but watch for workarounds)
 
 ### Arithmetic Safety
 
@@ -62,8 +53,7 @@ Before deploying any Move module, verify ALL items in this checklist:
 
 ### Generic Type Safety
 
-- [ ] Use `phantom` for generic types not stored in fields:
-      `struct Vault<phantom CoinType>`
+- [ ] Use `phantom` for generic types not stored in fields: `struct Vault<phantom CoinType>`
 - [ ] Type witnesses used for authorization where appropriate
 - [ ] Generic function constraints appropriate (`drop`, `copy`, `store`, `key`)
 
@@ -680,5 +670,5 @@ public fun test_empty_vector_handling(user: &signer) {
 
 ---
 
-**Remember:** Security is not optional. Every checklist item must pass before
-deployment. User funds depend on your code's correctness.
+**Remember:** Security is not optional. Every checklist item must pass before deployment. User funds depend on your
+code's correctness.

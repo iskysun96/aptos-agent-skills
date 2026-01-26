@@ -1,7 +1,7 @@
 # Skill: generate-move-scripts
 
-Generate Move scripts for complex, atomic multi-operation transactions that
-execute multiple contract calls in a single transaction.
+Generate Move scripts for complex, atomic multi-operation transactions that execute multiple contract calls in a single
+transaction.
 
 ## When to Use This Skill
 
@@ -531,7 +531,6 @@ script {
 
 ## References
 
-- Move Book Scripts:
-  https://move-language.github.io/move/modules-and-scripts.html
+- Move Book Scripts: https://move-language.github.io/move/modules-and-scripts.html
 - Aptos Script Examples: Check `aptos-core/aptos-move/move-examples/scripts/`
 - Script Compilation: https://aptos.dev/build/smart-contracts/scripts/

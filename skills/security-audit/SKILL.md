@@ -1,20 +1,18 @@
 ---
 name: security-audit
 description:
-  Perform comprehensive security audit on Aptos Move V2 contracts before
-  deployment. Use when "audit contract", "check security", "review move code",
-  or AUTOMATICALLY before deployment.
+  Perform comprehensive security audit on Aptos Move V2 contracts before deployment. Use when "audit contract", "check
+  security", "review move code", or AUTOMATICALLY before deployment.
 ---
 
 # Security Audit Skill
 
 ## Overview
 
-This skill performs systematic security audits of Move contracts using a
-comprehensive checklist. Every item must pass before deployment.
+This skill performs systematic security audits of Move contracts using a comprehensive checklist. Every item must pass
+before deployment.
 
-**Critical:** Security is non-negotiable. User funds depend on correct
-implementation.
+**Critical:** Security is non-negotiable. User funds depend on correct implementation.
 
 ## Core Workflow
 
@@ -85,12 +83,9 @@ public entry fun transfer_item(
 **Verify:**
 
 - [ ] Numeric inputs checked for zero: `assert!(amount > 0, E_ZERO_AMOUNT)`
-- [ ] Numeric inputs within max limits:
-      `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)`
-- [ ] Vector lengths validated:
-      `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)`
-- [ ] String lengths checked:
-      `assert!(string::length(&s) <= MAX_LENGTH, E_NAME_TOO_LONG)`
+- [ ] Numeric inputs within max limits: `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)`
+- [ ] Vector lengths validated: `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)`
+- [ ] String lengths checked: `assert!(string::length(&s) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - [ ] Addresses validated: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
 - [ ] Enum-like values in range: `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
 
@@ -419,5 +414,4 @@ Review code for:
 
 ---
 
-**Remember:** Security is non-negotiable. Every checklist item must pass. User
-funds depend on it.
+**Remember:** Security is non-negotiable. Every checklist item must pass. User funds depend on it.

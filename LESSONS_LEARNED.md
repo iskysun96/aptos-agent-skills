@@ -1,15 +1,13 @@
 # Lessons Learned from NFT Marketplace Debugging Session
 
-**Date:** 2026-01-24 **Context:** Debugging object deployment and digital assets
-standard implementation
+**Date:** 2026-01-24 **Context:** Debugging object deployment and digital assets standard implementation
 
 ---
 
 ## Summary
 
-During the implementation and deployment of an NFT marketplace contract, several
-critical mistakes were made that provide valuable lessons for future Move
-development. This document catalogs those mistakes, explains why they happened,
+During the implementation and deployment of an NFT marketplace contract, several critical mistakes were made that
+provide valuable lessons for future Move development. This document catalogs those mistakes, explains why they happened,
 and provides clear prevention strategies.
 
 ---
@@ -18,8 +16,7 @@ and provides clear prevention strategies.
 
 ### What Happened
 
-Used `aptos move create-object-and-publish-package` instead of
-`aptos move deploy-object` for object deployment.
+Used `aptos move create-object-and-publish-package` instead of `aptos move deploy-object` for object deployment.
 
 ### Why It Happened
 
@@ -45,16 +42,13 @@ aptos move create-object-and-publish-package \
 ### Prevention Strategy
 
 1. **Always consult aptos.dev** before using deployment commands
-2. **Use `deploy-object`** for modern object-based contracts (simpler,
-   recommended)
-3. **Only use `create-object-and-publish-package`** if you need advanced object
-   configuration
+2. **Use `deploy-object`** for modern object-based contracts (simpler, recommended)
+3. **Only use `create-object-and-publish-package`** if you need advanced object configuration
 4. **Document the correct command** in your project's deployment guide
 
 ### Updated Documentation
 
-- ✅ `skills/deploy-contracts/SKILL.md` - Added clear section on object
-  deployment commands
+- ✅ `skills/deploy-contracts/SKILL.md` - Added clear section on object deployment commands
 
 ---
 
@@ -62,15 +56,13 @@ aptos move create-object-and-publish-package \
 
 ### What Happened
 
-Created `get_module_address(): address { @marketplace_addr }` helper function,
-thinking that `@marketplace_addr` wasn't resolving correctly with object
-deployment.
+Created `get_module_address(): address { @marketplace_addr }` helper function, thinking that `@marketplace_addr` wasn't
+resolving correctly with object deployment.
 
 ### Why It Happened
 
 - Misdiagnosed the root cause of the "object does not exist" error
-- Assumed the problem was with address resolution rather than initialization
-  logic
+- Assumed the problem was with address resolution rather than initialization logic
 - Tried to "abstract" the address access without understanding the real issue
 
 ### The Correct Approach
@@ -98,8 +90,8 @@ let config = borrow_global<MarketplaceConfig>(@marketplace_addr);
 
 ### What Happened
 
-Thought that the `[dev-addresses]` section in `Move.toml` was interfering with
-object deployment and removed it, which didn't fix the issue.
+Thought that the `[dev-addresses]` section in `Move.toml` was interfering with object deployment and removed it, which
+didn't fix the issue.
 
 ### Why It Happened
 
@@ -126,8 +118,7 @@ marketplace_addr = "0xca8b..."  # Only used with --dev flag
 
 ### Prevention Strategy
 
-1. **Understand compilation vs deployment** - They use different address
-   resolution
+1. **Understand compilation vs deployment** - They use different address resolution
 2. **Read Aptos documentation** on named addresses and how they work
 3. **Test systematically** - Try one change at a time and verify results
 4. **Don't remove configuration** without understanding what it does
@@ -138,8 +129,7 @@ marketplace_addr = "0xca8b..."  # Only used with --dev flag
 
 ### What Happened
 
-Stored the collection's `extend_ref` instead of creating a separate marketplace
-state object with its own `extend_ref`.
+Stored the collection's `extend_ref` instead of creating a separate marketplace state object with its own `extend_ref`.
 
 ### Why It Happened
 
@@ -174,8 +164,7 @@ public entry fun mint_nft() acquires Config {
 
 **Why this fails:**
 
-- `token::create_named_token()` requires the signer to be the OWNER of the
-  collection
+- `token::create_named_token()` requires the signer to be the OWNER of the collection
 - The collection can't be its own owner
 - Collections are owned by the address/object that created them
 
@@ -224,10 +213,8 @@ Marketplace Object (created with create_named_object)
 
 ### Updated Documentation
 
-- ✅ `patterns/DIGITAL_ASSETS.md` - Added "CRITICAL: Object Ownership Hierarchy"
-  section
-- ✅ `skills/troubleshoot-errors/SKILL.md` - Added "An object does not exist at
-  this address" error
+- ✅ `patterns/DIGITAL_ASSETS.md` - Added "CRITICAL: Object Ownership Hierarchy" section
+- ✅ `skills/troubleshoot-errors/SKILL.md` - Added "An object does not exist at this address" error
 
 ---
 
@@ -235,8 +222,7 @@ Marketplace Object (created with create_named_object)
 
 ### What Happened
 
-Used `object::transfer()` instead of `object::transfer_with_ref()` after calling
-`object::disable_ungated_transfer()`.
+Used `object::transfer()` instead of `object::transfer_with_ref()` after calling `object::disable_ungated_transfer()`.
 
 ### Why It Happened
 
@@ -312,16 +298,13 @@ Did you call object::disable_ungated_transfer()?
 1. **Know the two transfer functions** and when to use each
 2. **If ungated transfers disabled** → MUST use `transfer_with_ref()`
 3. **Store TransferRef** in your struct for future transfers
-4. **Do initial transfer BEFORE storing** the struct (while you still have
-   constructor_ref)
+4. **Do initial transfer BEFORE storing** the struct (while you still have constructor_ref)
 5. **Test transfers immediately** after minting
 
 ### Updated Documentation
 
-- ✅ `patterns/OBJECTS.md` - Added "CRITICAL: Understanding Transfer Functions"
-  section
-- ✅ `skills/troubleshoot-errors/SKILL.md` - Added "The object does not have
-  ungated transfers enabled" error
+- ✅ `patterns/OBJECTS.md` - Added "CRITICAL: Understanding Transfer Functions" section
+- ✅ `skills/troubleshoot-errors/SKILL.md` - Added "The object does not have ungated transfers enabled" error
 
 ---
 
@@ -343,8 +326,7 @@ Did you call object::disable_ungated_transfer()?
 
 - Collections can't create tokens in themselves
 - The OWNER of the collection creates tokens
-- For marketplaces: Create a parent "marketplace state" object that owns the
-  collection
+- For marketplaces: Create a parent "marketplace state" object that owns the collection
 
 ### 2. Transfer Functions Are Not Interchangeable
 
@@ -412,8 +394,7 @@ These mistakes highlight the importance of:
 - Consulting documentation before implementing
 - Testing immediately after changes
 
-The updated skill files now contain all these learnings to prevent future
-mistakes.
+The updated skill files now contain all these learnings to prevent future mistakes.
 
 **Files Updated:**
 
@@ -423,5 +404,4 @@ mistakes.
 - ✅ `skills/troubleshoot-errors/SKILL.md` - Common object/transfer errors
 - ✅ `LESSONS_LEARNED.md` - This document
 
-**All future AI agents working with Aptos Move will benefit from these
-documented lessons.**
+**All future AI agents working with Aptos Move will benefit from these documented lessons.**

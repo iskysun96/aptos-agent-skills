@@ -1,8 +1,8 @@
 ---
 name: troubleshoot-errors
 description:
-  Diagnose and fix common Aptos Move errors. Use when "fix error", "debug move",
-  "compilation failed", "test failed", or AUTOMATICALLY when errors detected.
+  Diagnose and fix common Aptos Move errors. Use when "fix error", "debug move", "compilation failed", "test failed", or
+  AUTOMATICALLY when errors detected.
 ---
 
 # Troubleshoot Errors Skill
@@ -391,8 +391,7 @@ struct Vault<phantom CoinType> has key {  // ✅ Added phantom
 
 ### Error: "An object does not exist at this address"
 
-**Cause:** Trying to access a resource at an object address that hasn't been
-created yet
+**Cause:** Trying to access a resource at an object address that hasn't been created yet
 
 **Common Scenarios:**
 
@@ -480,8 +479,7 @@ let config = borrow_global<MarketplaceConfig>(obj_addr);
 
 ### Error: "The object does not have ungated transfers enabled"
 
-**Cause:** Trying to use `object::transfer()` on an object with disabled ungated
-transfers
+**Cause:** Trying to use `object::transfer()` on an object with disabled ungated transfers
 
 **Example:**
 
@@ -522,8 +520,7 @@ public entry fun mint_and_transfer(creator: &signer, recipient: address) {
 
 **Rule:**
 
-- `object::disable_ungated_transfer()` called? → Use
-  `object::transfer_with_ref()`
+- `object::disable_ungated_transfer()` called? → Use `object::transfer_with_ref()`
 - Ungated transfers enabled (default)? → Use `object::transfer()`
 
 ### Error: "Object address derivation mismatch"
@@ -808,5 +805,4 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 
 ---
 
-**Remember:** Read errors carefully, debug systematically, test thoroughly,
-verify fixes.
+**Remember:** Read errors carefully, debug systematically, test thoroughly, verify fixes.

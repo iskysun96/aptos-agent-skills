@@ -15,8 +15,7 @@ git clone https://github.com/your-org/move-agent-skills.git
 
 ### Step 2: Reference in Comments
 
-GitHub Copilot uses comments and context to generate code. Reference patterns in
-your comments:
+GitHub Copilot uses comments and context to generate code. Reference patterns in your comments:
 
 ```move
 // Following pattern from move-agent-skills/patterns/OBJECTS.md
@@ -328,8 +327,7 @@ Create `.vscode/move.code-snippets`:
 - **Dismiss Suggestion:** `Esc`
 - **Next Suggestion:** `Alt/Option + ]`
 - **Previous Suggestion:** `Alt/Option + [`
-- **Open Copilot Chat:** `Ctrl + Shift + I` (Windows/Linux) or `Cmd + Shift + I`
-  (Mac)
+- **Open Copilot Chat:** `Ctrl + Shift + I` (Windows/Linux) or `Cmd + Shift + I` (Mac)
 
 ## Limitations
 

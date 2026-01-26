@@ -2,17 +2,13 @@
 
 **AI-powered skills for building secure, modern Aptos Move V2 smart contracts**
 
-This repository provides specialized skills and patterns for AI assistants
-(Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool) to help developers
-build secure, well-tested Aptos Move V2 smart contracts following best
-practices.
+This repository provides specialized skills and patterns for AI assistants (Claude Code, Cursor, GitHub Copilot, future
+Aptos Vibe tool) to help developers build secure, well-tested Aptos Move V2 smart contracts following best practices.
 
 ## Features
 
-- **11 Specialized Skills** - Context-aware skills for common Move development
-  tasks
-- **Object-Centric Patterns** - Modern V2 object model patterns (no legacy
-  addresses)
+- **11 Specialized Skills** - Context-aware skills for common Move development tasks
+- **Object-Centric Patterns** - Modern V2 object model patterns (no legacy addresses)
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
 - **Modern Syntax** - Inline functions, lambdas, and current Move V2 features
@@ -32,8 +28,7 @@ practices.
 
 3. Start developing - skills activate automatically:
    - "Create a new Move project" → `scaffold-project` skill activates
-   - "Write an NFT contract" → `search-aptos-examples` + `write-contracts`
-     activate
+   - "Write an NFT contract" → `search-aptos-examples` + `write-contracts` activate
    - After writing code → `generate-tests` auto-activates
    - "Deploy this contract" → `security-audit` + `deploy-contracts` activate
 
@@ -184,11 +179,9 @@ for_each(&items, |item| {
 
 #### write-contracts ⭐
 
-**Most important skill** - Generates secure Move V2 contracts following
-object-centric patterns.
+**Most important skill** - Generates secure Move V2 contracts following object-centric patterns.
 
-**Activates when:** "write move contract", "create smart contract", "build
-module"
+**Activates when:** "write move contract", "create smart contract", "build module"
 
 **Key features:**
 
@@ -202,8 +195,7 @@ module"
 
 Creates comprehensive test suites with 100% coverage requirement.
 
-**Activates when:** "write tests", "add coverage", or automatically after
-writing contracts
+**Activates when:** "write tests", "add coverage", or automatically after writing contracts
 
 **Test categories:**
 
@@ -216,8 +208,7 @@ writing contracts
 
 Performs systematic security audits using comprehensive checklist.
 
-**Activates when:** "audit contract", "check security", or automatically before
-deployment
+**Activates when:** "audit contract", "check security", or automatically before deployment
 
 **Checks:**
 
@@ -426,12 +417,23 @@ public fun test_unauthorized_transfer_fails(
    }
    ```
 
+## Formatting
+
+This project uses Prettier for consistent markdown formatting. To format all markdown files:
+
+```bash
+# Format all markdown files
+npm run format
+
+# Check formatting without making changes
+npm run format:check
+```
+
 ## Configuration
 
 ### For AI Assistants
 
-The main configuration is in [`setups/AGENTS.md`](setups/AGENTS.md), which
-includes:
+The main configuration is in [`setups/AGENTS.md`](setups/AGENTS.md), which includes:
 
 - **5 Core Workflows** (create, write, test, audit, deploy)
 - **Skill Activation Rules** (when each skill triggers)
@@ -447,13 +449,10 @@ No configuration needed. Just clone the repo and start building.
 
 ### Pattern Guides (patterns/)
 
-- **[OBJECTS.md](patterns/OBJECTS.md)** - Comprehensive object model guide with
-  examples
-- **[SECURITY.md](patterns/SECURITY.md)** - Security checklist and vulnerability
-  patterns
+- **[OBJECTS.md](patterns/OBJECTS.md)** - Comprehensive object model guide with examples
+- **[SECURITY.md](patterns/SECURITY.md)** - Security checklist and vulnerability patterns
 - **[TESTING.md](patterns/TESTING.md)** - Test generation and coverage patterns
-- **[MOVE_V2_SYNTAX.md](patterns/MOVE_V2_SYNTAX.md)** - Modern Move V2 syntax
-  guide
+- **[MOVE_V2_SYNTAX.md](patterns/MOVE_V2_SYNTAX.md)** - Modern Move V2 syntax guide
 
 ### Skill Reference (skills/)
 
@@ -489,22 +488,19 @@ We welcome contributions! Areas to contribute:
 ### Official Aptos Documentation
 
 - **Object Model:** https://aptos.dev/build/smart-contracts/object
-- **Security Guidelines:**
-  https://aptos.dev/build/smart-contracts/move-security-guidelines
+- **Security Guidelines:** https://aptos.dev/build/smart-contracts/move-security-guidelines
 - **Move Book:** https://aptos.dev/build/smart-contracts/book
 - **CLI Reference:** https://aptos.dev/build/cli
 - **Testing:** https://aptos.dev/build/smart-contracts/book/unit-testing
 
 ### Example Code
 
-- **aptos-core Examples:**
-  https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
+- **aptos-core Examples:** https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
 - Priority examples: `token_objects`, `fungible_asset`, `dao`, `marketplace`
 
 ### Inspired By
 
-This project is modeled after the
-[Algorand Agent Skills](https://github.com/algorand-devrel/algorand-agent-skills)
+This project is modeled after the [Algorand Agent Skills](https://github.com/algorand-devrel/algorand-agent-skills)
 repository structure.
 
 ## License

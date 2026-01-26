@@ -1,7 +1,6 @@
 # Aptos Digital Asset Standard
 
-**Purpose:** Comprehensive guide to the Aptos Digital Asset (DA) standard for
-NFTs.
+**Purpose:** Comprehensive guide to the Aptos Digital Asset (DA) standard for NFTs.
 
 **Target:** AI assistants generating NFT-related Move V2 smart contracts.
 
@@ -9,8 +8,8 @@ NFTs.
 
 ## Overview
 
-The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It
-replaces the legacy TokenV1 standard (which has been migrated).
+The **Digital Asset (DA) standard** is the modern NFT framework for Aptos. It replaces the legacy TokenV1 standard
+(which has been migrated).
 
 **Key Benefits:**
 
@@ -313,8 +312,7 @@ public entry fun mint_simple(
 
 ### CRITICAL: Object Ownership Hierarchy
 
-When creating a marketplace that mints NFTs, you MUST understand the ownership
-hierarchy:
+When creating a marketplace that mints NFTs, you MUST understand the ownership hierarchy:
 
 **WRONG Pattern:**
 
@@ -367,8 +365,7 @@ public entry fun mint_nft(creator: &signer) acquires MarketplaceConfig {
 }
 ```
 
-**Why?** `token::create_named_token()` requires the signer to be the OWNER of
-the collection, not the collection itself.
+**Why?** `token::create_named_token()` requires the signer to be the OWNER of the collection, not the collection itself.
 
 **Hierarchy:**
 
@@ -600,20 +597,16 @@ When working with NFTs on Aptos:
 ### Digital Asset Standard
 
 - ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT contracts
-- ✅ **ALWAYS import** `aptos_token_objects::collection` and
-  `aptos_token_objects::token`
-- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (not generic
-  `Object<T>`)
+- ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token`
+- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (not generic `Object<T>`)
 - ✅ **ALWAYS create collections** before minting tokens
 - ✅ **ALWAYS emit events** for minting, transfers, and sales
 
 ### Collection Creation
 
 - ✅ **ALWAYS use** `collection::create_fixed_collection()` for limited supply
-- ✅ **ALWAYS use** `collection::create_unlimited_collection()` for unlimited
-  supply
-- ✅ **ALWAYS set royalties** when creating collections (use
-  `royalty::create()`)
+- ✅ **ALWAYS use** `collection::create_unlimited_collection()` for unlimited supply
+- ✅ **ALWAYS set royalties** when creating collections (use `royalty::create()`)
 - ✅ **ALWAYS provide** collection description, name, and URI
 
 ### Token Minting
@@ -741,8 +734,7 @@ public fun get_token_description(token: Object<AptosToken>): String {
 
 ## Migration from Legacy
 
-**All legacy TokenV1 tokens have been migrated.** You should NOT support legacy
-tokens.
+**All legacy TokenV1 tokens have been migrated.** You should NOT support legacy tokens.
 
 If you encounter legacy code:
 
@@ -821,5 +813,5 @@ module my_addr::nft_tests {
 
 ---
 
-**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is
-deprecated and all tokens have been migrated.
+**Remember:** Always use the Digital Asset standard for NFTs. Legacy TokenV1 is deprecated and all tokens have been
+migrated.

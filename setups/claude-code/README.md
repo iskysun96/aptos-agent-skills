@@ -4,8 +4,8 @@ This guide explains how to use Aptos Move V2 Agent Skills with Claude Code.
 
 ## Automatic Integration
 
-Claude Code automatically detects and loads the `CLAUDE.md` file in your
-repository, which provides access to all skills and patterns.
+Claude Code automatically detects and loads the `CLAUDE.md` file in your repository, which provides access to all skills
+and patterns.
 
 **No configuration needed!**
 
@@ -15,13 +15,10 @@ repository, which provides access to all skills and patterns.
 
 When you work with Claude Code:
 
-- **Creating projects:** "Create a new Move project" → `scaffold-project` skill
-  activates
-- **Writing contracts:** "Build an NFT marketplace" → `search-aptos-examples` +
-  `write-contracts` activate
+- **Creating projects:** "Create a new Move project" → `scaffold-project` skill activates
+- **Writing contracts:** "Build an NFT marketplace" → `search-aptos-examples` + `write-contracts` activate
 - **After writing code:** `generate-tests` auto-activates to create tests
-- **Before deployment:** "Deploy this" → `security-audit` + `deploy-contracts`
-  activate
+- **Before deployment:** "Deploy this" → `security-audit` + `deploy-contracts` activate
 - **On errors:** `troubleshoot-errors` auto-activates
 
 ### 2. Context-Aware Assistance
@@ -124,12 +121,9 @@ Security audit complete. Ready for deployment.
 Claude Code has access to comprehensive pattern documentation:
 
 - **Object Patterns** (`patterns/OBJECTS.md`) - How to use Object<T> correctly
-- **Security Patterns** (`patterns/SECURITY.md`) - Security checklist and
-  examples
-- **Testing Patterns** (`patterns/TESTING.md`) - Test generation with 100%
-  coverage
-- **Modern Syntax** (`patterns/MOVE_V2_SYNTAX.md`) - Inline functions, lambdas,
-  V2 features
+- **Security Patterns** (`patterns/SECURITY.md`) - Security checklist and examples
+- **Testing Patterns** (`patterns/TESTING.md`) - Test generation with 100% coverage
+- **Modern Syntax** (`patterns/MOVE_V2_SYNTAX.md`) - Inline functions, lambdas, V2 features
 
 ## Best Practices
 
@@ -287,8 +281,7 @@ Claude Code supports various shortcuts (check your editor for specifics):
 
 **Solution:**
 
-1. Reference official docs: "Follow pattern from
-   aptos.dev/build/smart-contracts/object"
+1. Reference official docs: "Follow pattern from aptos.dev/build/smart-contracts/object"
 2. Pull latest repository updates
 3. Report issue if pattern is incorrect
 
@@ -304,8 +297,7 @@ Claude Code supports various shortcuts (check your editor for specifics):
 
 ## Getting Help
 
-- **In-chat:** Ask Claude Code directly: "How do I use the write-contracts
-  skill?"
+- **In-chat:** Ask Claude Code directly: "How do I use the write-contracts skill?"
 - **Documentation:** Check `setups/AGENTS.md` for complete guide
 - **Patterns:** Review `patterns/` directory for detailed examples
 - **Issues:** Report problems on GitHub repository
@@ -348,8 +340,7 @@ Request modifications to patterns:
 
 ## Updates
 
-This integration works with the current version of Claude Code. Check the
-repository for updates to skills and patterns.
+This integration works with the current version of Claude Code. Check the repository for updates to skills and patterns.
 
 **Repository:** https://github.com/your-org/move-agent-skills
 

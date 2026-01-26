@@ -1,7 +1,7 @@
 # Skill: implement-upgradeable-contracts
 
-Design and implement upgradeable contract patterns for Aptos Move V2, enabling
-safe contract evolution while maintaining state and security.
+Design and implement upgradeable contract patterns for Aptos Move V2, enabling safe contract evolution while maintaining
+state and security.
 
 ## When to Use This Skill
 
@@ -636,7 +636,5 @@ public fun old_function(user: &signer) {
 ## References
 
 - Aptos Upgrade Guide: https://aptos.dev/build/smart-contracts/upgrade-guide
-- Object Code Deployment:
-  https://aptos.dev/build/smart-contracts/object-code-deploy
-- Move Compatibility:
-  https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/COMPATIBILITY.md
+- Object Code Deployment: https://aptos.dev/build/smart-contracts/object-code-deploy
+- Move Compatibility: https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/framework/COMPATIBILITY.md

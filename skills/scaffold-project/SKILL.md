@@ -1,17 +1,15 @@
 ---
 name: scaffold-project
 description:
-  Scaffold new Aptos Move V2 project with proper structure and configuration.
-  Use when "create move project", "new aptos project", "scaffold move app",
-  "init move module".
+  Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos
+  project", "scaffold move app", "init move module".
 ---
 
 # Scaffold Project Skill
 
 ## Overview
 
-This skill creates a new Aptos Move project with proper directory structure,
-Move.toml configuration, and initial setup.
+This skill creates a new Aptos Move project with proper directory structure, Move.toml configuration, and initial setup.
 
 ## Project Types
 
@@ -26,8 +24,7 @@ Choose the appropriate scaffolding method based on your project type:
 
 ### Using create-aptos-dapp
 
-For full-stack applications with frontend, use the official `create-aptos-dapp`
-tool:
+For full-stack applications with frontend, use the official `create-aptos-dapp` tool:
 
 ```bash
 # Using npx (recommended)
@@ -66,8 +63,7 @@ The CLI will prompt you to select a template:
    - Custom indexer support
    - Advanced data querying
 
-**Recommendation:** Use the **Boilerplate Template** for general-purpose
-projects, not the specific feature templates.
+**Recommendation:** Use the **Boilerplate Template** for general-purpose projects, not the specific feature templates.
 
 ### What create-aptos-dapp Provides
 
@@ -459,8 +455,7 @@ local = "../my-other-module"
 ## ALWAYS Rules
 
 - ✅ ALWAYS use `create-aptos-dapp` for full-stack dApps (frontend + contracts)
-- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not
-  specific feature templates)
+- ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
 - ✅ ALWAYS run `aptos move init` for Move-only projects
 - ✅ ALWAYS configure Move.toml with proper dependencies
 - ✅ ALWAYS create tests/ directory
@@ -529,5 +524,4 @@ aptos move test
 
 ---
 
-**Remember:** Proper scaffolding sets up your project for success. Don't skip
-Move.toml configuration.
+**Remember:** Proper scaffolding sets up your project for success. Don't skip Move.toml configuration.

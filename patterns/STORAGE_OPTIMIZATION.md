@@ -1,7 +1,6 @@
 # Storage Optimization Patterns for Aptos Move V2
 
-Comprehensive guide for optimizing on-chain storage to minimize costs and
-maximize performance in Aptos Move contracts.
+Comprehensive guide for optimizing on-chain storage to minimize costs and maximize performance in Aptos Move contracts.
 
 ## Storage Cost Model
 

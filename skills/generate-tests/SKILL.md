@@ -1,17 +1,15 @@
 ---
 name: generate-tests
 description:
-  Generate comprehensive unit tests for Aptos Move V2 contracts with 100%
-  coverage. Use when "write tests", "test contract", "add test coverage", or
-  AUTOMATICALLY after writing any contract.
+  Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test
+  contract", "add test coverage", or AUTOMATICALLY after writing any contract.
 ---
 
 # Generate Tests Skill
 
 ## Overview
 
-This skill generates comprehensive test suites for Move contracts with **100%
-line coverage** requirement. Tests verify:
+This skill generates comprehensive test suites for Move contracts with **100% line coverage** requirement. Tests verify:
 
 - ✅ Happy paths (functionality works)
 - ✅ Access control (unauthorized users blocked)
@@ -586,5 +584,4 @@ For each contract, verify you have tests for:
 
 ---
 
-**Remember:** 100% coverage is mandatory. Test happy paths, error paths, access
-control, and edge cases.
+**Remember:** 100% coverage is mandatory. Test happy paths, error paths, access control, and edge cases.

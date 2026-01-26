@@ -1,18 +1,16 @@
 ---
 name: search-aptos-examples
 description:
-  Search aptos-core move-examples repository for similar contract patterns
-  before writing code. Use when "find example", "search aptos examples",
-  "similar contract", or AUTOMATICALLY before writing contracts.
+  Search aptos-core move-examples repository for similar contract patterns before writing code. Use when "find example",
+  "search aptos examples", "similar contract", or AUTOMATICALLY before writing contracts.
 ---
 
 # Search Aptos Examples Skill
 
 ## Overview
 
-This skill helps you find relevant examples in the official Aptos repository
-before writing new contracts. **Always search examples first** to follow
-established patterns.
+This skill helps you find relevant examples in the official Aptos repository before writing new contracts. **Always
+search examples first** to follow established patterns.
 
 **Repository:** `aptos-labs/aptos-core/aptos-move/move-examples/`
 
@@ -43,8 +41,7 @@ Categorize your contract:
 3. **`nft_dao/`** - NFT-gated governance
 4. **`collection_manager/`** - Collection management
 
-**When to use:** Building NFT collections, digital collectibles, tokenized
-assets
+**When to use:** Building NFT collections, digital collectibles, tokenized assets
 
 #### Fungible Assets
 
@@ -318,8 +315,7 @@ Before writing contract code:
 
 **Official Examples:**
 
-- Repository:
-  https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
+- Repository: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
 - Documentation: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**
@@ -330,5 +326,4 @@ Before writing contract code:
 
 ---
 
-**Remember:** Search examples first. Understand patterns. Adapt securely. Test
-thoroughly.
+**Remember:** Search examples first. Understand patterns. Adapt securely. Test thoroughly.

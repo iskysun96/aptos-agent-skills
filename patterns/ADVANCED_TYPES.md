@@ -1,12 +1,11 @@
 # Advanced Types in Aptos Move V2
 
-This guide covers advanced type system features including phantom types, generic
-programming, type constraints, and complex struct patterns.
+This guide covers advanced type system features including phantom types, generic programming, type constraints, and
+complex struct patterns.
 
 ## Phantom Types
 
-Phantom types are type parameters that don't appear in the struct's fields but
-provide compile-time type safety.
+Phantom types are type parameters that don't appear in the struct's fields but provide compile-time type safety.
 
 ### Basic Phantom Type Pattern
 

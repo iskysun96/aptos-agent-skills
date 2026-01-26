@@ -1,9 +1,8 @@
 ---
 name: write-contracts
 description:
-  Generate and refactor Aptos Move V2 smart contracts following object-centric
-  patterns, modern syntax, and security best practices. Use when "write move
-  contract", "create smart contract", "build module", "refactor move code",
+  Generate and refactor Aptos Move V2 smart contracts following object-centric patterns, modern syntax, and security
+  best practices. Use when "write move contract", "create smart contract", "build module", "refactor move code",
   "implement move function".
 ---
 
@@ -11,8 +10,7 @@ description:
 
 ## Overview
 
-This skill guides you in writing secure, modern Aptos Move V2 smart contracts.
-Always follow this workflow:
+This skill guides you in writing secure, modern Aptos Move V2 smart contracts. Always follow this workflow:
 
 1. **Search first**: Check aptos-core/move-examples for similar patterns
 2. **Use objects**: Always use `Object<T>` references (never raw addresses)
@@ -198,42 +196,33 @@ When writing Move contracts, you MUST:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
 
-- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts
-  (collections, marketplaces, minting)
-- ✅ **ALWAYS import** `aptos_token_objects::collection` and
-  `aptos_token_objects::token` modules
-- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic
-  `Object<T>`)
-- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()`
-  or `collection::create_unlimited_collection()`
-- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or
-  `token::create()` (unnamed)
-- ✅ **ALWAYS set royalties** when creating collections using
-  `royalty::create()`
+- ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts (collections, marketplaces, minting)
+- ✅ **ALWAYS import** `aptos_token_objects::collection` and `aptos_token_objects::token` modules
+- ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT generic `Object<T>`)
+- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()` or
+  `collection::create_unlimited_collection()`
+- ✅ **ALWAYS mint tokens** with `token::create_named_token()` or `token::create()` (unnamed)
+- ✅ **ALWAYS set royalties** when creating collections using `royalty::create()`
 - ✅ **ALWAYS verify collection exists** before minting tokens
 - ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete NFT patterns
 
 ### Object Model
 
 - ✅ Use `Object<T>` for all object references (NOT addresses)
-- ✅ Generate all refs (TransferRef, DeleteRef) in constructor before
-  ConstructorRef destroyed
+- ✅ Generate all refs (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
 - ✅ Return `Object<T>` from constructor functions (NEVER return ConstructorRef)
 - ✅ Use `object::owner(obj)` to verify ownership
 - ✅ Use `object::generate_signer(&constructor_ref)` for object signers
 
 ### Security
 
-- ✅ Verify signer authority in ALL entry functions:
-  `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-- ✅ Verify object ownership:
-  `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
+- ✅ Verify signer authority in ALL entry functions: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
+- ✅ Verify object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
 - ✅ Validate ALL inputs:
   - Non-zero amounts: `assert!(amount > 0, E_ZERO_AMOUNT)`
   - Within limits: `assert!(amount <= MAX_AMOUNT, E_AMOUNT_TOO_HIGH)`
   - Non-zero addresses: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
-  - String lengths:
-    `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
+  - String lengths: `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - ✅ Use `phantom` for type witnesses: `struct Vault<phantom CoinType>`
 - ✅ Protect critical fields from mem::swap attacks
 
@@ -245,31 +234,25 @@ When writing Move contracts, you MUST:
 
 ### Modern Syntax
 
-- ✅ Use inline functions for iteration:
-  `inline fun for_each<T>(v: &vector<T>, f: |&T|)`
+- ✅ Use inline functions for iteration: `inline fun for_each<T>(v: &vector<T>, f: |&T|)`
 - ✅ Use lambdas for operations: `for_each(&items, |item| { process(item); })`
 - ✅ Use proper imports: `use std::string::String;` not `use std::string;`
-- ✅ Use receiver-style method calls: `obj.is_owner(user)` instead of
-  `is_owner(obj, user)` (define first param as `self`)
-- ✅ Use vector indexed expressions: `&mut vector[index]` instead of
-  `vector::borrow_mut(&mut v, index)`
-- ✅ Use direct named addresses: `@marketplace_addr` instead of helper functions
-  that just return `@marketplace_addr`
+- ✅ Use receiver-style method calls: `obj.is_owner(user)` instead of `is_owner(obj, user)` (define first param as
+  `self`)
+- ✅ Use vector indexed expressions: `&mut vector[index]` instead of `vector::borrow_mut(&mut v, index)`
+- ✅ Use direct named addresses: `@marketplace_addr` instead of helper functions that just return `@marketplace_addr`
 
 ### Initialization
 
-- ✅ Use `init_module(deployer: &signer)` for contract initialization on
-  deployment
-- ✅ Put all initialization logic (registry creation, admin setup) inside
-  `init_module`
+- ✅ Use `init_module(deployer: &signer)` for contract initialization on deployment
+- ✅ Put all initialization logic (registry creation, admin setup) inside `init_module`
 - ✅ `init_module` must be private (no `public` keyword)
 - ✅ `init_module` takes at most one parameter of type `&signer`
 
 ### Events
 
 - ✅ Define events with `#[event]` attribute and `has drop, store` abilities
-- ✅ Emit events for ALL significant activities (create, transfer, update,
-  delete)
+- ✅ Emit events for ALL significant activities (create, transfer, update, delete)
 - ✅ Use `event::emit<EventType>(event_instance)` to emit events
 - ✅ Include relevant context in events (addresses, amounts, IDs)
 
@@ -279,16 +262,12 @@ When writing Move contracts, you MUST NEVER:
 
 ### Digital Assets (NFTs) ⭐ CRITICAL
 
-- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to
-  Digital Asset)
-- ❌ **NEVER import** `aptos_token::token` (legacy module - use
-  `aptos_token_objects::token` instead)
-- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>`
-  specifically)
+- ❌ **NEVER use legacy TokenV1 standard** (deprecated, all tokens migrated to Digital Asset)
+- ❌ **NEVER import** `aptos_token::token` (legacy module - use `aptos_token_objects::token` instead)
+- ❌ **NEVER use** generic `Object<T>` for NFTs (use `Object<AptosToken>` specifically)
 - ❌ **NEVER create tokens** without a parent collection
 - ❌ **NEVER skip royalty configuration** when creating collections
-- ❌ **NEVER use** `token::create_token_script()` or other legacy token
-  functions
+- ❌ **NEVER use** `token::create_token_script()` or other legacy token functions
 
 ### Legacy Patterns
 
@@ -310,11 +289,9 @@ When writing Move contracts, you MUST NEVER:
 - ❌ NEVER use magic numbers for errors
 - ❌ NEVER ignore overflow/underflow checks
 - ❌ NEVER deploy without 100% test coverage
-- ❌ NEVER create helper functions that just return named addresses (use `@addr`
-  directly)
+- ❌ NEVER create helper functions that just return named addresses (use `@addr` directly)
 - ❌ NEVER forget to emit events for significant activities
-- ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs
-  vector[i])
+- ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs vector[i])
 - ❌ NEVER skip `init_module` for contracts that need initialization
 
 ## Common Patterns
@@ -573,8 +550,7 @@ module marketplace_addr::marketplace {
 }
 ```
 
-**INCORRECT:** Don't create separate init functions or helper functions for
-named addresses
+**INCORRECT:** Don't create separate init functions or helper functions for named addresses
 
 ```move
 // ❌ WRONG: Separate public init function
@@ -1226,8 +1202,7 @@ module my_addr::nft_collection {
 - Digital Asset (Standards): https://aptos.dev/standards/digital-asset/
 - Your First NFT Tutorial: https://aptos.dev/tutorials/your-first-nft/
 - Object Model: https://aptos.dev/build/smart-contracts/object
-- Security Guidelines:
-  https://aptos.dev/build/smart-contracts/move-security-guidelines
+- Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
 - Move Book: https://aptos.dev/build/smart-contracts/book
 
 **Example Repositories:**
@@ -1237,8 +1212,7 @@ module my_addr::nft_collection {
 
 **Pattern Documentation (Local):**
 
-- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard -
-  CRITICAL for NFTs
+- `../../patterns/DIGITAL_ASSETS.md` - ⭐ Digital Asset (NFT) standard - CRITICAL for NFTs
 - `../../patterns/OBJECTS.md` - Comprehensive object model guide
 - `../../patterns/SECURITY.md` - Security checklist and patterns
 - `../../patterns/MOVE_V2_SYNTAX.md` - Modern syntax examples
@@ -1251,5 +1225,4 @@ module my_addr::nft_collection {
 
 ---
 
-**Remember:** Search examples first, use objects always, verify security,
-validate inputs, test everything.
+**Remember:** Search examples first, use objects always, verify security, validate inputs, test everything.

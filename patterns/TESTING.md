@@ -1,12 +1,10 @@
 # Aptos Move V2 Testing Patterns
 
-**Purpose:** Comprehensive guide to testing Aptos Move V2 smart contracts with
-100% coverage.
+**Purpose:** Comprehensive guide to testing Aptos Move V2 smart contracts with 100% coverage.
 
 **Target:** AI assistants generating tests for Move V2 contracts
 
-**Critical Note:** 100% test coverage is mandatory. Never deploy without
-complete test suite.
+**Critical Note:** 100% test coverage is mandatory. Never deploy without complete test suite.
 
 ---
 
@@ -719,5 +717,5 @@ For each contract, verify you have tests for:
 
 ---
 
-**Remember:** 100% test coverage is mandatory. Never deploy without
-comprehensive tests. Tests are your contract's proof of correctness.
+**Remember:** 100% test coverage is mandatory. Never deploy without comprehensive tests. Tests are your contract's proof
+of correctness.

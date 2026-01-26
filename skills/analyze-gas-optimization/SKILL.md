@@ -1,7 +1,7 @@
 # Skill: analyze-gas-optimization
 
-Analyze and optimize Aptos Move contracts for gas efficiency, identifying
-expensive operations and suggesting optimizations.
+Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting
+optimizations.
 
 ## When to Use This Skill
 
@@ -477,8 +477,6 @@ module marketplace::optimized {
 
 ## References
 
-- Aptos Gas Schedule:
-  https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/aptos-gas-schedule
-- Move VM Gas Metering:
-  https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/aptos-vm
+- Aptos Gas Schedule: https://github.com/aptos-labs/aptos-core/blob/main/aptos-move/aptos-gas-schedule
+- Move VM Gas Metering: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/aptos-vm
 - Gas Optimization Patterns: Check daily-move repository for real examples

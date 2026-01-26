@@ -255,8 +255,7 @@ Type `@move-agent-skills/` and use tab completion to explore available files.
 
 ### Tip 3: Multi-Step Conversations
 
-Cursor maintains context across messages, so you can have multi-step
-conversations:
+Cursor maintains context across messages, so you can have multi-step conversations:
 
 ```
 You: @write-contracts Generate NFT contract
@@ -360,8 +359,7 @@ Cursor: [Verifies all checks pass]
 
 **Solution:**
 
-1. Be more explicit: "Follow the pattern in
-   @move-agent-skills/patterns/OBJECTS.md exactly"
+1. Be more explicit: "Follow the pattern in @move-agent-skills/patterns/OBJECTS.md exactly"
 2. Include relevant code context
 3. Reference `.cursorrules` to ensure it's configured
 

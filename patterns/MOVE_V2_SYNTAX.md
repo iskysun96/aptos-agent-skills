@@ -1,7 +1,6 @@
 # Aptos Move V2 Modern Syntax Guide
 
-**Purpose:** Guide to modern Move V2 syntax features including inline functions,
-lambdas, and current best practices.
+**Purpose:** Guide to modern Move V2 syntax features including inline functions, lambdas, and current best practices.
 
 **Target:** AI assistants generating Move V2 smart contracts
 
@@ -9,11 +8,9 @@ lambdas, and current best practices.
 
 ## Overview
 
-Move V2 introduces modern syntax features that make code more concise,
-expressive, and safe:
+Move V2 introduces modern syntax features that make code more concise, expressive, and safe:
 
-- **Inline functions with lambdas**: Higher-order functions for iteration and
-  control flow
+- **Inline functions with lambdas**: Higher-order functions for iteration and control flow
 - **Modern object model**: Type-safe `Object<T>` instead of raw addresses
 - **Improved error handling**: Clear error constants and abort codes
 - **Enhanced abilities**: Better control over resource behavior
@@ -24,8 +21,7 @@ expressive, and safe:
 
 ### Basic Inline Function
 
-**Inline functions** are inlined at call sites, eliminating function call
-overhead and enabling lambda parameters.
+**Inline functions** are inlined at call sites, eliminating function call overhead and enabling lambda parameters.
 
 ```move
 /// Inline function that applies operation to each element
@@ -401,8 +397,7 @@ public fun process_vector(numbers: &mut vector<u64>) {
 
 ### Vector Index Notation (Move 2)
 
-Move 2 introduces cleaner syntax for vector access using index notation instead
-of `vector::borrow`.
+Move 2 introduces cleaner syntax for vector access using index notation instead of `vector::borrow`.
 
 **MODERN (V2 Syntax):**
 
@@ -470,8 +465,8 @@ public fun sum_all_old(registry: &Registry): u64 {
 
 ## Receiver-Style Method Calls (Move 2)
 
-Move 2 introduced receiver-style function calls that allow using dot notation
-`value.func(arg)` instead of `func(&value, arg)`.
+Move 2 introduced receiver-style function calls that allow using dot notation `value.func(arg)` instead of
+`func(&value, arg)`.
 
 ### Defining Receiver Functions
 
@@ -550,8 +545,7 @@ module my_addr::marketplace {
 
 ### Automatic Discovery
 
-The compiler automatically discovers receiver functions - no need to import them
-explicitly:
+The compiler automatically discovers receiver functions - no need to import them explicitly:
 
 ```move
 // Receiver functions are discovered automatically based on type
@@ -850,5 +844,5 @@ module my_addr::marketplace {
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable
-code. Embrace inline functions, lambdas, and type-safe objects.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace inline functions, lambdas,
+and type-safe objects.

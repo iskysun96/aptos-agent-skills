@@ -2,38 +2,31 @@
 
 ## Overview
 
-The Aptos Move documentation is comprehensive and actively maintained at
-aptos.dev. The documentation includes the Move Book along with extensive guides
-for smart contract development on Aptos.
+The Aptos Move documentation is comprehensive and actively maintained at aptos.dev. The documentation includes the Move
+Book along with extensive guides for smart contract development on Aptos.
 
 ## Main Documentation Structure
 
 ### 1. Core Move Book
 
 - **URL**: https://aptos.dev/build/smart-contracts/book
-- **Purpose**: Suitable for developers with programming experience to understand
-  the core Move language
-- **Integration**: Reference documentation for Move 2 features is integrated and
-  marked with "Since language version 2.n"
+- **Purpose**: Suitable for developers with programming experience to understand the core Move language
+- **Integration**: Reference documentation for Move 2 features is integrated and marked with "Since language version
+  2.n"
 
 ### 2. Key Documentation Sections
 
 #### A. Getting Started / Basics
 
-- **Module Structure**: Complete examples showing imports, struct definitions,
-  and functions
-- **Package Creation**: Move.toml configuration, dependencies, source
-  organization
+- **Module Structure**: Complete examples showing imports, struct definitions, and functions
+- **Package Creation**: Move.toml configuration, dependencies, source organization
 - **Basic Concepts**: Primitive types, functions, structs, resources, generics
-- **Scripts vs Modules**: Distinction between executable scripts and published
-  modules
+- **Scripts vs Modules**: Distinction between executable scripts and published modules
 
 #### B. Object Model Documentation
 
-- **Rich Capability Model**: Fine-grained resource control and ownership
-  management
-- **Object Definition**: Single address with resources owned by account, another
-  Object, or decentralized
+- **Rich Capability Model**: Fine-grained resource control and ownership management
+- **Object Definition**: Single address with resources owned by account, another Object, or decentralized
 - **Key Features**:
   - Transferring ownership between accounts
   - Mutating Objects by adding/removing resources
@@ -44,8 +37,7 @@ for smart contract development on Aptos.
 
 #### C. Digital Assets (NFTs)
 
-- **Digital Asset Standard (Token V2)**: Uses Object model for NFTs and
-  semi-fungible tokens
+- **Digital Asset Standard (Token V2)**: Uses Object model for NFTs and semi-fungible tokens
 - **Key Benefits**:
   - Rich, flexible assets and collectibles
   - Easy and cheap collection creation (~0.5 APT per collection)
@@ -56,8 +48,7 @@ for smart contract development on Aptos.
 
 #### D. Security Guidelines
 
-- **Comprehensive Security Guide**:
-  https://aptos.dev/build/smart-contracts/move-security-guidelines
+- **Comprehensive Security Guide**: https://aptos.dev/build/smart-contracts/move-security-guidelines
 - **Best Practices**:
   - Pause functionality for protocols
   - Account separation (testnet vs mainnet)
@@ -84,11 +75,9 @@ for smart contract development on Aptos.
 
 - **Enum Types**: Different variants of data layout in one storable type
 - **Receiver Style Functions**: Familiar `value.func(arg)` notation using `self`
-- **Index Notation**: Access elements with `&mut vector[index]` or
-  `&mut Resource[addr]`
+- **Index Notation**: Access elements with `&mut vector[index]` or `&mut Resource[addr]`
 - **Positional Structs**: Wrapper types like `struct Wrapped(u64)`
-- **Dot-dot Pattern Wildcards**: Pattern matching with
-  `let Struct{x, ..} = value`
+- **Dot-dot Pattern Wildcards**: Pattern matching with `let Struct{x, ..} = value`
 - **Function Values**: Pass functions as parameters and store in resources
 - **Signed Integers**: Support for i8, i16, i32, i64, i128, i256
 - **Built-in Constants**: MIN/MAX values for integer types

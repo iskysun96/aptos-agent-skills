@@ -1,16 +1,15 @@
 ---
 name: use-aptos-cli
 description:
-  Reference for Aptos CLI commands for Move development. Use when "run aptos",
-  "compile move", "test contract", "aptos command".
+  Reference for Aptos CLI commands for Move development. Use when "run aptos", "compile move", "test contract", "aptos
+  command".
 ---
 
 # Use Aptos CLI Skill
 
 ## Overview
 
-Comprehensive reference for Aptos CLI commands used in Move development
-workflow.
+Comprehensive reference for Aptos CLI commands used in Move development workflow.
 
 **Installation:** https://aptos.dev/build/cli
 
@@ -66,8 +65,7 @@ aptos move coverage source --module marketplace
 
 ### Publishing/Deployment
 
-**IMPORTANT:** Use `deploy-object` to deploy as objects (modern pattern), NOT
-`publish` (creates resource account).
+**IMPORTANT:** Use `deploy-object` to deploy as objects (modern pattern), NOT `publish` (creates resource account).
 
 ```bash
 # ✅ CORRECT: Deploy as object (recommended)
@@ -104,8 +102,7 @@ When deploying, the CLI will ask two questions:
 
 1. **Gas confirmation**: "Do you want to submit a transaction for a range of [X
    - Y] Octas at a gas unit price of Z Octas? [yes/no]"
-2. **Object address confirmation**: "Do you want to publish this package at
-   object address 0x... [yes/no]"
+2. **Object address confirmation**: "Do you want to publish this package at object address 0x... [yes/no]"
 
 To skip prompts, use `--assume-yes` flag (automatically answers "yes").
 
@@ -510,8 +507,7 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 **Official Documentation:**
 
 - CLI Guide: https://aptos.dev/build/cli
-- Working with Move Contracts:
-  https://aptos.dev/build/cli/working-with-move-contracts
+- Working with Move Contracts: https://aptos.dev/build/cli/working-with-move-contracts
 - CLI Reference: https://aptos.dev/build/cli/cli-reference
 
 **Related Skills:**
@@ -524,5 +520,4 @@ aptos move publish --named-addresses my_addr=0x123 --upgrade
 
 ---
 
-**Remember:** Test locally, deploy to testnet, verify, then mainnet. Always use
---coverage.
+**Remember:** Test locally, deploy to testnet, verify, then mainnet. Always use --coverage.

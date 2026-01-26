@@ -1,19 +1,15 @@
 # Aptos Move V2 Agent Skills - AI Assistant Guide
 
-**Version:** 1.0 **Target:** AI assistants (Claude Code, Cursor, GitHub Copilot,
-future Aptos Vibe tool) **Purpose:** Build secure, modern Aptos Move V2 smart
-contracts using object-centric patterns
+**Version:** 1.0 **Target:** AI assistants (Claude Code, Cursor, GitHub Copilot, future Aptos Vibe tool) **Purpose:**
+Build secure, modern Aptos Move V2 smart contracts using object-centric patterns
 
 ## Quick Start for AI Assistants
 
 When helping developers with Aptos Move V2:
 
-1. **Search first**: Check `aptos-core/move-examples` and official docs before
-   writing code
-2. **Use objects**: Always use `Object<T>` references, never raw addresses
-   (unless legacy integration)
-3. **Security first**: Verify signer authority, validate inputs, protect
-   references
+1. **Search first**: Check `aptos-core/move-examples` and official docs before writing code
+2. **Use objects**: Always use `Object<T>` references, never raw addresses (unless legacy integration)
+3. **Security first**: Verify signer authority, validate inputs, protect references
 4. **Test everything**: Generate comprehensive tests with 100% coverage
 5. **Modern syntax**: Use inline functions, lambdas, current object model
 
@@ -21,8 +17,7 @@ When helping developers with Aptos Move V2:
 
 ### Workflow 1: Create New Project
 
-**Trigger:** User says "create move project", "new aptos project", "scaffold
-move app"
+**Trigger:** User says "create move project", "new aptos project", "scaffold move app"
 
 **Steps:**
 
@@ -37,8 +32,7 @@ move app"
 
 ### Workflow 2: Write Smart Contract
 
-**Trigger:** User says "write move contract", "create smart contract", "build
-module", "implement move code"
+**Trigger:** User says "write move contract", "create smart contract", "build module", "implement move code"
 
 **Steps:**
 
@@ -46,8 +40,7 @@ module", "implement move code"
 2. Activate `write-contracts` skill → generate code following patterns
 3. **Critical requirements:**
    - Use `Object<T>` for all object references
-   - Implement proper constructor pattern (ConstructorRef → generate refs →
-     move_to)
+   - Implement proper constructor pattern (ConstructorRef → generate refs → move_to)
    - Add signer verification for all entry functions
    - Validate all inputs (amounts, lengths, types)
    - Use inline functions and lambdas for modern code
@@ -59,8 +52,8 @@ module", "implement move code"
 
 ### Workflow 3: Generate Tests
 
-**Trigger:** User says "write tests", "test this contract", "add test coverage",
-or AUTOMATICALLY after writing any contract
+**Trigger:** User says "write tests", "test this contract", "add test coverage", or AUTOMATICALLY after writing any
+contract
 
 **Steps:**
 
@@ -79,8 +72,7 @@ or AUTOMATICALLY after writing any contract
 
 ### Workflow 4: Security Audit
 
-**Trigger:** User says "audit contract", "check security", "review move code",
-or AUTOMATICALLY before deployment
+**Trigger:** User says "audit contract", "check security", "review move code", or AUTOMATICALLY before deployment
 
 **Steps:**
 
@@ -88,12 +80,9 @@ or AUTOMATICALLY before deployment
 2. Reference `patterns/SECURITY.md` checklist
 3. **Verify each category:**
    - **Access Control:** All entry functions verify signer authority
-   - **Input Validation:** All inputs checked (non-zero, no overflow, within
-     limits)
-   - **Object Safety:** ConstructorRef never returned, all refs generated in
-     constructor
-   - **Reference Safety:** No &mut exposed publicly, fields protected from
-     mem::swap
+   - **Input Validation:** All inputs checked (non-zero, no overflow, within limits)
+   - **Object Safety:** ConstructorRef never returned, all refs generated in constructor
+   - **Reference Safety:** No &mut exposed publicly, fields protected from mem::swap
    - **Testing:** 100% coverage including all error paths
 4. Generate report with findings and fixes
 5. Provide code changes for any issues found
@@ -102,8 +91,7 @@ or AUTOMATICALLY before deployment
 
 ### Workflow 5: Deploy Contract
 
-**Trigger:** User says "deploy contract", "publish module", "deploy to
-testnet/mainnet"
+**Trigger:** User says "deploy contract", "publish module", "deploy to testnet/mainnet"
 
 **Steps:**
 
@@ -120,8 +108,7 @@ testnet/mainnet"
 
 ### Workflow 6: Optimize Gas Usage
 
-**Trigger:** User says "optimize gas", "reduce gas costs", "make contract
-cheaper", "gas efficiency"
+**Trigger:** User says "optimize gas", "reduce gas costs", "make contract cheaper", "gas efficiency"
 
 **Steps:**
 
@@ -140,8 +127,8 @@ cheaper", "gas efficiency"
 
 ### Workflow 7: Create Move Scripts
 
-**Trigger:** User says "create move script", "atomic transaction", "batch
-operations", "multiple operations in one transaction"
+**Trigger:** User says "create move script", "atomic transaction", "batch operations", "multiple operations in one
+transaction"
 
 **Steps:**
 
@@ -157,8 +144,7 @@ operations", "multiple operations in one transaction"
 
 ### Workflow 8: Implement Upgradeable Contracts
 
-**Trigger:** User says "upgradeable contract", "contract upgrade", "version
-management", "migration pattern"
+**Trigger:** User says "upgradeable contract", "contract upgrade", "version management", "migration pattern"
 
 **Steps:**
 
@@ -202,21 +188,16 @@ When working with Aptos Move V2, you MUST:
 **Object Model:**
 
 - ✅ Use `Object<T>` for object references (modern)
-- ✅ Generate all refs (TransferRef, DeleteRef) in constructor BEFORE
-  ConstructorRef is destroyed
+- ✅ Generate all refs (TransferRef, DeleteRef) in constructor BEFORE ConstructorRef is destroyed
 - ✅ Use `object::owner(obj)` to verify ownership
 - ✅ Use `object::generate_signer(&constructor_ref)` for object signers
-- ✅ Use named objects for singletons:
-  `object::create_named_object(creator, seed)`
+- ✅ Use named objects for singletons: `object::create_named_object(creator, seed)`
 
 **Security:**
 
-- ✅ Verify signer authority:
-  `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-- ✅ Check object ownership:
-  `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
-- ✅ Validate all numeric inputs:
-  `assert!(amount > 0 && amount <= MAX, E_INVALID_AMOUNT)`
+- ✅ Verify signer authority: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
+- ✅ Check object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
+- ✅ Validate all numeric inputs: `assert!(amount > 0 && amount <= MAX, E_INVALID_AMOUNT)`
 - ✅ Use `phantom` for generic type safety: `struct Vault<phantom CoinType>`
 - ✅ Protect critical fields from `mem::swap` attacks
 
@@ -410,8 +391,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 **Official Aptos Docs:**
 
 - Object Model: https://aptos.dev/build/smart-contracts/object
-- Security Guidelines:
-  https://aptos.dev/build/smart-contracts/move-security-guidelines
+- Security Guidelines: https://aptos.dev/build/smart-contracts/move-security-guidelines
 - Move Book: https://aptos.dev/build/smart-contracts/book
 - CLI Reference: https://aptos.dev/build/cli
 - Testing: https://aptos.dev/build/smart-contracts/book/unit-testing
@@ -419,8 +399,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 **Example Repositories:**
 
 - aptos-core/aptos-move/move-examples (53 official examples)
-- Priority: hello_blockchain, mint_nft, token_objects, fungible_asset, dao,
-  marketplace
+- Priority: hello_blockchain, mint_nft, token_objects, fungible_asset, dao, marketplace
 
 **Pattern Documentation (Local):**
 
@@ -449,8 +428,7 @@ public fun test_unauthorized_transfer(owner: &signer, attacker: &signer) {
 **Common Error: "Coverage below 100%"**
 
 - **Cause:** Missing tests for some code paths
-- **Fix:** Run `aptos move coverage source --module <name>` to see uncovered
-  lines
+- **Fix:** Run `aptos move coverage source --module <name>` to see uncovered lines
 
 **Common Error: "Resource already exists"**
 
@@ -502,6 +480,5 @@ When user starts a task:
 6. Generate comprehensive tests automatically
 7. Run security audit before deployment
 
-**Remember:** Security and correctness are more important than speed. Always
-verify patterns against official Aptos documentation and prioritize user asset
-safety.
+**Remember:** Security and correctness are more important than speed. Always verify patterns against official Aptos
+documentation and prioritize user asset safety.

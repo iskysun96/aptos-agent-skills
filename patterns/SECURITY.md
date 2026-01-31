@@ -768,12 +768,16 @@ public entry fun process_user_orders(user: &signer) acquires UserOrders {
     };
 }
 
-// ✅ BETTER: Direct lookup, no iteration
+// ✅ BETTER: Direct lookup, no iteration (using SmartTable)
+struct UserOrdersTable has key {
+    orders_table: smart_table::SmartTable<u64, Order>,
+}
+
 public fun get_order_by_id(
     user: address,
     order_id: u64
-): Order acquires UserOrders {
-    let user_orders = borrow_global<UserOrders>(user);
+): Order acquires UserOrdersTable {
+    let user_orders = borrow_global<UserOrdersTable>(user);
     // Direct access, no loop
     *smart_table::borrow(&user_orders.orders_table, order_id)
 }

@@ -12,13 +12,13 @@ Two repositories work together:
 ### 1. Main Repository (`move-agent-skills`)
 
 - **Purpose:** Contains the agent skills and patterns
-- **Location:** `/Users/chriskim/Documents/2.areas/Aptos/move-agent-skills`
+- **Location:** `aptos-move-agent-skills/` (this repository)
 - **New File:** `CONTRIBUTING.md` - Documents the workflow and contribution process
 
 ### 2. Testing Repository (`aptos-move-agent-skills-testing`)
 
 - **Purpose:** Generate test dApps, validate them, and produce findings
-- **Location:** `/Users/chriskim/Documents/2.areas/Aptos/aptos-move-agent-skills-testing`
+- **Location:** `../aptos-move-agent-skills-testing/` (sibling repository)
 - **Status:** Fully configured and ready to use
 
 ## Testing Repository Contents
@@ -101,7 +101,7 @@ Includes 15 different dApp varieties across 3 iterations:
 **Step 1: Generate dApps (1-2 hours)**
 
 ```bash
-cd /Users/chriskim/Documents/2.areas/Aptos/aptos-move-agent-skills-testing
+cd ../aptos-move-agent-skills-testing
 
 # Start Claude Code session and copy the prompt from:
 # scripts/generate-dapps-prompt.md
@@ -147,7 +147,7 @@ cat iterations/001/validation-results.json | jq
 **Step 5: Apply Improvements (2-4 hours)**
 
 ```bash
-cd /Users/chriskim/Documents/2.areas/Aptos/move-agent-skills
+cd ../move-agent-skills
 git checkout -b feature/iteration-001-improvements
 
 # Update skills/*.md and patterns/*.md based on report
@@ -326,7 +326,7 @@ security patterns ✅ **Scalable** - Easy to add more dApp types or patterns
 Everything is set up and ready. To begin:
 
 ```bash
-cd /Users/chriskim/Documents/2.areas/Aptos/aptos-move-agent-skills-testing
+cd ../aptos-move-agent-skills-testing
 cat iterations/001/README.md
 ```
 

@@ -37,6 +37,30 @@ This repository provides specialized skills for AI assistants to build secure, m
 4. **Security first** - Verify signers, validate inputs, protect references
 5. **Test everything** - 100% coverage required
 6. **Modern syntax** - Use inline functions, lambdas, V2 patterns
+7. **Format with prettier** - Always run `npx prettier --write <files>` before committing
+
+## Code Formatting
+
+**ALWAYS format markdown files with prettier before committing:**
+
+```bash
+# Format specific files
+npx prettier --write CONTRIBUTING.md skills/*/SKILL.md patterns/*.md
+
+# Format all markdown files
+npx prettier --write "**/*.md"
+
+# Check formatting
+npx prettier --check "**/*.md"
+```
+
+**Prettier configuration** (`.prettierrc`):
+
+- `printWidth: 120` - Max line length
+- `proseWrap: always` - Wrap markdown prose
+- `tabWidth: 2` - 2 space indentation
+
+This ensures consistent formatting across all documentation files.
 
 ## Integration
 

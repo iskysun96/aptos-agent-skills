@@ -267,13 +267,29 @@ When writing Move contracts, you MUST:
 - ✅ `init_module` MUST be private (no `public` keyword)
 - ✅ `init_module` takes exactly one parameter: `&signer` (the deployer)
 
-**Decision Criteria - Use init_module if your contract has ANY of:**
+**CRITICAL: init_module can ONLY take `&signer` (the deployer) - no other parameters!**
 
-- Global configuration (admin address, fee parameters, protocol settings)
-- Protocol-wide registry (token metadata, user directory, marketplace config)
-- Shared resources used by all users (global pools, vaults, counters)
+**Decision Criteria:**
 
-**Example - Marketplace:**
+| Use Case                                                       | Pattern                                              | Example                                                              |
+| -------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------- |
+| **Deployment-time config** (one-time setup)                    | `init_module(deployer: &signer)` with defaults       | Marketplace config, protocol registry, admin setup                   |
+| **User-triggered creation** (multiple times, needs parameters) | `public entry fun create_X(...)`                     | `create_market(question, end_time)`, `create_auction(nft, duration)` |
+| **Need custom params at deployment?**                          | `init_module` with defaults + admin update functions | init_module sets fee=250, then `update_fee()` to customize           |
+
+**When to use init_module:**
+
+- ✅ Global configuration that needs DEFAULT values at deployment
+- ✅ Protocol-wide registry (empty initially, populated later by users)
+- ✅ Shared resources (global pools, vaults, counters)
+
+**When NOT to use init_module:**
+
+- ❌ Creating individual instances (markets, auctions, listings) - use `create_X()` functions instead
+- ❌ Functions that need multiple custom parameters - use public entry functions
+- ❌ Actions users perform after deployment - use public entry functions
+
+**Example 1 - Marketplace Config (USE init_module):**
 
 ```move
 struct MarketplaceConfig has key {
@@ -292,9 +308,77 @@ fun init_module(deployer: &signer) {
 
     move_to(&object_signer, MarketplaceConfig {
         admin: signer::address_of(deployer),
-        fee_bps: 250, // 2.5%
+        fee_bps: 250, // 2.5% default
         paused: false,
     });
+}
+
+// If you need custom fee at deployment, provide admin update function:
+public entry fun update_fee(admin: &signer, new_fee_bps: u64) acquires MarketplaceConfig {
+    let config = borrow_global_mut<MarketplaceConfig>(get_config_address());
+    assert!(signer::address_of(admin) == config.admin, E_NOT_ADMIN);
+    assert!(new_fee_bps <= 1000, E_INVALID_FEE);
+    config.fee_bps = new_fee_bps;
+}
+```
+
+**Example 2 - Prediction Market (DON'T use init_module for create_market):**
+
+```move
+// ❌ WRONG: Don't use init_module for user-triggered creation with parameters
+// init_module can't take multiple parameters!
+
+// ✅ CORRECT: Use public entry function for creating individual markets
+public entry fun create_market(
+    creator: &signer,
+    question: String,
+    end_time: u64,
+) {
+    // Users call this AFTER deployment to create individual markets
+    // This can be called multiple times with different parameters
+    // This is NOT deployment initialization
+
+    let constructor_ref = object::create_object(signer::address_of(creator));
+    let object_signer = object::generate_signer(&constructor_ref);
+
+    move_to(&object_signer, Market {
+        question,
+        end_time,
+        creator: signer::address_of(creator),
+        // ... more fields
+    });
+}
+
+// If prediction market needs marketplace-level config, THAT would use init_module:
+fun init_module(deployer: &signer) {
+    // Optional: Set up marketplace-level config (fees, admin, etc.)
+    // But individual market creation happens in create_market()
+}
+```
+
+**Example 3 - NFT Marketplace (How to handle multiple parameters):**
+
+```move
+// ❌ WRONG: Trying to pass custom parameters to init_module
+// fun init_module(deployer: &signer, fee_bps: u64) { ... }  // ERROR: Can't do this!
+
+// ❌ WRONG: Public initialize with custom parameters
+public entry fun initialize(admin: &signer, fee_bps: u64) { ... }  // Requires manual call
+
+// ✅ CORRECT Option A: init_module with defaults + admin update
+fun init_module(deployer: &signer) {
+    // Set reasonable defaults
+    create_config(deployer, 250); // 2.5% default
+}
+
+public entry fun update_marketplace_config(admin: &signer, new_fee: u64) {
+    // Admin can customize after deployment
+}
+
+// ✅ CORRECT Option B: No global config needed, per-listing fees
+// If each listing can have its own fee, no init_module needed at all!
+public entry fun create_listing(seller: &signer, nft: Object<Token>, fee_bps: u64) {
+    // Each listing has its own configuration
 }
 ```
 
@@ -355,12 +439,18 @@ When writing Move contracts, you MUST NEVER:
 
 ### Initialization Anti-Patterns ⭐ CRITICAL
 
-- ❌ **NEVER use public entry `initialize()` function for deployment-time setup** (use private `init_module()` instead -
-  it's automatic!)
-- ❌ **NEVER skip `init_module` when your contract has global config/registry** (admin, fees, protocol state)
+- ❌ **NEVER use public entry `initialize()` function for DEPLOYMENT-TIME config setup** (use private `init_module()`
+  with defaults instead)
+- ❌ **NEVER skip `init_module` when your contract has global config/registry** (admin, fees, protocol state) that needs
+  DEFAULT values at deployment
+- ❌ **NEVER try to pass multiple parameters to init_module** (it can ONLY take `&signer` - use defaults + admin update
+  functions)
 - ❌ NEVER make init_module public (it's automatically called by the VM, must be private)
 - ❌ NEVER put user-specific initialization in init_module (that belongs in per-user entry functions)
-- ❌ NEVER require users to call an initialize function after deploying (that's what init_module prevents!)
+- ❌ **NEVER confuse deployment initialization with user actions:**
+  - `init_module` = deployment-time config (marketplace admin, default fees) - ONE TIME
+  - `create_market()` = user creates individual market - MULTIPLE TIMES
+  - `create_listing()` = user creates listing - MULTIPLE TIMES
 
 ## Common Patterns
 

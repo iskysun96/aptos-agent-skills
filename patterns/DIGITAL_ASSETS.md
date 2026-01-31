@@ -308,6 +308,252 @@ public entry fun mint_simple(
 
 ---
 
+## ⭐ CRITICAL: Using AptosToken Module (High-Level API)
+
+### When to Use AptosToken vs Generic Token
+
+**IMPORTANT:** For most NFT use cases (especially marketplaces), use the **AptosToken** module's high-level functions
+instead of the generic `collection` and `token` modules.
+
+**Use `aptos_token` module when:**
+
+- ✅ Creating NFT marketplaces
+- ✅ Need ready-to-use NFT functionality
+- ✅ Want simplified collection and token creation
+- ✅ Need standardized property handling
+
+**Use generic `collection`/`token` modules when:**
+
+- ⚠️ Need very custom collection behavior
+- ⚠️ Building low-level NFT infrastructure
+
+### Required Imports for AptosToken
+
+```move
+use aptos_token_objects::aptos_token::{Self, AptosToken};
+// Still need these for types
+use aptos_token_objects::collection;
+use aptos_token_objects::token;
+```
+
+### Creating AptosCollection ⭐ CRITICAL
+
+**CORRECT Pattern - Use `aptos_token::create_collection_object()`:**
+
+```move
+use aptos_token_objects::aptos_token;
+
+fun init_module(deployer: &signer) {
+    // Create AptosCollection (NOT generic collection)
+    aptos_token::create_collection_object(
+        deployer,
+        string::utf8(b"Collection description"),
+        18446744073709551615, // max_supply (MUST NOT BE 0! Use max u64 for unlimited)
+        string::utf8(b"Collection Name"),
+        string::utf8(b"https://collection.uri"),
+        true, // mutable_description
+        true, // mutable_royalty
+        true, // mutable_uri
+        true, // mutable_token_description
+        true, // mutable_token_name
+        true, // mutable_token_properties
+        true, // mutable_token_uri
+        true, // tokens_burnable_by_creator
+        true, // tokens_freezable_by_creator
+        5,   // royalty_numerator (5%)
+        100, // royalty_denominator
+    );
+}
+```
+
+**CRITICAL - max_supply Parameter:**
+
+```move
+// ❌ WRONG - Causes EMAX_SUPPLY_CANNOT_BE_ZERO error
+aptos_token::create_collection_object(..., 0, ...)
+
+// ✅ CORRECT - Use max u64 for unlimited supply
+aptos_token::create_collection_object(..., 18446744073709551615, ...)
+
+// ✅ CORRECT - Use specific number for limited supply
+aptos_token::create_collection_object(..., 10000, ...)
+```
+
+**Why AptosToken?** It automatically:
+
+- Creates proper `AptosCollection` resource
+- Sets up token minting infrastructure
+- Handles property maps correctly
+- Enables `Object<AptosToken>` type usage
+
+### Minting AptosToken ⭐ CRITICAL
+
+**CORRECT Pattern - Use `aptos_token::mint_token_object()`:**
+
+```move
+public entry fun mint_nft(
+    creator: &signer,
+    collection_name: String,
+    description: String,
+    name: String,
+    uri: String,
+) {
+    // Returns Object<AptosToken> directly (not ConstructorRef!)
+    let nft: Object<AptosToken> = aptos_token::mint_token_object(
+        creator,
+        collection_name,
+        description,
+        name,
+        uri,
+        vector[], // property_keys
+        vector[], // property_types
+        vector[], // property_values
+    );
+
+    // Can transfer immediately
+    let recipient = @0x123;
+    object::transfer(creator, nft, recipient);
+}
+```
+
+**Key Differences from Generic Token:**
+
+| Generic `token::create_named_token()` | AptosToken `mint_token_object()`   |
+| ------------------------------------- | ---------------------------------- |
+| Returns `ConstructorRef`              | Returns `Object<AptosToken>` ✅    |
+| Requires manual resource creation     | Automatically creates resources ✅ |
+| Generic `Object<T>` type              | Specific `Object<AptosToken>` ✅   |
+| Need to store refs yourself           | Handles refs internally ✅         |
+
+### Type Safety: Object<AptosToken> vs Object<Token>
+
+**CRITICAL TYPE RULE:**
+
+```move
+// ✅ CORRECT - Use AptosToken for marketplace NFTs
+use aptos_token_objects::aptos_token::AptosToken;
+
+struct Listing has key {
+    nft: Object<AptosToken>,  // ← Specific AptosToken type!
+    price: u64,
+}
+
+public entry fun list_nft(
+    seller: &signer,
+    nft: Object<AptosToken>,  // ← Type safety!
+    price: u64,
+) {
+    // ...
+}
+
+// ❌ WRONG - Generic Token type (less type safety)
+use aptos_token_objects::token::Token;
+
+struct Listing has key {
+    nft: Object<Token>,  // ← Too generic!
+    price: u64,
+}
+```
+
+### Complete AptosToken Marketplace Example
+
+```move
+module marketplace_addr::nft_marketplace {
+    use std::signer;
+    use std::string::String;
+    use aptos_framework::object::{Self, Object, ExtendRef};
+    use aptos_token_objects::aptos_token::{Self, AptosToken};
+
+    struct MarketplaceConfig has key {
+        extend_ref: ExtendRef,
+        collection_name: String,
+    }
+
+    // CRITICAL: Use init_module for setup
+    fun init_module(deployer: &signer) {
+        let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE");
+        let marketplace_signer = object::generate_signer(&marketplace_ref);
+        let extend_ref = object::generate_extend_ref(&marketplace_ref);
+
+        let collection_name = string::utf8(b"Marketplace NFTs");
+
+        // Create AptosCollection
+        aptos_token::create_collection_object(
+            &marketplace_signer,  // Marketplace owns collection
+            string::utf8(b"NFTs minted via marketplace"),
+            18446744073709551615, // unlimited
+            collection_name,
+            string::utf8(b"https://marketplace.io"),
+            true, true, true, true, true, true, true, true, true,
+            0, 100,
+        );
+
+        move_to(&marketplace_signer, MarketplaceConfig {
+            extend_ref,
+            collection_name,
+        });
+    }
+
+    // Mint AptosToken using marketplace signer
+    public entry fun mint_nft(
+        creator: &signer,
+        name: String,
+        description: String,
+        uri: String,
+    ) acquires MarketplaceConfig {
+        let config = borrow_global<MarketplaceConfig>(get_marketplace_addr());
+        let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
+
+        // Returns Object<AptosToken>
+        let nft = aptos_token::mint_token_object(
+            &marketplace_signer,  // Collection owner mints
+            config.collection_name,
+            description,
+            name,
+            uri,
+            vector[], vector[], vector[],
+        );
+
+        // Transfer to creator
+        object::transfer(&marketplace_signer, nft, signer::address_of(creator));
+    }
+
+    // List NFT (parameter type is Object<AptosToken>)
+    public entry fun list_nft(
+        seller: &signer,
+        nft: Object<AptosToken>,  // ← Type safety!
+        price: u64,
+    ) {
+        assert!(object::owner(nft) == signer::address_of(seller), E_NOT_OWNER);
+        // ... listing logic
+    }
+
+    fun get_marketplace_addr(): address {
+        object::create_object_address(&@marketplace_addr, b"MARKETPLACE")
+    }
+}
+```
+
+### Summary: AptosToken Best Practices
+
+✅ **DO:**
+
+- Use `aptos_token::create_collection_object()` for collections
+- Use `aptos_token::mint_token_object()` for minting
+- Use `Object<AptosToken>` as parameter types
+- Set max_supply to `18446744073709551615` for unlimited
+- Let marketplace object own the collection (use extend_ref)
+
+❌ **DON'T:**
+
+- Use generic `collection::create_unlimited_collection()` for AptosToken
+- Use generic `token::create_named_token()` for AptosToken
+- Use `Object<token::Token>` when you need `Object<AptosToken>`
+- Set max_supply to `0` (causes EMAX_SUPPLY_CANNOT_BE_ZERO)
+- Mix AptosToken and generic Token in same contract
+
+---
+
 ## NFT Marketplace Pattern
 
 ### CRITICAL: Object Ownership Hierarchy

@@ -143,48 +143,73 @@ use aptos_token_objects::royalty::{Self, Royalty};
 For NFT marketplaces, you MUST:
 
 1. Use `init_module()` (NOT public `initialize()`)
-2. Marketplace object owns the collection
-3. Use extend_ref to mint as marketplace signer
+2. Use `aptos_token::create_collection_object()` for AptosCollection
+3. Use `aptos_token::mint_token_object()` for minting AptosTokens
+4. Marketplace object owns the collection (use extend_ref)
 
 ```move
 fun init_module(deployer: &signer) {
     // Create marketplace state object
     let marketplace_ref = object::create_named_object(deployer, b"MARKETPLACE_STATE");
     let marketplace_signer = object::generate_signer(&marketplace_ref);
+    let extend_ref = object::generate_extend_ref(&marketplace_ref);
 
-    // Marketplace object creates collection
-    collection::create_unlimited_collection(
+    let collection_name = string::utf8(b"Collection Name");
+
+    // CRITICAL: Create AptosCollection (NOT generic collection)
+    aptos_token::create_collection_object(
         &marketplace_signer,  // ← Marketplace signer owns collection
         string::utf8(b"Collection description"),
-        string::utf8(b"Collection Name"),
-        option::none(),
+        18446744073709551615, // ← MUST NOT BE 0! Use max u64 for unlimited
+        collection_name,
         string::utf8(b"https://uri.com"),
+        true, true, true, true, true, true, true, true, true,
+        0, 100, // royalty
     );
 
     // Store config with extend_ref
     move_to(&marketplace_signer, MarketplaceConfig {
         admin: signer::address_of(deployer),
-        extend_ref: object::generate_extend_ref(&marketplace_ref),
+        collection_name,
+        extend_ref,
     });
 }
 
-public entry fun mint_nft(creator: &signer, name: String, uri: String) acquires MarketplaceConfig {
+public entry fun mint_nft(
+    creator: &signer,
+    name: String,
+    description: String,
+    uri: String
+) acquires MarketplaceConfig {
     let config = borrow_global<MarketplaceConfig>(get_marketplace_addr());
     let marketplace_signer = object::generate_signer_for_extending(&config.extend_ref);
 
-    // Mint with marketplace signer
-    token::create_named_token(
+    // CRITICAL: Use aptos_token::mint_token_object (returns Object<AptosToken>)
+    let nft = aptos_token::mint_token_object(
         &marketplace_signer,  // ← Must be collection owner
-        string::utf8(b"Collection Name"),
-        string::utf8(b"Description"),
+        config.collection_name,
+        description,
         name,
-        option::none(),
         uri,
+        vector[], vector[], vector[], // properties
     );
+
+    // Transfer to creator
+    object::transfer(&marketplace_signer, nft, signer::address_of(creator));
 }
 ```
 
-**See:** `../../patterns/DIGITAL_ASSETS.md` lines 381-589 for complete marketplace example
+**CRITICAL - max_supply Parameter:**
+
+```move
+// ❌ WRONG - Causes EMAX_SUPPLY_CANNOT_BE_ZERO error
+aptos_token::create_collection_object(..., 0, ...)
+
+// ✅ CORRECT - Use max u64 for unlimited supply
+aptos_token::create_collection_object(..., 18446744073709551615, ...)
+```
+
+**See:** `../../patterns/DIGITAL_ASSETS.md` section "Using AptosToken Module" for complete details
 
 ### Step 2.6: Identify Token Standard - Fungible Assets (Tokens/Coins) ⭐ CRITICAL
 
@@ -354,11 +379,13 @@ When writing Move contracts, you MUST:
 - ✅ **ALWAYS use** `Object<AptosToken>` for NFT references (NOT `Object<token::Token>`, NOT generic `Object<T>`)
 - ✅ **ALWAYS import** `aptos_token_objects::aptos_token::{Self, AptosToken}`
 - ✅ **ALWAYS use Digital Asset (DA) standard** for ALL NFT-related contracts
-- ✅ **ALWAYS create collections** with `collection::create_fixed_collection()` or
-  `collection::create_unlimited_collection()`
+- ✅ **ALWAYS create AptosCollection** with `aptos_token::create_collection_object()` (NOT generic
+  `collection::create_unlimited_collection()`)
+- ✅ **ALWAYS mint AptosTokens** with `aptos_token::mint_token_object()` (NOT generic `token::create_named_token()`)
+- ✅ **ALWAYS set max_supply** to `18446744073709551615` for unlimited (NEVER use 0)
 - ✅ **ALWAYS use init_module()** for marketplace contracts (NOT public `initialize()`)
 - ✅ **ALWAYS have marketplace object own collection** (use extend_ref to mint)
-- ✅ See `../../patterns/DIGITAL_ASSETS.md` for complete patterns
+- ✅ See `../../patterns/DIGITAL_ASSETS.md` section "Using AptosToken Module" for complete patterns
 
 ### Fungible Assets (Tokens/Coins) ⭐ CRITICAL
 
@@ -565,6 +592,11 @@ When writing Move contracts, you MUST NEVER:
 - ❌ **NEVER import** `aptos_token::token` (legacy - use `aptos_token_objects::token`)
 - ❌ **NEVER create tokens** without a parent collection
 - ❌ **NEVER use public `initialize()`** for marketplace setup (use `init_module()`)
+- ❌ **NEVER use** generic `collection::create_unlimited_collection()` for AptosTokens (use
+  `aptos_token::create_collection_object()`)
+- ❌ **NEVER use** generic `token::create_named_token()` for AptosTokens (use `aptos_token::mint_token_object()`)
+- ❌ **NEVER set max_supply to 0** in `create_collection_object()` (causes EMAX_SUPPLY_CANNOT_BE_ZERO - use max u64
+  instead)
 
 ### Fungible Assets (Tokens/Coins) ⭐ CRITICAL
 

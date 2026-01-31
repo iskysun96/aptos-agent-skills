@@ -1,8 +1,6 @@
 ---
 name: generate-tests
-description:
-  Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test
-  contract", "add test coverage", or AUTOMATICALLY after writing any contract.
+description: Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test contract", "add test coverage", or AUTOMATICALLY after writing any contract.
 ---
 
 # Generate Tests Skill
@@ -15,8 +13,9 @@ This skill generates comprehensive test suites for Move contracts with **100% li
 - ✅ Access control (unauthorized users blocked)
 - ✅ Input validation (invalid inputs rejected)
 - ✅ Edge cases (boundaries, limits, empty states)
+- ✅ **Security patterns** (arithmetic safety, storage scoping, reference safety, business logic) ⭐ CRITICAL
 
-**Critical Rule:** NEVER deploy without 100% test coverage.
+**Critical Rule:** NEVER deploy without 100% test coverage and comprehensive security tests.
 
 ## Core Workflow
 
@@ -220,7 +219,267 @@ public fun test_empty_collection_operations(user: &signer) {
 }
 ```
 
-### Step 6: Verify Coverage
+### Step 6: Write Security Tests ⭐ CRITICAL
+
+**Test security-critical patterns from [SECURITY.md](../../patterns/SECURITY.md):**
+
+#### 6.1 Arithmetic Safety Tests
+
+**Division Precision Loss - CRITICAL:**
+
+```move
+#[test(user = @0x1)]
+#[expected_failure(abort_code = my_module::E_AMOUNT_TOO_SMALL)]
+public fun test_amount_below_minimum_rejected(user: &signer) {
+    // Amount too small causes fee to round to zero
+    my_module::process_order(user, 100); // MIN_ORDER_SIZE is 1000
+}
+
+#[test(user = @0x1)]
+public fun test_fee_calculation_non_zero(user: &signer) {
+    // Test that fee is actually calculated for valid amounts
+    let fee = my_module::calculate_fee(1000); // Minimum valid amount
+    assert!(fee > 0, 0); // Fee must be non-zero
+}
+
+#[test(user = @0x1)]
+public fun test_minimum_threshold_enforced(user: &signer) {
+    // Test that minimum threshold prevents precision loss
+    let amount = my_module::MIN_ORDER_SIZE;
+    let fee = my_module::calculate_fee(amount);
+    assert!(fee > 0, 0);
+}
+```
+
+**Left Shift Overflow - CRITICAL:**
+
+```move
+#[test]
+#[expected_failure(abort_code = my_module::E_OVERFLOW)]
+public fun test_shift_amount_overflow_rejected() {
+    // Left shift >= 64 must be rejected
+    my_module::calculate_power_of_two(64); // Should abort
+}
+
+#[test]
+public fun test_max_shift_amount_allowed() {
+    // Maximum safe shift should work
+    let result = my_module::calculate_power_of_two(63);
+    // Verify result is correct
+}
+
+#[test]
+#[expected_failure(abort_code = my_module::E_OVERFLOW)]
+public fun test_shift_with_u8_overflow() {
+    // If using u8 shift amounts, test overflow
+    my_module::shift_operation(255); // u8 max
+}
+```
+
+#### 6.2 Global Storage Scoping Tests - CRITICAL
+
+**Test functions ONLY modify signer's own storage:**
+
+```move
+#[test(user1 = @0x1, user2 = @0x2)]
+public fun test_update_only_affects_own_account(
+    user1: &signer,
+    user2: &signer
+) {
+    // Setup both accounts
+    my_module::init_account(user1);
+    my_module::init_account(user2);
+
+    my_module::set_balance(user1, 100);
+    my_module::set_balance(user2, 200);
+
+    // User1 updates their balance
+    my_module::update_balance(user1, 50);
+
+    // Verify user1's balance changed, user2's did NOT
+    assert!(my_module::get_balance(signer::address_of(user1)) == 150, 0);
+    assert!(my_module::get_balance(signer::address_of(user2)) == 200, 1); // Unchanged
+}
+
+// ❌ BAD CONTRACT: If function accepts arbitrary address parameter
+// #[test(user = @0x1)]
+// #[expected_failure]  // This test would FAIL if contract is vulnerable
+// public fun test_cannot_modify_other_account(user: &signer) {
+//     // If contract accepts target_addr parameter, this is a vulnerability
+//     my_module::update_balance_wrong(user, @0x999, 1000); // Should NOT be possible
+// }
+```
+
+#### 6.3 Resource Management Tests
+
+**Unbounded Iteration Prevention:**
+
+```move
+#[test(admin = @0x1)]
+public fun test_user_data_stored_in_user_account(admin: &signer) {
+    // Verify user data is stored in user's account, NOT global vector
+    my_module::init_module(admin);
+
+    // Check implementation doesn't use global vector
+    // (This test validates architecture, not runtime behavior)
+}
+
+#[test(user = @0x1)]
+public fun test_scalable_per_user_storage(user: &signer) {
+    // Test that operations scale per-user (no iteration over all users)
+    my_module::init_account(user);
+    my_module::add_item(user, string::utf8(b"Item"));
+
+    // Operation should be O(1), not O(n) where n = total users
+    // Gas cost should be constant regardless of total system users
+}
+```
+
+#### 6.4 Generic Type Validation Tests
+
+**Flash Loan Protection:**
+
+```move
+use aptos_framework::coin::{Self, Coin};
+use aptos_framework::aptos_coin::AptosCoin;
+
+#[test(user = @0x1)]
+public fun test_flash_loan_requires_matching_type(user: &signer) {
+    // Borrow AptosCoin
+    let receipt = my_module::flash_borrow<AptosCoin>(user, 1000);
+
+    // Must repay with SAME type (Receipt<phantom AptosCoin> enforces this)
+    let coins = coin::withdraw<AptosCoin>(user, 1000);
+    my_module::flash_repay<AptosCoin>(receipt, coins); // Type must match!
+}
+
+// This should NOT compile if types don't match:
+// #[test(user = @0x1)]
+// public fun test_flash_loan_type_mismatch(user: &signer) {
+//     let receipt = my_module::flash_borrow<AptosCoin>(user, 1000);
+//     let fake_coins = coin::withdraw<FakeCoin>(user, 1000);
+//     my_module::flash_repay<FakeCoin>(receipt, fake_coins); // Compile error!
+// }
+```
+
+#### 6.5 Reference Safety Tests
+
+**Callback Validation:**
+
+```move
+#[test(owner = @0x1)]
+public fun test_invariants_preserved_after_callback(owner: &signer) {
+    // Setup
+    let obj = my_module::create_object(owner, 100);
+
+    // Check invariant before callback
+    assert!(my_module::get_value(obj) == 100, 0);
+
+    // Execute function that calls external code with &mut ref
+    my_module::process_with_callback(owner, obj);
+
+    // CRITICAL: Re-verify invariants after callback
+    // Malicious callback could have violated invariants
+    assert!(my_module::get_value(obj) >= 0, 1); // Still valid
+    assert!(my_module::is_initialized(obj), 2); // Still initialized
+}
+```
+
+#### 6.6 Business Logic Tests
+
+**Front-Running Prevention (Atomic Operations):**
+
+```move
+#[test(user = @0x1)]
+public fun test_set_and_evaluate_atomic(user: &signer) {
+    // Operation should be atomic (not split into set + evaluate)
+    my_module::set_and_evaluate_price(user, 100);
+
+    // Verify both operations happened together
+    // (No way for attacker to front-run between set and evaluate)
+}
+
+#[test(attacker = @0x2, victim = @0x3)]
+public fun test_cannot_front_run_price_update(
+    attacker: &signer,
+    victim: &signer
+) {
+    // Setup victim's operation
+    my_module::set_and_evaluate_price(victim, 100);
+
+    // Attacker cannot observe price before evaluation
+    // (Operations are atomic in same transaction)
+}
+```
+
+**Token ID Collision Prevention:**
+
+```move
+#[test(user = @0x1)]
+public fun test_token_ids_use_object_addresses(user: &signer) {
+    // Create two tokens with same metadata
+    let token1 = my_module::create_token(user, string::utf8(b"Token"), 1);
+    let token2 = my_module::create_token(user, string::utf8(b"Token"), 1);
+
+    // IDs must be different (object addresses are unique)
+    assert!(object::object_address(&token1) != object::object_address(&token2), 0);
+}
+
+// ❌ BAD: String concatenation causes collisions
+// #[test(user = @0x1)]
+// public fun test_string_concat_collision() {
+//     // "A" + "BC" = "ABC"
+//     // "AB" + "C" = "ABC"  <-- COLLISION!
+// }
+```
+
+#### 6.7 Randomness Security Tests (if applicable)
+
+**Entry Function Protection:**
+
+```move
+// ✅ CORRECT: Randomness function is `entry` (not public)
+#[test(user = @0x1)]
+public fun test_random_mint_is_entry_function(user: &signer) {
+    // Can call directly
+    my_module::random_mint(user);
+
+    // But CANNOT be composed (prevents test-and-abort attacks)
+    // my_module::try_random_mint(user); // Would not compile
+}
+```
+
+**Gas Balance Testing:**
+
+> **Note:** Aptos Move unit tests do not currently provide a built-in `estimate_gas` helper.
+> The example below is **conceptual pseudo-code** showing what you want to verify.
+> In practice, compare compiled bytecode and gas schedules, or measure gas usage
+> on a localnet/testnet by sending transactions for each path and recording
+> the gas used from the node/CLI output.
+
+```move
+// PSEUDO-CODE ONLY — not executable as-is.
+// Goal: ensure "win" and "lose" paths of randomness have similar gas usage
+// so an attacker cannot under-gas one branch to bias the outcome.
+//
+// Recommended approach:
+// 1. Identify the "win" and "lose" code paths (e.g., helper entry functions).
+// 2. Compile the module and inspect bytecode / use profiling tools, OR
+// 3. Execute each path on a localnet/testnet and record gas used per tx.
+// 4. Assert the absolute difference is below your chosen threshold.
+//
+// Example structure of the check (conceptual):
+#[test(user = @0x1)]
+public fun test_gas_balanced_across_outcomes(user: &signer) {
+    // let gas_win = <measured gas for winning-path transaction>;
+    // let gas_lose = <measured gas for losing-path transaction>;
+    //
+    // let diff = if (gas_win > gas_lose) { gas_win - gas_lose } else { gas_lose - gas_win };
+    // assert!(diff < 1000, 0); // Within 1000 gas units (tune threshold as needed)
+}
+```
+
+### Step 7: Verify Coverage
 
 **Run tests with coverage:**
 
@@ -239,14 +498,12 @@ aptos move coverage summary
 ```
 
 **Coverage report example:**
-
 ```
 module: my_module
 coverage: 100.0% (150/150 lines covered)
 ```
 
 **If coverage < 100%:**
-
 1. Check uncovered lines in report
 2. Write tests for missing paths
 3. Repeat until 100%
@@ -296,207 +553,39 @@ module my_addr::module_tests {
     public fun test_boundary_condition(user: &signer) {
         // Test edge cases
     }
-}
-```
 
-## Fuzzing and Property-Based Testing
+    // ========== Security Tests ⭐ CRITICAL ==========
 
-### Step 7: Add Fuzzing Tests
-
-Fuzzing tests help discover edge cases by testing with random inputs:
-
-```move
-#[test_only]
-module my_addr::fuzz_tests {
-    use my_addr::my_module;
-    use std::vector;
-
-    // ========== Random Input Generators ==========
-
-    /// Generate random u64 in range
-    fun random_u64(seed: u64, min: u64, max: u64): u64 {
-        let range = max - min;
-        min + (seed % (range + 1))
-    }
-
-    /// Generate random string of given length
-    fun random_string(seed: u64, length: u64): String {
-        let chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let result = vector::empty<u8>();
-        let i = 0;
-
-        while (i < length) {
-            let char_index = ((seed + i) * 17) % vector::length(&chars);
-            vector::push_back(&mut result, *vector::borrow(&chars, char_index));
-            i = i + 1;
-        };
-
-        string::utf8(result)
-    }
-
-    /// Generate random address
-    fun random_address(seed: u64): address {
-        // Create pseudo-random address from seed
-        @0x0 + (seed * 0x10000000000000000)
-    }
-
-    // ========== Fuzzing Tests ==========
-
-    #[test]
-    public fun fuzz_test_deposit_amounts() {
-        let user = account::create_account_for_test(@0x1);
-
-        // Test 100 random valid amounts
-        let seed = 42;
-        let i = 0;
-
-        while (i < 100) {
-            let amount = random_u64(seed + i, 1, my_module::MAX_DEPOSIT_AMOUNT);
-
-            // Should always succeed for valid amounts
-            my_module::deposit(&user, amount);
-
-            // Withdraw to reset
-            my_module::withdraw(&user, amount);
-
-            i = i + 1;
-        }
+    #[test(user = @0x1)]
+    #[expected_failure(abort_code = E_AMOUNT_TOO_SMALL)]
+    public fun test_division_precision_loss_prevented(user: &signer) {
+        // Test minimum threshold enforced
     }
 
     #[test]
-    public fun fuzz_test_string_inputs() {
-        let user = account::create_account_for_test(@0x1);
-
-        // Test various string lengths
-        let seed = 123;
-        let i = 0;
-
-        while (i < 50) {
-            let length = random_u64(seed + i, 1, my_module::MAX_NAME_LENGTH);
-            let name = random_string(seed + i, length);
-
-            // Should succeed for valid lengths
-            let obj = my_module::create_named_object(&user, name);
-
-            i = i + 1;
-        }
+    #[expected_failure(abort_code = E_OVERFLOW)]
+    public fun test_left_shift_overflow_rejected() {
+        // Test shift validation
     }
 
-    // ========== Property-Based Tests ==========
-
-    #[test]
-    public fun property_test_balance_invariants() {
-        let user1 = account::create_account_for_test(@0x1);
-        let user2 = account::create_account_for_test(@0x2);
-
-        // Property: Total balance is conserved in transfers
-        let initial_amount = 1000000;
-        my_module::deposit(&user1, initial_amount);
-
-        let seed = 999;
-        let i = 0;
-
-        while (i < 20) {
-            let transfer_amount = random_u64(seed + i, 1, initial_amount / 2);
-
-            let balance1_before = my_module::get_balance(@0x1);
-            let balance2_before = my_module::get_balance(@0x2);
-
-            // Transfer
-            my_module::transfer(&user1, @0x2, transfer_amount);
-
-            let balance1_after = my_module::get_balance(@0x1);
-            let balance2_after = my_module::get_balance(@0x2);
-
-            // Property: Total balance unchanged
-            assert!(
-                balance1_before + balance2_before == balance1_after + balance2_after,
-                0
-            );
-
-            // Property: Individual changes are correct
-            assert!(balance1_after == balance1_before - transfer_amount, 1);
-            assert!(balance2_after == balance2_before + transfer_amount, 2);
-
-            i = i + 1;
-        }
+    #[test(user1 = @0x1, user2 = @0x2)]
+    public fun test_global_storage_scoping(user1: &signer, user2: &signer) {
+        // Test cross-account isolation
     }
 
-    #[test]
-    public fun property_test_ordering_invariants() {
-        let user = account::create_account_for_test(@0x1);
-        let collection = my_module::create_collection(&user);
-
-        // Property: Items maintain insertion order
-        let seed = 777;
-        let items = vector::empty<u64>();
-        let i = 0;
-
-        while (i < 10) {
-            let item_id = random_u64(seed + i, 1000, 9999);
-            vector::push_back(&mut items, item_id);
-
-            my_module::add_item(&user, collection, item_id);
-            i = i + 1;
-        };
-
-        // Verify order preserved
-        let retrieved_items = my_module::get_all_items(collection);
-        assert!(retrieved_items == items, 0);
+    #[test(user = @0x1)]
+    public fun test_no_unbounded_iteration(user: &signer) {
+        // Test per-user storage architecture
     }
-}
-```
 
-### Fuzzing Best Practices
-
-**Input Generation:**
-
-```move
-/// Generate biased random values (edge cases more likely)
-fun biased_random_u64(seed: u64): u64 {
-    let choice = seed % 10;
-
-    if (choice == 0) {
-        0  // Min value
-    } else if (choice == 1) {
-        MAX_U64  // Max value
-    } else if (choice == 2) {
-        1  // Just above min
-    } else if (choice == 3) {
-        MAX_U64 - 1  // Just below max
-    } else {
-        // Random in range
-        random_u64(seed, 0, MAX_U64)
+    #[test(user = @0x1)]
+    public fun test_invariants_after_callback(user: &signer) {
+        // Test reference safety
     }
-}
-```
 
-**Stateful Fuzzing:**
-
-```move
-#[test]
-public fun fuzz_test_state_machine() {
-    let machine = my_module::create_state_machine();
-    let seed = 12345;
-    let i = 0;
-
-    // Random sequence of operations
-    while (i < 100) {
-        let operation = seed % 4;
-
-        match operation {
-            0 => my_module::start_if_stopped(&machine),
-            1 => my_module::pause_if_running(&machine),
-            2 => my_module::resume_if_paused(&machine),
-            3 => my_module::stop_if_not_stopped(&machine),
-            _ => {},
-        };
-
-        // Verify state is always valid
-        assert!(my_module::is_valid_state(&machine), i);
-
-        seed = (seed * 17 + 11) % 1000000;
-        i = i + 1;
+    #[test(user = @0x1)]
+    public fun test_atomic_operations(user: &signer) {
+        // Test front-running prevention
     }
 }
 ```
@@ -506,20 +595,17 @@ public fun fuzz_test_state_machine() {
 For each contract, verify you have tests for:
 
 **Happy Paths:**
-
 - [ ] Object creation works
 - [ ] State updates work
 - [ ] Transfers work
 - [ ] All main features work
 
 **Access Control:**
-
 - [ ] Non-owners cannot modify objects
 - [ ] Non-admins cannot call admin functions
 - [ ] Unauthorized users blocked
 
 **Input Validation:**
-
 - [ ] Zero amounts rejected
 - [ ] Excessive amounts rejected
 - [ ] Empty strings rejected
@@ -527,23 +613,26 @@ For each contract, verify you have tests for:
 - [ ] Zero addresses rejected
 
 **Edge Cases:**
-
 - [ ] Maximum values work
 - [ ] Minimum values work
 - [ ] Empty states handled
 
-**Fuzzing:**
-
-- [ ] Random valid inputs handled
-- [ ] Property invariants maintained
-- [ ] State machine transitions valid
-- [ ] No crashes or unexpected aborts
+**Security Tests ⭐ CRITICAL:**
+- [ ] Division precision loss prevented (minimum thresholds enforced, fees > 0)
+- [ ] Left shift overflow validated (shift amount < 64)
+- [ ] Global storage scoped to signer (cannot modify other accounts)
+- [ ] Unbounded iterations prevented (per-user storage, not global vectors)
+- [ ] Generic type validation (flash loan repayment type matches)
+- [ ] Reference safety (invariants preserved after callbacks)
+- [ ] Front-running prevention (atomic operations tested)
+- [ ] Token ID collisions prevented (object addresses used)
+- [ ] Randomness security (entry functions, gas balanced) - if applicable
 
 **Coverage:**
-
 - [ ] 100% line coverage achieved
 - [ ] All error codes tested
 - [ ] All functions tested
+- [ ] All security patterns tested
 
 ## ALWAYS Rules
 
@@ -555,8 +644,17 @@ For each contract, verify you have tests for:
 - ✅ ALWAYS use clear test names: `test_feature_scenario`
 - ✅ ALWAYS verify all state changes in tests
 - ✅ ALWAYS run `aptos move test --coverage` before deployment
-- ✅ ALWAYS add fuzzing tests for complex logic
-- ✅ ALWAYS test property invariants (e.g., balance conservation)
+
+### Security Testing ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
+- ✅ **ALWAYS test division precision loss**: Verify minimum thresholds enforced, fees > 0
+- ✅ **ALWAYS test left shift validation**: Reject shift amounts >= 64
+- ✅ **ALWAYS test global storage scoping**: Multi-user tests verify isolation
+- ✅ **ALWAYS test unbounded iteration prevention**: Verify per-user storage architecture
+- ✅ **ALWAYS test generic type validation**: Flash loan type matching (if applicable)
+- ✅ **ALWAYS test reference safety**: Verify invariants before AND after callbacks
+- ✅ **ALWAYS test atomic operations**: Verify no front-running opportunities
+- ✅ **ALWAYS test token ID uniqueness**: Object addresses prevent collisions
+- ✅ **ALWAYS test randomness security**: Entry functions, gas balance (if applicable)
 
 ## NEVER Rules
 
@@ -566,19 +664,25 @@ For each contract, verify you have tests for:
 - ❌ NEVER use unclear test names
 - ❌ NEVER batch tests without verifying each case
 
+### Security Testing Violations ⭐ CRITICAL
+- ❌ NEVER skip testing minimum thresholds (division precision loss)
+- ❌ NEVER skip testing left shift validation (silent overflow)
+- ❌ NEVER skip testing cross-account isolation (global storage scoping)
+- ❌ NEVER skip testing scalability (unbounded iteration DOS)
+- ❌ NEVER skip testing invariants after callbacks (reference safety)
+- ❌ NEVER skip testing atomic operations (front-running)
+- ❌ NEVER skip testing randomness functions if contract uses randomness
+
 ## References
 
 **Pattern Documentation:**
-
 - `../../patterns/TESTING.md` - Comprehensive testing guide
 - `../../patterns/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
-
 - https://aptos.dev/build/smart-contracts/book/unit-testing
 
 **Related Skills:**
-
 - `write-contracts` - Generate code to test
 - `security-audit` - Verify security after testing
 

@@ -18,15 +18,19 @@ before deployment.
 
 ### Step 1: Run Security Checklist
 
-Review ALL categories in order:
+Review ALL categories in order (based on [SECURITY.md](../../patterns/SECURITY.md)):
 
 1. **Access Control** - Who can call functions?
-2. **Input Validation** - Are inputs checked?
+2. **Input Validation** - Are inputs checked (including minimums)?
 3. **Object Safety** - Object model used correctly?
 4. **Reference Safety** - No dangerous references exposed?
-5. **Arithmetic Safety** - Overflow/underflow prevented?
-6. **Generic Type Safety** - Phantom types used correctly?
-7. **Testing** - 100% coverage achieved?
+5. **Arithmetic Safety** - Overflow/underflow/precision loss prevented?
+6. **Resource Management** - No unbounded iterations?
+7. **Generic Type Safety** - Phantom types & flash loans?
+8. **Business Logic** - Front-running, oracles, IDs, pause?
+9. **Randomness** - Entry functions, gas balanced? (if applicable)
+10. **Testing** - 100% coverage achieved?
+11. **Operations** - Key management, upgrades secure?
 
 ### Step 2: Access Control Audit
 
@@ -34,9 +38,10 @@ Review ALL categories in order:
 
 - [ ] All `entry` functions verify signer authority
 - [ ] Object ownership checked with `object::owner()`
+- [ ] **CRITICAL**: `borrow_global_mut` scoped to signer's address (NO arbitrary address parameters)
 - [ ] Admin functions check caller is admin
-- [ ] Function visibility uses least-privilege
-- [ ] No public functions modify state without checks
+- [ ] Function visibility uses least-privilege (private > public(friend) > public > entry)
+- [ ] No public functions modify state without authorization checks
 
 **Check for:**
 
@@ -78,16 +83,42 @@ public entry fun transfer_item(
 }
 ```
 
+**CRITICAL - Global Storage Scoping:**
+
+```move
+// ✅ CORRECT: Scoped to signer
+public entry fun update_balance(user: &signer, amount: u64) acquires Account {
+    let user_addr = signer::address_of(user);
+    // Can only modify signer's own account
+    let account = borrow_global_mut<Account>(user_addr);
+    account.balance = account.balance + amount;
+}
+
+// ❌ WRONG: Accepts arbitrary address
+public entry fun update_balance(
+    user: &signer,
+    target_addr: address,  // DANGEROUS!
+    amount: u64
+) acquires Account {
+    // User can modify ANY account!
+    let account = borrow_global_mut<Account>(target_addr);
+    account.balance = account.balance + amount;
+}
+```
+
 ### Step 3: Input Validation Audit
 
 **Verify:**
 
 - [ ] Numeric inputs checked for zero: `assert!(amount > 0, E_ZERO_AMOUNT)`
+- [ ] **CRITICAL**: Minimum thresholds enforced: `assert!(amount >= MIN_SIZE, E_TOO_SMALL)` (prevents fee rounding to zero)
+- [ ] **CRITICAL**: Fee results validated: `let fee = calc_fee(amount); assert!(fee > 0, E_TOO_SMALL);`
 - [ ] Numeric inputs within max limits: `assert!(amount <= MAX, E_AMOUNT_TOO_HIGH)`
 - [ ] Vector lengths validated: `assert!(vector::length(&v) > 0, E_EMPTY_VECTOR)`
 - [ ] String lengths checked: `assert!(string::length(&s) <= MAX_LENGTH, E_NAME_TOO_LONG)`
 - [ ] Addresses validated: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
 - [ ] Enum-like values in range: `assert!(type_id < MAX_TYPES, E_INVALID_TYPE)`
+- [ ] Generic types consistent (flash loan repayment matches borrowed type)
 
 **Check for:**
 
@@ -177,10 +208,12 @@ public entry fun update_item_name(
 
 **Verify:**
 
-- [ ] Additions checked for overflow
-- [ ] Subtractions checked for underflow
-- [ ] Division by zero prevented
-- [ ] Multiplication checked for overflow
+- [ ] Additions checked for overflow (Move aborts automatically)
+- [ ] Subtractions checked for underflow (Move aborts automatically)
+- [ ] Division by zero prevented: `assert!(divisor > 0, E_DIVISION_BY_ZERO)`
+- [ ] **CRITICAL**: Division precision loss handled (validate `fee > 0`)
+- [ ] **CRITICAL**: Left shift `<<` validated or avoided (does NOT abort on overflow!)
+- [ ] Multiplication checked for overflow when needed
 
 **Check for:**
 
@@ -239,6 +272,137 @@ struct Vault<CoinType> has key {
 }
 ```
 
+### Step 7.1: Resource Management Audit
+
+**Verify:**
+
+- [ ] **CRITICAL**: No unbounded iterations over global storage (gas exhaustion DOS)
+- [ ] User data stored in user accounts, not global vectors
+- [ ] SmartTable used for per-user scalable data
+- [ ] Each independent object in separate account (not multiple resources in one)
+- [ ] Module data in Objects, user data in user accounts
+
+**Check for:**
+
+```move
+// ❌ DANGEROUS: Unbounded global iteration
+struct GlobalOrders has key {
+    orders: vector<Order>,  // Grows unboundedly
+}
+
+public fun process_all_orders() {
+    let orders = &borrow_global<GlobalOrders>(@protocol).orders;
+    // DOS: Can become too expensive to execute
+    let i = 0;
+    while (i < vector::length(orders)) {
+        process(vector::borrow(orders, i));
+        i = i + 1;
+    };
+}
+
+// ✅ CORRECT: Per-user storage
+struct UserOrders has key {
+    orders: SmartTable<u64, Order>,
+}
+
+public entry fun process_user_orders(user: &signer) {
+    let orders = &borrow_global<UserOrders>(signer::address_of(user)).orders;
+    // User can't DOS others
+}
+```
+
+### Step 7.2: Business Logic Audit
+
+**Verify:**
+
+- [ ] **CRITICAL**: Atomic operations (no front-running via split operations)
+- [ ] Multi-oracle design (not single on-chain price ratio)
+- [ ] Collision-proof token IDs (object addresses, not string concat)
+- [ ] Pause mechanism implemented for protocols
+- [ ] Two-step operations combined or protected
+
+**Check for:**
+
+```move
+// ❌ VULNERABLE: Split operation enables front-running
+public entry fun set_winner(admin: &signer, number: u64) {
+    // Step 1: Set winner
+    lottery.winner = number;
+}
+public entry fun evaluate_bets() {
+    // Step 2: Evaluate
+    // Attacker sees Step 1, submits winning bet before Step 2!
+}
+
+// ✅ CORRECT: Atomic
+public entry fun finalize_lottery(admin: &signer, number: u64) {
+    lottery.winner = number;
+    evaluate_bets_internal();  // Atomic, no front-running
+}
+
+// ❌ DANGEROUS: Single price oracle
+public fun get_price(): u64 {
+    pool.reserve_a / pool.reserve_b  // Manipulatable!
+}
+
+// ✅ CORRECT: Multi-oracle
+public fun get_price(): u64 {
+    let primary = get_chainlink_price();
+    if (primary_valid) return primary;
+    let secondary = get_pyth_price();
+    if (secondary_valid) return secondary;
+    get_twap()  // Fallback
+}
+```
+
+### Step 7.3: Randomness Audit (if applicable)
+
+**Verify (if contract uses randomness):**
+
+- [ ] **CRITICAL**: Randomness functions are `entry` (NOT `public` - prevents composition)
+- [ ] **CRITICAL**: Gas consumption balanced across win/lose paths (prevent undergasing)
+- [ ] Consider commit-reveal pattern for sensitive operations
+
+**Check for:**
+
+```move
+// ❌ DANGEROUS: Public allows test-and-abort
+public fun play_lottery(): bool {
+    let random = randomness::u64_range(1, 100);
+    random == 42
+}
+// Attacker loops until win!
+
+// ✅ CORRECT: Entry prevents composition
+entry fun play_lottery(user: &signer) {
+    let random = randomness::u64_range(1, 100);
+    if (random == 42) { pay_prize(user); }
+}
+
+// ❌ DANGEROUS: Unbalanced gas
+entry fun play_game(user: &signer) {
+    let random = randomness::u64_range(1, 100);
+    if (random <= 50) {
+        pay_prize(user);  // 1000 gas
+    } else {
+        complex_computation();  // 5000 gas
+    }
+    // Attacker sets gas = 1500, only wins succeed!
+}
+
+// ✅ CORRECT: Balanced gas
+entry fun play_game_safe(user: &signer) {
+    let random = randomness::u64_range(1, 100);
+    if (random <= 50) {
+        handle_win(user);
+    } else {
+        handle_loss(user);
+    };
+    // Common finalization for both paths
+    update_stats();
+}
+```
+
 ### Step 8: Testing Audit
 
 **Verify:**
@@ -257,6 +421,33 @@ aptos move coverage source --module <module_name>
 ```
 
 **Verify output shows 100% coverage.**
+
+### Step 9: Operations Security Audit
+
+**Verify:**
+
+- [ ] **CRITICAL**: Separate publishing keys for testnet and mainnet
+- [ ] Mainnet keys stored securely (hardware wallet, HSM)
+- [ ] Testnet keys isolated from mainnet keys
+- [ ] Upgrade functionality secured (if contract is upgradable)
+- [ ] Admin key rotation mechanism exists (if needed)
+
+**Check:**
+
+```bash
+# ❌ DANGEROUS: Reusing same key
+aptos init  # Creates ~/.aptos/config.yaml
+aptos move publish --network testnet  # Uses same key
+aptos move publish --network mainnet  # DANGEROUS if testnet key leaked!
+
+# ✅ CORRECT: Separate key pairs
+aptos init --network testnet --profile testnet
+aptos init --network mainnet --profile mainnet  # Different key!
+
+# Publish with profiles
+aptos move publish --profile testnet
+aptos move publish --profile mainnet
+```
 
 ## Security Audit Report Template
 

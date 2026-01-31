@@ -208,16 +208,29 @@ When writing Move contracts, you MUST:
 - ✅ Use `object::owner(obj)` to verify ownership
 - ✅ Use `object::generate_signer(&constructor_ref)` for object signers
 
-### Security
-- ✅ Verify signer authority in ALL entry functions: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-- ✅ Verify object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
-- ✅ Validate ALL inputs:
+### Security ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
+- ✅ **Verify signer authority** in ALL entry functions: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
+- ✅ **Verify object ownership**: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
+- ✅ **Scope global storage** to signer: `borrow_global_mut<T>(signer::address_of(user))` (NEVER accept arbitrary address parameter)
+- ✅ **Validate ALL inputs:**
   - Non-zero amounts: `assert!(amount > 0, E_ZERO_AMOUNT)`
+  - Minimum thresholds: `assert!(amount >= MIN_SIZE, E_TOO_SMALL)` (prevents fee rounding to zero)
+  - Fee validation: `let fee = calc_fee(amount); assert!(fee > 0, E_TOO_SMALL);`
   - Within limits: `assert!(amount <= MAX_AMOUNT, E_AMOUNT_TOO_HIGH)`
   - Non-zero addresses: `assert!(addr != @0x0, E_ZERO_ADDRESS)`
   - String lengths: `assert!(string::length(&name) <= MAX_LENGTH, E_NAME_TOO_LONG)`
-- ✅ Use `phantom` for type witnesses: `struct Vault<phantom CoinType>`
-- ✅ Protect critical fields from mem::swap attacks
+- ✅ **Generic type validation**: Use `Receipt<phantom CoinType>` to ensure flash loan repayment type matches
+- ✅ **Use `phantom`** for type witnesses: `struct Vault<phantom CoinType>`
+- ✅ **Protect critical fields** from mem::swap attacks (never expose `&mut` publicly)
+- ✅ **Re-validate after callbacks**: Check invariants before AND after calling untrusted code with `&mut` refs
+- ✅ **Store each object in separate account**: Don't put multiple resources in one object account
+- ✅ **Avoid unbounded iterations**: Store user data in user accounts, not global vectors
+- ✅ **Use SmartTable** for scalable per-user data instead of vectors
+- ✅ **Atomic operations**: Prevent front-running by combining related operations (set + evaluate)
+- ✅ **Multi-oracle design**: Never use single on-chain price ratio as sole oracle
+- ✅ **Collision-proof IDs**: Use object addresses, not string concatenation
+- ✅ **Implement pause**: Add emergency pause mechanism for all protocols
+- ✅ **Randomness security**: Make randomness functions `entry` (not `public`), balance gas across outcomes
 
 ### Error Handling
 - ✅ Define clear error constants: `const E_NOT_OWNER: u64 = 1;`
@@ -261,22 +274,33 @@ When writing Move contracts, you MUST NEVER:
 - ❌ NEVER use raw addresses for objects (use `Object<T>`)
 - ❌ NEVER use `account::create_resource_account()` (deprecated)
 
-### Security Violations
-- ❌ NEVER return ConstructorRef from public functions
-- ❌ NEVER expose `&mut` references in public functions
+### Security Violations ⭐ CRITICAL
+- ❌ NEVER return ConstructorRef from public functions (can reclaim ownership after transfer)
+- ❌ NEVER expose `&mut` references in public functions (mem::swap attacks)
 - ❌ NEVER skip signer verification in entry functions
+- ❌ NEVER accept arbitrary `address` parameter for `borrow_global_mut` (cross-account manipulation)
 - ❌ NEVER trust caller addresses without verification
 - ❌ NEVER allow ungated transfers without good reason
+- ❌ NEVER use left shift `<<` without validation (does NOT abort on overflow)
+- ❌ NEVER iterate over unbounded global storage (gas exhaustion DOS)
+- ❌ NEVER store multiple unrelated resources in one object account
+- ❌ NEVER use single on-chain price ratio as sole oracle (manipulation)
+- ❌ NEVER use string concatenation for token IDs (collisions)
+- ❌ NEVER make randomness functions `public` (test-and-abort attacks)
+- ❌ NEVER skip pause mechanism in protocols holding user funds
+- ❌ NEVER reuse publishing keys between testnet and mainnet
 
 ### Bad Practices
-- ❌ NEVER skip input validation
+- ❌ NEVER skip input validation (especially minimum thresholds for fees)
 - ❌ NEVER use magic numbers for errors
-- ❌ NEVER ignore overflow/underflow checks
+- ❌ NEVER ignore division precision loss (validate fees > 0)
 - ❌ NEVER deploy without 100% test coverage
 - ❌ NEVER create helper functions that just return named addresses (use `@addr` directly)
 - ❌ NEVER forget to emit events for significant activities
 - ❌ NEVER use old syntax when V2 syntax is available (vector::borrow vs vector[i])
 - ❌ NEVER skip `init_module` for contracts that need initialization
+- ❌ NEVER split atomic operations (enables front-running)
+- ❌ NEVER pass `&mut` to untrusted callbacks without re-validation
 
 ## Common Patterns
 

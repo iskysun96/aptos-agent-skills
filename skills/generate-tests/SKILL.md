@@ -100,6 +100,65 @@ public fun test_transfer_object_succeeds(
 }
 ```
 
+### Step 2.5: Testing Time-Based Logic ⭐ NEW - For Contracts with Time Dependencies
+
+**For contracts with time-dependent logic (staking, vesting, voting periods, timelocks):**
+
+```move
+use aptos_framework::timestamp;
+
+#[test(framework = @0x1)]
+fun test_timestamp_initialization(framework: &signer) {
+    // ALWAYS: Initialize timestamp in time-based tests
+    timestamp::set_time_has_started_for_testing(framework);
+
+    // Now timestamp functions work
+    let current_time = timestamp::now_seconds();
+    assert!(current_time == 0, 0);
+}
+
+#[test(framework = @0x1, user = @0x200)]
+fun test_voting_period(framework: &signer, user: &signer) {
+    // Initialize timestamp
+    timestamp::set_time_has_started_for_testing(framework);
+
+    // Create proposal with 7-day voting period
+    let proposal = create_proposal(user, b"Proposal 1", 7 * 86400);
+
+    // Fast forward 8 days
+    timestamp::fast_forward_seconds(8 * 86400);
+
+    // Now can execute
+    execute_proposal(user, proposal);
+}
+
+#[test(framework = @0x1, user = @0x200)]
+fun test_staking_rewards(framework: &signer, user: &signer) {
+    timestamp::set_time_has_started_for_testing(framework);
+
+    // Stake at time 0
+    stake(user, 1000);
+
+    // Fast forward 1 year
+    timestamp::fast_forward_seconds(365 * 86400);
+
+    // Claim and verify rewards
+    claim_rewards(user);
+    let balance = get_balance(user);
+    assert!(balance >= 1050, 0); // At least 5% APY
+}
+```
+
+**CRITICAL - Common Pitfalls:**
+
+❌ **NEVER use** `aptos_governance::get_signer_testnet_sig()` (doesn't exist, causes compilation errors)
+
+✅ **ALWAYS use** `#[test(framework = @0x1)]` attribute and pass framework signer to `set_time_has_started_for_testing()`
+
+❌ **NEVER assume** time starts at 0 without initialization
+
+✅ **ALWAYS call** `set_time_has_started_for_testing()` first in time-based tests
+
 ### Step 3: Write Access Control Tests
 
 **Test unauthorized access is blocked:**
@@ -644,6 +703,8 @@ For each contract, verify you have tests for:
 - ✅ ALWAYS use clear test names: `test_feature_scenario`
 - ✅ ALWAYS verify all state changes in tests
 - ✅ ALWAYS run `aptos move test --coverage` before deployment
+- ✅ **ALWAYS generate minimum 10 tests:** 5 happy path, 3 error conditions, 2 access control
+- ✅ **ALWAYS create all test accounts in setup function BEFORE any operations** - Never call `aptos_account::create_account()` mid-test if the account was already created with `account::create_account_for_test()`
 
 ### Security Testing ⭐ CRITICAL - See [SECURITY.md](../../patterns/SECURITY.md)
 - ✅ **ALWAYS test division precision loss**: Verify minimum thresholds enforced, fees > 0

@@ -17,6 +17,7 @@ This skill helps diagnose and fix common errors in Aptos Move development.
 4. **Test Errors** - Tests failing
 5. **Deployment Errors** - Publishing failed
 6. **Type Errors** - Type mismatches
+7. **Security-Critical Errors** ⭐ - Vulnerabilities that can be exploited
 
 ---
 
@@ -215,6 +216,229 @@ let result = 5 - 10;  // Underflow
 assert!(MAX_U64 - amount > 0, E_OVERFLOW);
 let result = amount + 1;
 ```
+
+---
+
+## Security-Critical Errors ⭐ See [SECURITY.md](../../patterns/SECURITY.md)
+
+### Error: "Fee calculated as zero" (Division Precision Loss)
+
+**Cause:** Integer division rounds down, causing fees to be zero for small amounts
+
+**Example:**
+```move
+const PROTOCOL_FEE_BPS: u64 = 30; // 0.3% = 30 basis points
+
+public fun process_order(amount: u64) {
+    // Amount = 500, fee = (500 * 30) / 10000 = 15000 / 10000 = 1 ✅
+    // Amount = 100, fee = (100 * 30) / 10000 = 3000 / 10000 = 0 ❌ VULNERABILITY!
+    let fee = (amount * PROTOCOL_FEE_BPS) / 10000;
+    // ... charge fee
+}
+```
+
+**Fix:**
+```move
+const MIN_ORDER_SIZE: u64 = 1000; // Minimum to ensure non-zero fees
+const PROTOCOL_FEE_BPS: u64 = 30;
+
+public fun process_order(amount: u64) {
+    // Method 1: Enforce minimum threshold
+    assert!(amount >= MIN_ORDER_SIZE, E_AMOUNT_TOO_SMALL);
+    let fee = (amount * PROTOCOL_FEE_BPS) / 10000;
+
+    // Method 2: Validate non-zero result
+    assert!(fee > 0, E_AMOUNT_TOO_SMALL);
+    // ... charge fee
+}
+```
+
+**Security Impact:** CRITICAL - Users can bypass protocol fees
+
+### Error: "Incorrect calculation result" (Left Shift Overflow)
+
+**Cause:** Left shift (<<) does NOT abort on overflow - produces silent incorrect results
+
+**Example:**
+```move
+public fun calculate_power_of_two(exponent: u8): u64 {
+    // If exponent = 64, this produces 0 (wraps around)
+    // If exponent = 65, this produces incorrect result
+    // NO ABORT - SILENT FAILURE!
+    1 << exponent
+}
+```
+
+**Fix:**
+```move
+const E_OVERFLOW: u64 = 100;
+
+public fun calculate_power_of_two(exponent: u8): u64 {
+    // MUST validate shift amount manually
+    assert!(exponent < 64, E_OVERFLOW);
+    1 << exponent  // Safe after validation
+}
+```
+
+**Security Impact:** CRITICAL - Can cause incorrect calculations in financial logic
+
+### Error: "User modified other user's account" (Global Storage Scoping)
+
+**Cause:** Function accepts arbitrary address parameter for `borrow_global_mut`, allowing cross-account manipulation
+
+**Example:**
+```move
+// ❌ VULNERABLE CODE
+public entry fun update_balance(
+    user: &signer,
+    target_addr: address,  // DANGEROUS!
+    amount: u64
+) acquires Account {
+    // User can modify ANY account!
+    let account = borrow_global_mut<Account>(target_addr);
+    account.balance = account.balance + amount;
+}
+```
+
+**Fix:**
+```move
+// ✅ SECURE CODE
+public entry fun update_balance(
+    user: &signer,
+    amount: u64
+) acquires Account {
+    // Can ONLY modify signer's own account
+    let user_addr = signer::address_of(user);
+    let account = borrow_global_mut<Account>(user_addr);
+    account.balance = account.balance + amount;
+}
+```
+
+**Security Impact:** CRITICAL - Complete account takeover vulnerability
+
+### Error: "Transaction out of gas" (Unbounded Iteration DOS)
+
+**Cause:** Iterating over global storage (all users) causes gas exhaustion as system grows
+
+**Example:**
+```move
+// ❌ VULNERABLE CODE
+struct Registry has key {
+    all_users: vector<address>,  // Grows unbounded!
+}
+
+public entry fun distribute_rewards(admin: &signer) acquires Registry {
+    let registry = borrow_global<Registry>(@admin);
+
+    // DOS: Gas cost grows with every user!
+    let i = 0;
+    while (i < vector::length(&registry.all_users)) {
+        let user_addr = *vector::borrow(&registry.all_users, i);
+        // ... give reward
+        i = i + 1;
+    };
+}
+```
+
+**Fix:**
+```move
+// ✅ SECURE CODE - Per-user storage
+struct UserReward has key {
+    amount: u64,
+}
+
+public entry fun claim_reward(user: &signer) acquires UserReward {
+    // O(1) operation - no iteration!
+    let reward = borrow_global_mut<UserReward>(signer::address_of(user));
+    // ... claim logic
+}
+```
+
+**Security Impact:** HIGH - Denial of service attack vector
+
+### Error: "Invariant violation after callback" (Reference Safety)
+
+**Cause:** Passing `&mut` reference to external code that violates invariants
+
+**Example:**
+```move
+// ❌ VULNERABLE CODE
+public fun process_with_callback(
+    obj: &mut MyObject,
+    callback: |&mut MyObject|
+) {
+    // Check invariant before
+    assert!(obj.value > 0, E_INVALID);
+
+    // Call external code with mutable reference
+    callback(obj);  // External code could violate invariants!
+
+    // DON'T re-check after callback - VULNERABILITY!
+    obj.value = obj.value + 100;
+}
+```
+
+**Fix:**
+```move
+// ✅ SECURE CODE
+public fun process_with_callback(
+    obj: &mut MyObject,
+    callback: |&mut MyObject|
+) {
+    // Check invariant before
+    assert!(obj.value > 0, E_INVALID);
+
+    // Call external code
+    callback(obj);
+
+    // CRITICAL: Re-validate invariants after callback!
+    assert!(obj.value > 0, E_INVALID);
+    assert!(obj.is_initialized, E_INVALID);
+
+    obj.value = obj.value + 100;  // Safe now
+}
+```
+
+**Security Impact:** CRITICAL - Invariant violations, corrupted state
+
+### Error: "Front-running attack successful" (Non-Atomic Operations)
+
+**Cause:** Operations split across multiple transactions allow front-running
+
+**Example:**
+```move
+// ❌ VULNERABLE CODE - Two separate calls
+public entry fun set_price(user: &signer, price: u64) acquires PriceOracle {
+    let oracle = borrow_global_mut<PriceOracle>(@oracle_addr);
+    oracle.current_price = price;
+}
+
+public entry fun evaluate_position(user: &signer) acquires PriceOracle {
+    let oracle = borrow_global<PriceOracle>(@oracle_addr);
+    // VULNERABLE: Attacker can front-run between set_price and evaluate_position!
+    let price = oracle.current_price;
+    // ... evaluate using price
+}
+```
+
+**Fix:**
+```move
+// ✅ SECURE CODE - Atomic operation
+public entry fun set_and_evaluate_price(
+    user: &signer,
+    price: u64
+) acquires PriceOracle {
+    // Both operations in same transaction - atomic!
+    let oracle = borrow_global_mut<PriceOracle>(@oracle_addr);
+    oracle.current_price = price;
+
+    // Evaluate immediately - no front-running opportunity
+    let result = evaluate_internal(price);
+    // ... use result
+}
+```
+
+**Security Impact:** HIGH - MEV attacks, sandwich attacks, price manipulation
 
 ---
 
@@ -722,6 +946,14 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 - ✅ ALWAYS define clear error constants
 - ✅ ALWAYS verify fixes with tests
 
+### Security Error Awareness ⭐ See [SECURITY.md](../../patterns/SECURITY.md)
+- ✅ ALWAYS check for division precision loss (fees = 0)
+- ✅ ALWAYS validate left shift amounts (< 64 for u64)
+- ✅ ALWAYS scope global storage to signer (no arbitrary address parameters)
+- ✅ ALWAYS avoid unbounded iterations (use per-user storage)
+- ✅ ALWAYS re-validate after callbacks (reference safety)
+- ✅ ALWAYS use atomic operations (prevent front-running)
+
 ## NEVER Rules
 
 - ❌ NEVER ignore compiler warnings
@@ -729,6 +961,13 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 - ❌ NEVER skip testing after fixing
 - ❌ NEVER deploy with known errors
 - ❌ NEVER assume error location without verification
+
+### Security Error Violations ⭐ CRITICAL
+- ❌ NEVER ignore security-critical errors (fee bypass, overflow, cross-account access)
+- ❌ NEVER deploy code with security vulnerabilities
+- ❌ NEVER assume division always produces non-zero results
+- ❌ NEVER assume left shift will abort on overflow (it doesn't!)
+- ❌ NEVER accept arbitrary address parameters for borrow_global_mut
 
 ## References
 

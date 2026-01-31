@@ -1,6 +1,8 @@
 ---
 name: generate-tests
-description: Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test contract", "add test coverage", or AUTOMATICALLY after writing any contract.
+description:
+  Generate comprehensive unit tests for Aptos Move V2 contracts with 100% coverage. Use when "write tests", "test
+  contract", "add test coverage", or AUTOMATICALLY after writing any contract.
 ---
 
 # Generate Tests Skill
@@ -237,12 +239,14 @@ aptos move coverage summary
 ```
 
 **Coverage report example:**
+
 ```
 module: my_module
 coverage: 100.0% (150/150 lines covered)
 ```
 
 **If coverage < 100%:**
+
 1. Check uncovered lines in report
 2. Write tests for missing paths
 3. Repeat until 100%
@@ -295,22 +299,227 @@ module my_addr::module_tests {
 }
 ```
 
+## Fuzzing and Property-Based Testing
+
+### Step 7: Add Fuzzing Tests
+
+Fuzzing tests help discover edge cases by testing with random inputs:
+
+```move
+#[test_only]
+module my_addr::fuzz_tests {
+    use my_addr::my_module;
+    use std::vector;
+
+    // ========== Random Input Generators ==========
+
+    /// Generate random u64 in range
+    fun random_u64(seed: u64, min: u64, max: u64): u64 {
+        let range = max - min;
+        min + (seed % (range + 1))
+    }
+
+    /// Generate random string of given length
+    fun random_string(seed: u64, length: u64): String {
+        let chars = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = vector::empty<u8>();
+        let i = 0;
+
+        while (i < length) {
+            let char_index = ((seed + i) * 17) % vector::length(&chars);
+            vector::push_back(&mut result, *vector::borrow(&chars, char_index));
+            i = i + 1;
+        };
+
+        string::utf8(result)
+    }
+
+    /// Generate random address
+    fun random_address(seed: u64): address {
+        // Create pseudo-random address from seed
+        @0x0 + (seed * 0x10000000000000000)
+    }
+
+    // ========== Fuzzing Tests ==========
+
+    #[test]
+    public fun fuzz_test_deposit_amounts() {
+        let user = account::create_account_for_test(@0x1);
+
+        // Test 100 random valid amounts
+        let seed = 42;
+        let i = 0;
+
+        while (i < 100) {
+            let amount = random_u64(seed + i, 1, my_module::MAX_DEPOSIT_AMOUNT);
+
+            // Should always succeed for valid amounts
+            my_module::deposit(&user, amount);
+
+            // Withdraw to reset
+            my_module::withdraw(&user, amount);
+
+            i = i + 1;
+        }
+    }
+
+    #[test]
+    public fun fuzz_test_string_inputs() {
+        let user = account::create_account_for_test(@0x1);
+
+        // Test various string lengths
+        let seed = 123;
+        let i = 0;
+
+        while (i < 50) {
+            let length = random_u64(seed + i, 1, my_module::MAX_NAME_LENGTH);
+            let name = random_string(seed + i, length);
+
+            // Should succeed for valid lengths
+            let obj = my_module::create_named_object(&user, name);
+
+            i = i + 1;
+        }
+    }
+
+    // ========== Property-Based Tests ==========
+
+    #[test]
+    public fun property_test_balance_invariants() {
+        let user1 = account::create_account_for_test(@0x1);
+        let user2 = account::create_account_for_test(@0x2);
+
+        // Property: Total balance is conserved in transfers
+        let initial_amount = 1000000;
+        my_module::deposit(&user1, initial_amount);
+
+        let seed = 999;
+        let i = 0;
+
+        while (i < 20) {
+            let transfer_amount = random_u64(seed + i, 1, initial_amount / 2);
+
+            let balance1_before = my_module::get_balance(@0x1);
+            let balance2_before = my_module::get_balance(@0x2);
+
+            // Transfer
+            my_module::transfer(&user1, @0x2, transfer_amount);
+
+            let balance1_after = my_module::get_balance(@0x1);
+            let balance2_after = my_module::get_balance(@0x2);
+
+            // Property: Total balance unchanged
+            assert!(
+                balance1_before + balance2_before == balance1_after + balance2_after,
+                0
+            );
+
+            // Property: Individual changes are correct
+            assert!(balance1_after == balance1_before - transfer_amount, 1);
+            assert!(balance2_after == balance2_before + transfer_amount, 2);
+
+            i = i + 1;
+        }
+    }
+
+    #[test]
+    public fun property_test_ordering_invariants() {
+        let user = account::create_account_for_test(@0x1);
+        let collection = my_module::create_collection(&user);
+
+        // Property: Items maintain insertion order
+        let seed = 777;
+        let items = vector::empty<u64>();
+        let i = 0;
+
+        while (i < 10) {
+            let item_id = random_u64(seed + i, 1000, 9999);
+            vector::push_back(&mut items, item_id);
+
+            my_module::add_item(&user, collection, item_id);
+            i = i + 1;
+        };
+
+        // Verify order preserved
+        let retrieved_items = my_module::get_all_items(collection);
+        assert!(retrieved_items == items, 0);
+    }
+}
+```
+
+### Fuzzing Best Practices
+
+**Input Generation:**
+
+```move
+/// Generate biased random values (edge cases more likely)
+fun biased_random_u64(seed: u64): u64 {
+    let choice = seed % 10;
+
+    if (choice == 0) {
+        0  // Min value
+    } else if (choice == 1) {
+        MAX_U64  // Max value
+    } else if (choice == 2) {
+        1  // Just above min
+    } else if (choice == 3) {
+        MAX_U64 - 1  // Just below max
+    } else {
+        // Random in range
+        random_u64(seed, 0, MAX_U64)
+    }
+}
+```
+
+**Stateful Fuzzing:**
+
+```move
+#[test]
+public fun fuzz_test_state_machine() {
+    let machine = my_module::create_state_machine();
+    let seed = 12345;
+    let i = 0;
+
+    // Random sequence of operations
+    while (i < 100) {
+        let operation = seed % 4;
+
+        match operation {
+            0 => my_module::start_if_stopped(&machine),
+            1 => my_module::pause_if_running(&machine),
+            2 => my_module::resume_if_paused(&machine),
+            3 => my_module::stop_if_not_stopped(&machine),
+            _ => {},
+        };
+
+        // Verify state is always valid
+        assert!(my_module::is_valid_state(&machine), i);
+
+        seed = (seed * 17 + 11) % 1000000;
+        i = i + 1;
+    }
+}
+```
+
 ## Testing Checklist
 
 For each contract, verify you have tests for:
 
 **Happy Paths:**
+
 - [ ] Object creation works
 - [ ] State updates work
 - [ ] Transfers work
 - [ ] All main features work
 
 **Access Control:**
+
 - [ ] Non-owners cannot modify objects
 - [ ] Non-admins cannot call admin functions
 - [ ] Unauthorized users blocked
 
 **Input Validation:**
+
 - [ ] Zero amounts rejected
 - [ ] Excessive amounts rejected
 - [ ] Empty strings rejected
@@ -318,11 +527,20 @@ For each contract, verify you have tests for:
 - [ ] Zero addresses rejected
 
 **Edge Cases:**
+
 - [ ] Maximum values work
 - [ ] Minimum values work
 - [ ] Empty states handled
 
+**Fuzzing:**
+
+- [ ] Random valid inputs handled
+- [ ] Property invariants maintained
+- [ ] State machine transitions valid
+- [ ] No crashes or unexpected aborts
+
 **Coverage:**
+
 - [ ] 100% line coverage achieved
 - [ ] All error codes tested
 - [ ] All functions tested
@@ -337,6 +555,8 @@ For each contract, verify you have tests for:
 - ✅ ALWAYS use clear test names: `test_feature_scenario`
 - ✅ ALWAYS verify all state changes in tests
 - ✅ ALWAYS run `aptos move test --coverage` before deployment
+- ✅ ALWAYS add fuzzing tests for complex logic
+- ✅ ALWAYS test property invariants (e.g., balance conservation)
 
 ## NEVER Rules
 
@@ -349,13 +569,16 @@ For each contract, verify you have tests for:
 ## References
 
 **Pattern Documentation:**
+
 - `../../patterns/TESTING.md` - Comprehensive testing guide
 - `../../patterns/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**
+
 - https://aptos.dev/build/smart-contracts/book/unit-testing
 
 **Related Skills:**
+
 - `write-contracts` - Generate code to test
 - `security-audit` - Verify security after testing
 

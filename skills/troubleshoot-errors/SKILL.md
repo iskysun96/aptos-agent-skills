@@ -1,6 +1,8 @@
 ---
 name: troubleshoot-errors
-description: Diagnose and fix common Aptos Move errors. Use when "fix error", "debug move", "compilation failed", "test failed", or AUTOMATICALLY when errors detected.
+description:
+  Diagnose and fix common Aptos Move errors. Use when "fix error", "debug move", "compilation failed", "test failed", or
+  AUTOMATICALLY when errors detected.
 ---
 
 # Troubleshoot Errors Skill
@@ -27,11 +29,13 @@ This skill helps diagnose and fix common errors in Aptos Move development.
 **Cause:** Missing semicolon at end of statement
 
 **Example:**
+
 ```move
 let x = 5  // Missing semicolon
 ```
 
 **Fix:**
+
 ```move
 let x = 5;  // ✅ Added semicolon
 ```
@@ -41,11 +45,13 @@ let x = 5;  // ✅ Added semicolon
 **Cause:** Using variable before declaration or typo
 
 **Example:**
+
 ```move
 let result = value + 10;  // 'value' not declared
 ```
 
 **Fix:**
+
 ```move
 let value = 5;
 let result = value + 10;  // ✅ Declared first
@@ -56,11 +62,13 @@ let result = value + 10;  // ✅ Declared first
 **Cause:** Function parameters or return type incorrect
 
 **Example:**
+
 ```move
 public fun transfer(item: address) { }  // Should be Object<Item>
 ```
 
 **Fix:**
+
 ```move
 public fun transfer(item: Object<Item>) { }  // ✅ Correct type
 ```
@@ -70,6 +78,7 @@ public fun transfer(item: Object<Item>) { }  // ✅ Correct type
 **Cause:** Type doesn't have required abilities
 
 **Example:**
+
 ```move
 struct Item { }  // No 'key' ability
 fun init(account: &signer) {
@@ -78,6 +87,7 @@ fun init(account: &signer) {
 ```
 
 **Fix:**
+
 ```move
 struct Item has key { }  // ✅ Added 'key' ability
 ```
@@ -91,11 +101,13 @@ struct Item has key { }  // ✅ Added 'key' ability
 **Cause:** Missing dependencies in Move.toml
 
 **Example Error:**
+
 ```
 LINKER_ERROR: Unable to resolve address 'aptos_framework'
 ```
 
 **Fix:**
+
 ```toml
 # Add to Move.toml
 [dependencies.AptosFramework]
@@ -109,11 +121,13 @@ subdir = "aptos-move/framework/aptos-framework"
 **Cause:** Module imported but not in dependencies or sources/
 
 **Example:**
+
 ```move
 use my_addr::missing_module;  // Module doesn't exist
 ```
 
 **Fix:**
+
 ```move
 // 1. Create the module file in sources/
 // OR
@@ -125,11 +139,13 @@ use my_addr::missing_module;  // Module doesn't exist
 **Cause:** Named address used but not defined in Move.toml
 
 **Example Error:**
+
 ```
 Address 'my_addr' is not defined
 ```
 
 **Fix:**
+
 ```toml
 # Add to Move.toml
 [addresses]
@@ -148,17 +164,20 @@ my_addr = "0xCAFE"
 **Cause:** Assertion failed with error code 1
 
 **Example:**
+
 ```move
 const E_NOT_OWNER: u64 = 1;
 assert!(object::owner(obj) == user, E_NOT_OWNER);  // Failed
 ```
 
 **Fix:**
+
 1. Identify which assertion failed (error code 1 = E_NOT_OWNER)
 2. Verify the condition (is user actually the owner?)
 3. Fix the logic or provide correct parameters
 
 **Debug:**
+
 ```move
 // Add debug prints before assertion
 debug::print(&object::owner(obj));
@@ -171,11 +190,13 @@ assert!(object::owner(obj) == user, E_NOT_OWNER);
 **Cause:** Trying to move_to resource that already exists
 
 **Example:**
+
 ```move
 move_to(account, Counter { value: 0 });  // Already exists at this address
 ```
 
 **Fix:**
+
 ```move
 // Check if resource exists first
 if (!exists<Counter>(signer::address_of(account))) {
@@ -188,11 +209,13 @@ if (!exists<Counter>(signer::address_of(account))) {
 **Cause:** Trying to borrow resource that doesn't exist
 
 **Example:**
+
 ```move
 let counter = borrow_global<Counter>(@0x1);  // Doesn't exist
 ```
 
 **Fix:**
+
 ```move
 // Verify resource exists first
 assert!(exists<Counter>(@0x1), E_NOT_INITIALIZED);
@@ -204,12 +227,14 @@ let counter = borrow_global<Counter>(@0x1);
 **Cause:** Integer overflow or underflow
 
 **Example:**
+
 ```move
 let result = MAX_U64 + 1;  // Overflow
 let result = 5 - 10;  // Underflow
 ```
 
 **Fix:**
+
 ```move
 // Check before operation
 assert!(MAX_U64 - amount > 0, E_OVERFLOW);
@@ -225,6 +250,7 @@ let result = amount + 1;
 **Cause:** Test marked #[expected_failure] but didn't abort
 
 **Example:**
+
 ```move
 #[test]
 #[expected_failure(abort_code = E_NOT_OWNER)]
@@ -234,6 +260,7 @@ public fun test_should_fail() {
 ```
 
 **Fix:**
+
 ```move
 #[test]
 #[expected_failure(abort_code = E_NOT_OWNER)]
@@ -248,6 +275,7 @@ public fun test_should_fail() {
 **Cause:** Assertion in test failed
 
 **Example:**
+
 ```move
 #[test]
 public fun test_value() {
@@ -257,6 +285,7 @@ public fun test_value() {
 ```
 
 **Fix:**
+
 ```move
 // Debug the issue
 #[test]
@@ -272,6 +301,7 @@ public fun test_value() {
 **Cause:** Some code paths not tested
 
 **Example:**
+
 ```
 module: my_module
 coverage: 85.5% (94/110 lines covered)
@@ -283,6 +313,7 @@ Uncovered lines:
 ```
 
 **Fix:**
+
 ```bash
 # 1. View coverage report
 aptos move coverage source --module my_module
@@ -302,6 +333,7 @@ aptos move test --coverage
 **Cause:** Wrong type provided
 
 **Example:**
+
 ```move
 public fun transfer(item: Object<Item>) { }
 
@@ -310,6 +342,7 @@ transfer(@0x123);  // Wrong: passing address, not Object<Item>
 ```
 
 **Fix:**
+
 ```move
 // Convert address to Object<Item>
 let item = object::address_to_object<Item>(@0x123);
@@ -321,11 +354,13 @@ transfer(item);  // ✅ Correct type
 **Cause:** Compiler can't determine generic type
 
 **Example:**
+
 ```move
 let empty = vector::empty();  // What type?
 ```
 
 **Fix:**
+
 ```move
 let empty = vector::empty<u64>();  // ✅ Explicit type
 ```
@@ -335,6 +370,7 @@ let empty = vector::empty<u64>();  // ✅ Explicit type
 **Cause:** Generic type not stored in fields but not marked phantom
 
 **Example:**
+
 ```move
 struct Vault<CoinType> has key {  // CoinType not in fields
     balance: u64,
@@ -342,6 +378,7 @@ struct Vault<CoinType> has key {  // CoinType not in fields
 ```
 
 **Fix:**
+
 ```move
 struct Vault<phantom CoinType> has key {  // ✅ Added phantom
     balance: u64,
@@ -359,6 +396,7 @@ struct Vault<phantom CoinType> has key {  // ✅ Added phantom
 **Common Scenarios:**
 
 **Scenario 1: Collection owner can't create tokens**
+
 ```move
 // ❌ WRONG: Storing collection's extend_ref
 fun init_module(deployer: &signer) {
@@ -380,6 +418,7 @@ public entry fun mint_nft() acquires Config {
 ```
 
 **Fix:**
+
 ```move
 // ✅ CORRECT: Create marketplace object that OWNS the collection
 fun init_module(deployer: &signer) {
@@ -406,6 +445,7 @@ public entry fun mint_nft() acquires MarketplaceConfig {
 ```
 
 **Scenario 2: init_module never ran**
+
 ```move
 // During deployment, init_module failed an assertion
 fun init_module(deployer: &signer) {
@@ -416,11 +456,13 @@ fun init_module(deployer: &signer) {
 ```
 
 **Fix:**
+
 - Verify `@marketplace_addr` resolves to correct address during deployment
 - For object deployment, use `aptos move deploy-object` not `publish`
 - Check deployment transaction succeeded
 
 **Scenario 3: Wrong address calculation**
+
 ```move
 // ❌ WRONG: Incorrect seed or creator address
 let obj_addr = object::create_object_address(&wrong_creator, b"SEED");
@@ -428,6 +470,7 @@ let config = borrow_global<Config>(obj_addr);  // Doesn't exist at this address
 ```
 
 **Fix:**
+
 ```move
 // ✅ Use correct creator address and seed
 let obj_addr = object::create_object_address(&@marketplace_addr, b"MARKETPLACE_STATE");
@@ -439,6 +482,7 @@ let config = borrow_global<MarketplaceConfig>(obj_addr);
 **Cause:** Trying to use `object::transfer()` on an object with disabled ungated transfers
 
 **Example:**
+
 ```move
 public entry fun mint_and_transfer(creator: &signer, recipient: address) {
     let constructor_ref = token::create_named_token(...);
@@ -455,6 +499,7 @@ public entry fun mint_and_transfer(creator: &signer, recipient: address) {
 ```
 
 **Fix:**
+
 ```move
 public entry fun mint_and_transfer(creator: &signer, recipient: address) {
     let constructor_ref = token::create_named_token(...);
@@ -474,6 +519,7 @@ public entry fun mint_and_transfer(creator: &signer, recipient: address) {
 ```
 
 **Rule:**
+
 - `object::disable_ungated_transfer()` called? → Use `object::transfer_with_ref()`
 - Ungated transfers enabled (default)? → Use `object::transfer()`
 
@@ -482,6 +528,7 @@ public entry fun mint_and_transfer(creator: &signer, recipient: address) {
 **Cause:** Named object address doesn't match expected address
 
 **Example:**
+
 ```move
 // Created object with one seed
 let obj = object::create_named_object(creator, b"SEED_V1");
@@ -492,6 +539,7 @@ let data = borrow_global<Data>(obj_addr);  // Doesn't exist
 ```
 
 **Fix:**
+
 ```move
 // ✅ Use consistent seeds
 const SEED: vector<u8> = b"MY_OBJECT_SEED";
@@ -511,6 +559,7 @@ let data = borrow_global<Data>(obj_addr);  // ✅ Correct
 **Cause:** Account doesn't have enough APT to pay gas
 
 **Fix:**
+
 ```bash
 # Testnet/Devnet: Use faucet
 aptos account fund-with-faucet --profile testnet
@@ -523,6 +572,7 @@ aptos account fund-with-faucet --profile testnet
 **Cause:** Module doesn't pass bytecode verifier
 
 **Fix:**
+
 ```bash
 # 1. Ensure code compiles locally
 aptos move compile
@@ -541,12 +591,14 @@ aptos move prove
 **Cause:** Upgrade breaks compatibility
 
 **Example:**
+
 ```
 Cannot remove public function 'old_function'
 Cannot change signature of 'existing_function'
 ```
 
 **Fix:**
+
 ```move
 // ❌ Don't remove public functions
 // ❌ Don't change function signatures
@@ -566,11 +618,13 @@ public fun old_function() { }
 ### Pattern 1: Object Access Errors
 
 **Problem:**
+
 ```move
 let item = borrow_global<Item>(item_obj);  // Wrong: passing Object<Item>, need address
 ```
 
 **Solution:**
+
 ```move
 let item_addr = object::object_address(&item_obj);
 let item = borrow_global<Item>(item_addr);  // ✅ Correct
@@ -579,6 +633,7 @@ let item = borrow_global<Item>(item_addr);  // ✅ Correct
 ### Pattern 2: Missing acquires
 
 **Problem:**
+
 ```move
 public fun get_balance(addr: address): u64 {  // Missing 'acquires'
     let account = borrow_global<Account>(addr);
@@ -587,6 +642,7 @@ public fun get_balance(addr: address): u64 {  // Missing 'acquires'
 ```
 
 **Solution:**
+
 ```move
 public fun get_balance(addr: address): u64 acquires Account {  // ✅ Added
     let account = borrow_global<Account>(addr);
@@ -597,11 +653,13 @@ public fun get_balance(addr: address): u64 acquires Account {  // ✅ Added
 ### Pattern 3: Incorrect Error Codes
 
 **Problem:**
+
 ```move
 assert!(condition, 0);  // Using 0 - unclear what failed
 ```
 
 **Solution:**
+
 ```move
 const E_CONDITION_FAILED: u64 = 1;
 assert!(condition, E_CONDITION_FAILED);  // ✅ Clear error code
@@ -677,19 +735,20 @@ public fun test_full_flow() {
 
 Common framework error codes:
 
-| Code | Error | Meaning |
-|------|-------|---------|
-| `0x1` | INVALID_ARGUMENT | Invalid function argument |
-| `0x2` | OUT_OF_RANGE | Value out of valid range |
-| `0x3` | INVALID_STATE | Invalid state for operation |
-| `0x5` | NOT_FOUND | Resource not found |
-| `0x6` | ALREADY_EXISTS | Resource already exists |
-| `0x7` | PERMISSION_DENIED | Caller not authorized |
-| `0x8` | ABORTED | Operation aborted |
+| Code  | Error             | Meaning                     |
+| ----- | ----------------- | --------------------------- |
+| `0x1` | INVALID_ARGUMENT  | Invalid function argument   |
+| `0x2` | OUT_OF_RANGE      | Value out of valid range    |
+| `0x3` | INVALID_STATE     | Invalid state for operation |
+| `0x5` | NOT_FOUND         | Resource not found          |
+| `0x6` | ALREADY_EXISTS    | Resource already exists     |
+| `0x7` | PERMISSION_DENIED | Caller not authorized       |
+| `0x8` | ABORTED           | Operation aborted           |
 
 ### Custom Error Codes
 
 **Recommended structure:**
+
 ```move
 // Access control: 1-9
 const E_NOT_OWNER: u64 = 1;
@@ -733,10 +792,12 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 ## References
 
 **Official Documentation:**
+
 - Move Book: https://aptos.dev/build/smart-contracts/book
 - Error Codes: https://aptos.dev/build/smart-contracts/book/abort-and-assert
 
 **Related Skills:**
+
 - `write-contracts` - Write correct code
 - `generate-tests` - Test for errors
 - `security-audit` - Find potential issues

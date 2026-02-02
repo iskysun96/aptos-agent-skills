@@ -1,6 +1,6 @@
 ---
 name: deploy-contracts
-description: Deploy Aptos Move V2 contracts to devnet, testnet, or mainnet. Use when "deploy contract", "publish module", "deploy to testnet/mainnet".
+description: "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment checklist', 'deploy to devnet'."
 ---
 
 # Deploy Contracts Skill

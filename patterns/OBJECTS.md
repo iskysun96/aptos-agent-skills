@@ -437,7 +437,7 @@ public entry fun create_auction(
 
 ### Why This Matters
 
-- Prevents logic errors if transfer fails silently
+- Provides explicit verification of expected state after transfer
 - Ensures escrow actually holds assets
 - Provides clear error messages on failure
 - Defense-in-depth security

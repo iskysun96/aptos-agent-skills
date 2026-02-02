@@ -1,8 +1,6 @@
 ---
 name: scaffold-project
-description:
-  Scaffold new Aptos Move V2 project with proper structure and configuration. Use when "create move project", "new aptos
-  project", "scaffold move app", "init move module".
+description: "Initializes new Aptos Move projects with proper directory structure and configuration. Triggers on: 'create project', 'scaffold project', 'new Move project', 'initialize project', 'setup Move project', 'start new contract', 'init aptos project'."
 ---
 
 # Scaffold Project Skill
@@ -104,13 +102,11 @@ aptos move init --name <project_name>
 ```
 
 **Example:**
-
 ```bash
 aptos move init --name my_nft_marketplace
 ```
 
 This creates:
-
 ```
 my_nft_marketplace/
 ├── Move.toml
@@ -119,11 +115,9 @@ my_nft_marketplace/
 └── scripts/
 ```
 
-### Step 2: Configure Move.toml ⭐ CRITICAL
+### Step 2: Configure Move.toml
 
-**CRITICAL PATTERN:** Always use `"_"` for addresses and set up dev-addresses for testing/compilation.
-
-**Edit Move.toml with proper configuration:**
+**Edit Move.toml with proper dependencies:**
 
 ```toml
 [package]
@@ -132,25 +126,25 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-my_addr = "_"  # ← ALWAYS use "_" (placeholder for deployment)
+my_addr = "_"  # Will be replaced during deployment
 
 [dev-addresses]
-my_addr = "0xCAFE"  # ← ALWAYS set dev address for testing/compilation
+my_addr = "0xCAFE"  # Address for testing
 
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-framework"
+subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.AptosStdlib]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-stdlib"
+subdir = "aptos-move/framework/aptos-stdlib"
 
 [dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-token-objects"
+subdir = "aptos-move/framework/aptos-token-objects"
 
 [dev-dependencies]
 ```
@@ -160,47 +154,10 @@ subdir = "aptos-token-objects"
 ```toml
 # For fungible assets
 [dependencies.AptosFungibleAsset]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-token-objects"
+subdir = "aptos-move/framework/aptos-token-objects"
 ```
-
-### Default Dependency Configuration ⭐ ALWAYS USE THIS
-
-**CRITICAL PATTERN:** Always use the `aptos-framework.git` repository for dependencies, NOT `aptos-core.git`.
-
-**Why this matters:**
-
-- When Aptos CLI commands are run, updates to dependencies are automatically retrieved and compiled against
-- This is the official recommended pattern from Aptos Labs
-- Ensures you always have the latest stable framework code
-- Simpler, more direct dependency paths
-
-**Default configuration (ALWAYS use this):**
-
-```toml
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
-rev = "mainnet"
-subdir = "aptos-framework"
-```
-
-**Additional dependencies can be added as needed:**
-
-```toml
-[dependencies.AptosStdlib]
-git = "https://github.com/aptos-labs/aptos-framework.git"
-rev = "mainnet"
-subdir = "aptos-stdlib"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-framework.git"
-rev = "mainnet"
-subdir = "aptos-token-objects"
-```
-
-**Reference:** See https://aptos.dev/build/smart-contracts/book/packages for complete Move.toml configuration
-documentation.
 
 ### Step 3: Create Directory Structure
 
@@ -214,7 +171,6 @@ mkdir -p tests/unit tests/integration
 ```
 
 **Recommended structure:**
-
 ```
 project/
 ├── Move.toml
@@ -299,7 +255,7 @@ module my_addr::main_tests {
 
 **Create `README.md`:**
 
-````markdown
+```markdown
 # Project Name
 
 Brief description of your Move module.
@@ -335,7 +291,6 @@ aptos move test --coverage
 # View coverage report
 aptos move coverage source --module <module_name>
 ```
-````
 
 ## Deployment
 
@@ -363,8 +318,7 @@ aptos move deploy-object --address-name my_addr --assume-yes
 ## License
 
 MIT
-
-````
+```
 
 ### Step 7: Initialize Git (Optional)
 
@@ -376,40 +330,19 @@ echo "node_modules/" >> .gitignore
 
 git add .
 git commit -m "Initial commit: Scaffold Aptos Move project"
-````
-
-### Step 8: Verify Setup ⭐ ALWAYS USE --dev FLAG
-
-**CRITICAL:** When addresses are set to `"_"`, you MUST use the `--dev` flag for compilation and testing.
-
-```bash
-# Verify project compiles (MUST use --dev when addresses = "_")
-aptos move compile --dev
-
-# Run initial tests (MUST use --dev when addresses = "_")
-aptos move test --dev
-
-# Run tests with coverage
-aptos move test --dev --coverage
-
-# Check dependencies
-aptos move compile --dev --skip-fetch-latest-git-deps
 ```
 
-**Why `--dev` is required:**
+### Step 8: Verify Setup
 
-- With `[addresses] my_addr = "_"`, the compiler needs a concrete address
-- The `--dev` flag tells the compiler to use `[dev-addresses]` values
-- Without `--dev`, compilation will fail with "unresolved addresses" error
+```bash
+# Verify project compiles
+aptos move compile
 
-**Pattern:**
+# Run initial tests (should pass even if empty)
+aptos move test
 
-```toml
-[addresses]
-my_addr = "_"         # Placeholder - requires --dev flag
-
-[dev-addresses]
-my_addr = "0xCAFE"    # Concrete address used with --dev
+# Check dependencies
+aptos move compile --skip-fetch-latest-git-deps
 ```
 
 ## Project Templates
@@ -428,14 +361,14 @@ nft_addr = "_"
 nft_addr = "0xCAFE"
 
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-framework"
+subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-token-objects"
+subdir = "aptos-move/framework/aptos-token-objects"
 ```
 
 ### DeFi/Token Template
@@ -449,14 +382,14 @@ version = "1.0.0"
 defi_addr = "_"
 
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-framework"
+subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.AptosFungibleAsset]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-token-objects"
+subdir = "aptos-move/framework/aptos-token-objects"
 ```
 
 ### Minimal Template
@@ -470,14 +403,14 @@ version = "1.0.0"
 simple = "_"
 
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-framework"
+subdir = "aptos-move/framework/aptos-framework"
 
 [dependencies.AptosStdlib]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "mainnet"
-subdir = "aptos-stdlib"
+subdir = "aptos-move/framework/aptos-stdlib"
 ```
 
 ## Common Move.toml Configurations
@@ -486,9 +419,9 @@ subdir = "aptos-stdlib"
 
 ```toml
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-framework.git"
+git = "https://github.com/aptos-labs/aptos-core.git"
 rev = "aptos-release-v1.8"  # Specific version
-subdir = "aptos-framework"
+subdir = "aptos-move/framework/aptos-framework"
 ```
 
 ### Multiple Named Addresses
@@ -518,24 +451,16 @@ local = "../my-other-module"
 - ✅ ALWAYS choose **Boilerplate Template** for general-purpose dApps (not specific feature templates)
 - ✅ ALWAYS run `aptos move init` for Move-only projects
 - ✅ ALWAYS configure Move.toml with proper dependencies
-- ✅ **ALWAYS use `https://github.com/aptos-labs/aptos-framework.git` for dependencies** (NOT aptos-core.git)
-- ✅ **ALWAYS set `rev = "mainnet"` for stable production dependencies**
-- ✅ **ALWAYS reference https://aptos.dev/build/smart-contracts/book/packages for Move.toml configuration**
-- ✅ **ALWAYS use `"_"` for addresses in [addresses] section** (never hardcode addresses)
-- ✅ **ALWAYS set up [dev-addresses] with concrete values** (e.g., "0xCAFE")
-- ✅ **ALWAYS use `--dev` flag** when compiling/testing with addresses = `"_"` (`aptos move test --dev`)
 - ✅ ALWAYS create tests/ directory
 - ✅ ALWAYS include README.md with setup instructions
 - ✅ ALWAYS verify project compiles after scaffolding
+- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS set up dev-addresses for testing
 
 ## NEVER Rules
 
 - ❌ NEVER skip Move.toml configuration
-- ❌ **NEVER use `aptos-core.git` repository for dependencies** (use `aptos-framework.git` instead)
-- ❌ **NEVER use outdated dependency paths like `aptos-move/framework/...`** (use direct paths like `aptos-framework`)
-- ❌ **NEVER hardcode addresses in [addresses] section** (always use `"_"`)
-- ❌ **NEVER omit [dev-addresses] section** (required for testing/compilation)
-- ❌ **NEVER forget `--dev` flag** when compiling/testing with addresses = `"_"`
+- ❌ NEVER use hardcoded addresses in code
 - ❌ NEVER skip creating test directory
 - ❌ NEVER forget to add AptosFramework dependency
 - ❌ NEVER use outdated dependency revisions
@@ -579,13 +504,11 @@ aptos move test
 ## References
 
 **Official Documentation:**
-
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
 - Project Structure: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**
-
 - `write-contracts` - Write modules after scaffolding
 - `generate-tests` - Create test suite
 - `use-aptos-cli` - CLI commands reference

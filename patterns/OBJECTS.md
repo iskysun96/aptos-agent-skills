@@ -381,7 +381,7 @@ Did you call object::disable_ungated_transfer()?
 // Transfer NFT to auction escrow
 object::transfer(seller, nft, auction_addr);
 // Assumes transfer succeeded, but doesn't verify!
-// If transfer silently fails, auction proceeds without NFT
+// Relies only on object::transfer aborts instead of giving a clear, auction-specific error
 ```
 
 ✅ **CORRECT - Verify ownership after transfer:**

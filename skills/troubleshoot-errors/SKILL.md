@@ -112,9 +112,9 @@ LINKER_ERROR: Unable to resolve address 'aptos_framework'
 ```toml
 # Add to Move.toml
 [dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
+git = "https://github.com/aptos-labs/aptos-framework.git"
 rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
+subdir = "aptos-framework"
 ```
 
 ### Error: "Unable to find module"
@@ -251,6 +251,7 @@ let result = amount + 1;
 **Cause:** Integer division rounds down, causing fees to be zero for small amounts
 
 **Example:**
+
 ```move
 const PROTOCOL_FEE_BPS: u64 = 30; // 0.3% = 30 basis points
 
@@ -263,6 +264,7 @@ public fun process_order(amount: u64) {
 ```
 
 **Fix:**
+
 ```move
 const MIN_ORDER_SIZE: u64 = 1000; // Minimum to ensure non-zero fees
 const PROTOCOL_FEE_BPS: u64 = 30;
@@ -285,6 +287,7 @@ public fun process_order(amount: u64) {
 **Cause:** Left shift (<<) does NOT abort on overflow - produces silent incorrect results
 
 **Example:**
+
 ```move
 public fun calculate_power_of_two(exponent: u8): u64 {
     // If exponent = 64, this produces 0 (wraps around)
@@ -295,6 +298,7 @@ public fun calculate_power_of_two(exponent: u8): u64 {
 ```
 
 **Fix:**
+
 ```move
 const E_OVERFLOW: u64 = 100;
 
@@ -312,6 +316,7 @@ public fun calculate_power_of_two(exponent: u8): u64 {
 **Cause:** Function accepts arbitrary address parameter for `borrow_global_mut`, allowing cross-account manipulation
 
 **Example:**
+
 ```move
 // ❌ VULNERABLE CODE
 public entry fun update_balance(
@@ -326,6 +331,7 @@ public entry fun update_balance(
 ```
 
 **Fix:**
+
 ```move
 // ✅ SECURE CODE
 public entry fun update_balance(
@@ -346,6 +352,7 @@ public entry fun update_balance(
 **Cause:** Iterating over global storage (all users) causes gas exhaustion as system grows
 
 **Example:**
+
 ```move
 // ❌ VULNERABLE CODE
 struct Registry has key {
@@ -366,6 +373,7 @@ public entry fun distribute_rewards(admin: &signer) acquires Registry {
 ```
 
 **Fix:**
+
 ```move
 // ✅ SECURE CODE - Per-user storage
 struct UserReward has key {
@@ -386,6 +394,7 @@ public entry fun claim_reward(user: &signer) acquires UserReward {
 **Cause:** Passing `&mut` reference to external code that violates invariants
 
 **Example:**
+
 ```move
 // ❌ VULNERABLE CODE
 public fun process_with_callback(
@@ -404,6 +413,7 @@ public fun process_with_callback(
 ```
 
 **Fix:**
+
 ```move
 // ✅ SECURE CODE
 public fun process_with_callback(
@@ -431,6 +441,7 @@ public fun process_with_callback(
 **Cause:** Operations split across multiple transactions allow front-running
 
 **Example:**
+
 ```move
 // ❌ VULNERABLE CODE - Two separate calls
 public entry fun set_price(user: &signer, price: u64) acquires PriceOracle {
@@ -447,6 +458,7 @@ public entry fun evaluate_position(user: &signer) acquires PriceOracle {
 ```
 
 **Fix:**
+
 ```move
 // ✅ SECURE CODE - Atomic operation
 public entry fun set_and_evaluate_price(
@@ -1006,6 +1018,7 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 - ✅ ALWAYS verify fixes with tests
 
 ### Security Error Awareness ⭐ See [SECURITY.md](../../patterns/SECURITY.md)
+
 - ✅ ALWAYS check for division precision loss (fees = 0)
 - ✅ ALWAYS validate left shift amounts (< 64 for u64)
 - ✅ ALWAYS scope global storage to signer (no arbitrary address parameters)
@@ -1022,6 +1035,7 @@ const E_ITEM_NOT_AVAILABLE: u64 = 31;
 - ❌ NEVER assume error location without verification
 
 ### Security Error Violations ⭐ CRITICAL
+
 - ❌ NEVER ignore security-critical errors (fee bypass, overflow, cross-account access)
 - ❌ NEVER deploy code with security vulnerabilities
 - ❌ NEVER assume division always produces non-zero results

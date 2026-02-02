@@ -102,8 +102,7 @@ module my_addr::my_token {
     /// Initialize token on module deployment
     fun init_module(deployer: &signer) {
         // Create metadata object for the token
-        let constructor = object::create_named_object(deployer, b"MY_TOKEN");
-        let constructor_ref = &constructor;
+        let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
 
         // Create primary store enabled fungible asset
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -202,8 +201,7 @@ module my_addr::fixed_token {
     }
 
     fun init_module(deployer: &signer) {
-        let constructor = object::create_named_object(deployer, b"FIXED_TOKEN");
-        let constructor_ref = &constructor;
+        let constructor_ref = &object::create_named_object(deployer, b"FIXED_TOKEN");
 
         // Create with max supply
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -283,8 +281,7 @@ module my_addr::pausable_token {
     const E_NOT_ADMIN: u64 = 2;
 
     fun init_module(deployer: &signer) {
-        let constructor = object::create_named_object(deployer, b"PAUSABLE_TOKEN");
-        let constructor_ref = &constructor;
+        let constructor_ref = &object::create_named_object(deployer, b"PAUSABLE_TOKEN");
 
         // Create primary store enabled fungible asset
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
@@ -537,8 +534,7 @@ module my_addr::admin_token {
     const E_NOT_ADMIN: u64 = 1;
 
     fun init_module(deployer: &signer) {
-        let constructor = object::create_named_object(deployer, b"ADMIN_TOKEN");
-        let constructor_ref = &constructor;
+        let constructor_ref = &object::create_named_object(deployer, b"ADMIN_TOKEN");
 
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
             constructor_ref,
@@ -687,8 +683,7 @@ module my_addr::new_token {
     }
 
     fun init_module(deployer: &signer) {
-        let constructor = object::create_named_object(deployer, b"MY_TOKEN");
-        let constructor_ref = &constructor;
+        let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
 
         primary_fungible_store::create_primary_store_enabled_fungible_asset(
             constructor_ref,

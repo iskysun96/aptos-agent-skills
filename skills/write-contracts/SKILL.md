@@ -246,8 +246,7 @@ use std::string;
 
 ```move
 fun init_module(deployer: &signer) {
-    let constructor = object::create_named_object(deployer, b"MY_TOKEN");
-    let constructor_ref = &constructor;
+    let constructor_ref = &object::create_named_object(deployer, b"MY_TOKEN");
 
     primary_fungible_store::create_primary_store_enabled_fungible_asset(
         constructor_ref,

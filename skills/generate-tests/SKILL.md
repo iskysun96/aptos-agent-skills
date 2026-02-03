@@ -346,10 +346,86 @@ For each contract, verify you have tests for:
 - ❌ NEVER use unclear test names
 - ❌ NEVER batch tests without verifying each case
 
+## Common Pitfalls
+
+### Struct Field Access Across Modules
+
+**Problem:** Test modules cannot access struct fields from other modules directly.
+
+```move
+// ❌ WRONG - Will NOT compile
+let listing = marketplace::get_listing(nft_addr);
+assert!(listing.price == 1000, 0);  // ERROR: field access not allowed
+```
+
+**Solution:** Use public view accessor functions from the main module.
+
+```move
+// ✅ CORRECT - Use accessor function
+let (seller, price, timestamp) = marketplace::get_listing_details(nft_addr);
+assert!(price == 1000, 0);
+```
+
+If the module doesn't have accessors, add them:
+
+```move
+// In main module
+#[view]
+public fun get_listing_details(nft_addr: address): (address, u64, u64) acquires Listings {
+    let listing = table::borrow(&listings.items, nft_addr);
+    (listing.seller, listing.price, listing.listed_at)
+}
+```
+
+### Escrow Pattern Error Expectations
+
+**Problem:** After listing an NFT to escrow, the seller no longer owns it.
+
+```move
+// ❌ WRONG expectation
+#[expected_failure(abort_code = marketplace::E_ALREADY_LISTED)]
+public fun test_cannot_list_twice(seller: &signer) {
+    list_nft(seller, nft, 1000);  // NFT transfers to marketplace
+    list_nft(seller, nft, 2000);  // Fails with E_NOT_OWNER, not E_ALREADY_LISTED!
+}
+```
+
+**Solution:** Understand validation order - ownership is checked before listing status.
+
+```move
+// ✅ CORRECT expectation
+#[expected_failure(abort_code = marketplace::E_NOT_OWNER)]
+public fun test_cannot_list_twice(seller: &signer) {
+    list_nft(seller, nft, 1000);  // NFT transfers to marketplace
+    list_nft(seller, nft, 2000);  // Seller doesn't own it -> E_NOT_OWNER
+}
+```
+
+### Acquires Annotation Errors
+
+**Problem:** Adding acquires for resources borrowed by framework functions causes errors.
+
+```move
+// ❌ WRONG - framework handles its own acquires
+public entry fun stake(...) acquires VaultConfig, Stakes, StakeTokenRefs {
+    primary_fungible_store::transfer(...);  // Don't list what framework borrows
+}
+```
+
+**Solution:** Only list resources YOUR code borrows.
+
+```move
+// ✅ CORRECT
+public entry fun stake(...) acquires VaultConfig, Stakes {
+    let config = borrow_global<VaultConfig>(...);  // You borrow this
+    primary_fungible_store::transfer(...);          // Framework handles its own
+}
+```
+
 ## References
 
 **Pattern Documentation:**
-- `../../patterns/TESTING.md` - Comprehensive testing guide
+- `../../patterns/TESTING.md` - Comprehensive testing guide (see Pattern 8 for cross-module issues)
 - `../../patterns/SECURITY.md` - Security testing requirements
 
 **Official Documentation:**

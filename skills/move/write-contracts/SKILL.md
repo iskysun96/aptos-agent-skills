@@ -37,6 +37,11 @@ description: "Generates secure Aptos Move V2 smart contracts with Object model, 
 19. **Emit events** for ALL significant activities (create, transfer, update, delete)
 20. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
 
+### Testability
+21. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
+22. **Use `#[view]` annotation** for read-only accessor functions
+23. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
+
 ## Quick Workflow
 
 1. **Search examples** → Use `search-aptos-examples` skill to find similar patterns in aptos-core
@@ -101,6 +106,37 @@ public entry fun update_object(
     // Safe to proceed
     let obj_data = borrow_global_mut<MyObject>(object::object_address(&obj));
     obj_data.name = new_name;
+}
+```
+
+## Key Example: Accessor Functions for Testing
+
+```move
+struct ListingInfo has store, drop, copy {
+    seller: address,
+    price: u64,
+    listed_at: u64,
+}
+
+/// Accessor function - tests cannot access struct fields directly
+/// Use tuple returns for multiple fields
+#[view]
+public fun get_listing_details(nft_addr: address): (address, u64, u64) acquires Listings {
+    let listings = borrow_global<Listings>(get_marketplace_address());
+    assert!(table::contains(&listings.items, nft_addr), E_NOT_LISTED);
+    let listing = table::borrow(&listings.items, nft_addr);
+    (listing.seller, listing.price, listing.listed_at)
+}
+
+/// Single-field accessor when only one value needed
+#[view]
+public fun get_staked_amount(user_addr: address): u64 acquires Stakes {
+    let stakes = borrow_global<Stakes>(get_vault_address());
+    if (table_with_length::contains(&stakes.items, user_addr)) {
+        table_with_length::borrow(&stakes.items, user_addr).amount
+    } else {
+        0
+    }
 }
 ```
 

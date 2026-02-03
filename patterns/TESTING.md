@@ -690,16 +690,125 @@ For each contract, verify you have tests for:
 
 ## Common Testing Mistakes
 
-| Mistake                         | Impact                      | Solution                                                      |
-| ------------------------------- | --------------------------- | ------------------------------------------------------------- |
-| Not testing error paths         | Bugs in error handling      | Add #[expected_failure] tests                                 |
-| Testing only happy paths        | Miss edge cases             | Test boundaries and invalid inputs                            |
-| Not testing access control      | Security vulnerabilities    | Test unauthorized access attempts                             |
-| Low coverage                    | Untested code has bugs      | Achieve 100% coverage                                         |
-| Unclear test names              | Hard to understand failures | Use descriptive names like `test_unauthorized_transfer_fails` |
-| No test organization            | Hard to maintain            | Group tests by feature                                        |
-| Duplicate setup code            | Hard to maintain            | Use test helper functions                                     |
-| Not verifying all state changes | Incomplete tests            | Assert all relevant state after operations                    |
+| Mistake                                | Impact                       | Solution                                                      |
+| -------------------------------------- | ---------------------------- | ------------------------------------------------------------- |
+| Not testing error paths                | Bugs in error handling       | Add #[expected_failure] tests                                 |
+| Testing only happy paths               | Miss edge cases              | Test boundaries and invalid inputs                            |
+| Not testing access control             | Security vulnerabilities     | Test unauthorized access attempts                             |
+| Low coverage                           | Untested code has bugs       | Achieve 100% coverage                                         |
+| Unclear test names                     | Hard to understand failures  | Use descriptive names like `test_unauthorized_transfer_fails` |
+| No test organization                   | Hard to maintain             | Group tests by feature                                        |
+| Duplicate setup code                   | Hard to maintain             | Use test helper functions                                     |
+| Not verifying all state changes        | Incomplete tests             | Assert all relevant state after operations                    |
+| Accessing struct fields across modules | Compilation error            | Add public view accessor functions (see Pattern 8)            |
+| Wrong error expectation after escrow   | Test fails unexpectedly      | Track ownership changes - after escrow, seller no longer owns |
+| Unnecessary `acquires` annotations     | Compiler warnings/errors     | Only list resources YOUR code borrows, not framework calls    |
+
+---
+
+## Pattern 8: Cross-Module Testing Patterns
+
+**Purpose:** Handle common issues when test modules access main contract data.
+
+### Struct Field Visibility
+
+**Problem:** Test modules cannot directly access struct fields from other modules.
+
+```move
+// ❌ WRONG - This will NOT compile
+#[test(seller = @0x1)]
+public fun test_listing_price(seller: &signer) {
+    let nft = mint_test_nft(seller);
+    list_nft(seller, nft, 1000);
+
+    let listing = marketplace::get_listing(nft_addr);
+    // ERROR: Invalid operation: access of field 'price' on type
+    // 'marketplace::ListingInfo' can only be done within the defining module
+    assert!(listing.price == 1000, 0);
+}
+```
+
+**Solution:** Add public view accessor functions in the main module.
+
+```move
+// In main module (marketplace.move)
+/// Get listing details (seller, price, listed_at)
+#[view]
+public fun get_listing_details(nft_addr: address): (address, u64, u64) acquires Listings {
+    let marketplace_addr = get_marketplace_address();
+    let listings = borrow_global<Listings>(marketplace_addr);
+    assert!(table::contains(&listings.items, nft_addr), E_NOT_LISTED);
+    let listing = table::borrow(&listings.items, nft_addr);
+    (listing.seller, listing.price, listing.listed_at)
+}
+
+// In test module
+#[test(seller = @0x1)]
+public fun test_listing_price(seller: &signer) {
+    let nft = mint_test_nft(seller);
+    list_nft(seller, nft, 1000);
+
+    // ✅ CORRECT - Use accessor function
+    let (listing_seller, listing_price, _) = marketplace::get_listing_details(nft_addr);
+    assert!(listing_price == 1000, 0);
+}
+```
+
+### Testing Escrow Patterns
+
+**Problem:** After escrowing an asset, ownership changes. Tests expecting "already listed" errors may fail
+because the original owner no longer owns the asset.
+
+```move
+// ❌ WRONG expectation
+#[test(seller = @0x1)]
+#[expected_failure(abort_code = marketplace::E_ALREADY_LISTED)]
+public fun test_cannot_list_twice(seller: &signer) {
+    let nft = mint_test_nft(seller);
+    list_nft(seller, nft, 1000);  // NFT transfers to marketplace (escrow)
+    list_nft(seller, nft, 2000);  // Fails with E_NOT_OWNER, not E_ALREADY_LISTED!
+}
+```
+
+**Solution:** Understand the order of checks. After escrow, seller no longer owns the NFT:
+
+```move
+// ✅ CORRECT expectation
+#[test(seller = @0x1)]
+#[expected_failure(abort_code = marketplace::E_NOT_OWNER)]
+public fun test_cannot_list_twice(seller: &signer) {
+    let nft = mint_test_nft(seller);
+    list_nft(seller, nft, 1000);  // NFT transfers to marketplace
+    list_nft(seller, nft, 2000);  // Seller doesn't own it anymore -> E_NOT_OWNER
+}
+```
+
+### Acquires Annotations
+
+**Problem:** Adding unnecessary `acquires` annotations causes compiler errors.
+
+```move
+// ❌ WRONG - StakeTokenRefs not borrowed by YOUR code
+public entry fun stake(user: &signer, amount: u64) acquires VaultConfig, Stakes, StakeTokenRefs {
+    // ...
+    // primary_fungible_store::transfer() handles its own borrows internally
+    primary_fungible_store::transfer(user, stake_metadata, vault_addr, amount);
+}
+```
+
+**Solution:** Only list resources that YOUR code directly borrows with `borrow_global` or `borrow_global_mut`:
+
+```move
+// ✅ CORRECT - Only list what YOU borrow
+public entry fun stake(user: &signer, amount: u64) acquires VaultConfig, Stakes {
+    // VaultConfig: your code borrows it
+    let config = borrow_global<VaultConfig>(vault_addr);
+    // Stakes: your code borrows it
+    let stakes = borrow_global_mut<Stakes>(vault_addr);
+    // Framework functions handle their own acquires - don't list them
+    primary_fungible_store::transfer(user, stake_metadata, vault_addr, amount);
+}
+```
 
 ---
 

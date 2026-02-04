@@ -6,13 +6,12 @@ This repository provides specialized skills and patterns for AI assistants (Clau
 
 ## Features
 
-- **17+ Specialized Skills** - Context-aware skills for Move development and fullstack dApp building
+- **11 Specialized Skills** - Context-aware skills for Move smart contract development
 - **Move Smart Contracts** - Modern Move V2 object model patterns
-- **TypeScript SDK** - Frontend integration with @aptos-labs/ts-sdk
-- **Wallet Integration** - @aptos-labs/wallet-adapter-react patterns
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
 - **Auto-Activation** - Skills trigger automatically based on developer actions
+- **Pattern Library** - Reference documentation for objects, digital assets, fungible assets, and more
 
 ## Installation
 
@@ -59,8 +58,8 @@ See [INSTALL.md](INSTALL.md) for more installation options.
    - "Create a new dApp" → `scaffold-project` skill activates
    - "Write an NFT contract" → `search-aptos-examples` + `write-contracts` activate
    - After writing code → `generate-tests` auto-activates
-   - "Connect wallet" → `integrate-wallet-adapter` activates
-   - "Call contract from frontend" → `connect-contract-to-frontend` activates
+   - "Deploy to testnet" → `deploy-contracts` activates
+   - "Check security" → `security-audit` activates
 
 ### For Other Editors (Cursor, Copilot)
 
@@ -106,7 +105,8 @@ aptos-agent-skills/
 │       ├── FUNGIBLE_ASSETS.md
 │       ├── MOVE_V2_SYNTAX.md
 │       ├── ADVANCED_TYPES.md
-│       └── STORAGE_OPTIMIZATION.md
+│       ├── STORAGE_OPTIMIZATION.md
+│       └── TESTING.md
 │
 └── setups/
     ├── cursor/README.md                   # Cursor setup guide
@@ -186,41 +186,16 @@ const [count] = await aptos.view({
 - **generate-move-scripts** - Create atomic scripts
 - **implement-upgradeable-contracts** - Contract upgrade patterns
 
-### TypeScript SDK
-- **use-typescript-sdk** - @aptos-labs/ts-sdk patterns
-- **query-onchain-data** - View functions, resource queries, events
-
-### Wallet Integration
-- **integrate-wallet-adapter** - WalletProvider, useWallet, connection states
-
-### Frontend Development
-- **connect-contract-to-frontend** - Entry functions, view functions, type encoding
-- **handle-transactions** - Transaction UX, loading states, error handling
-
-### Testing
-- **test-fullstack-dapp** - E2E testing patterns
-
 ## Example Workflows
 
-### Workflow: Build Fullstack dApp
+### Workflow: Build Move Contracts
 
-1. `scaffold-project` → Bootstrap fullstack template
-2. `write-contracts` → Write Move modules
-3. `generate-tests` → Create Move tests
-4. `security-audit` → Audit before deployment
-5. `deploy-contracts` → Deploy to devnet
-6. `connect-contract-to-frontend` → Wire up entry/view functions
-7. `integrate-wallet-adapter` → Configure wallet connection
-8. `handle-transactions` → Polish transaction UX
-9. `test-fullstack-dapp` → E2E testing
-
-### Workflow: Contract Only
-
-1. `scaffold-project` → Bootstrap contract-only template
-2. `write-contracts` → Write Move modules
-3. `generate-tests` → Create Move tests
-4. `security-audit` → Audit before deployment
-5. `deploy-contracts` → Deploy to network
+1. `scaffold-project` → Bootstrap project template
+2. `search-aptos-examples` → Find reference implementations
+3. `write-contracts` → Write Move modules
+4. `generate-tests` → Create Move tests
+5. `security-audit` → Audit before deployment
+6. `deploy-contracts` → Deploy to network
 
 ## Formatting
 
@@ -265,11 +240,11 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Roadmap
 
 - [x] Core Move skills (11 skills)
-- [x] Repository restructure for fullstack support
-- [ ] TypeScript SDK skills
-- [ ] Wallet integration skills
-- [ ] Frontend integration skills
-- [ ] E2E testing skills
+- [x] Agent Skills Open Standard compliance
+- [ ] TypeScript SDK skills (Coming Soon)
+- [ ] Wallet integration skills (Coming Soon)
+- [ ] Frontend integration skills (Coming Soon)
+- [ ] E2E testing skills (Coming Soon)
 - [ ] Example projects
 
 ---

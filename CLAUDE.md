@@ -16,10 +16,7 @@ This repository provides specialized skills for AI assistants to build secure, m
 - **[Advanced Types](patterns/move/ADVANCED_TYPES.md)** - Advanced type patterns
 - **[Storage Optimization](patterns/move/STORAGE_OPTIMIZATION.md)** - Storage cost reduction
 
-### Fullstack Development
-- **[TypeScript SDK](patterns/fullstack/TYPESCRIPT_SDK.md)** - SDK client & operations
-- **[Wallet Adapter](patterns/fullstack/WALLET_ADAPTER.md)** - Wallet integration patterns
-- **[Frontend Patterns](patterns/fullstack/FRONTEND_PATTERNS.md)** - React + Aptos patterns
+- **[Testing Patterns](patterns/move/TESTING.md)** - Unit testing guide
 
 ## Skills
 
@@ -37,20 +34,6 @@ This repository provides specialized skills for AI assistants to build secure, m
 - **[analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)** - Optimize gas usage
 - **[generate-move-scripts](skills/move/generate-move-scripts/SKILL.md)** - Create atomic scripts
 - **[implement-upgradeable-contracts](skills/move/implement-upgradeable-contracts/SKILL.md)** - Contract upgrades
-
-### TypeScript SDK
-- **[use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)** - SDK client & operations
-- **[query-onchain-data](skills/sdk/query-onchain-data/SKILL.md)** - Reading blockchain state
-
-### Wallet Integration
-- **[integrate-wallet-adapter](skills/wallet/integrate-wallet-adapter/SKILL.md)** - Wallet connection & management
-
-### Frontend Development
-- **[connect-contract-to-frontend](skills/frontend/connect-contract-to-frontend/SKILL.md)** - Entry & view functions
-- **[handle-transactions](skills/frontend/handle-transactions/SKILL.md)** - Transaction UX
-
-### Testing
-- **[test-fullstack-dapp](skills/testing/test-fullstack-dapp/SKILL.md)** - E2E testing patterns
 
 ## Core Principles
 
@@ -119,8 +102,8 @@ This ensures consistent formatting across all documentation files.
 
 **Claude Code:** This file is automatically loaded when detected in the repository.
 
-**Other Editors:** Include `setups/AGENTS.md` in your workspace context.
+**Other Editors:** Include `AGENTS.md` in your workspace context.
 
 ---
 
-For detailed instructions, see [`setups/AGENTS.md`](setups/AGENTS.md).
+For detailed instructions, see [`AGENTS.md`](AGENTS.md).

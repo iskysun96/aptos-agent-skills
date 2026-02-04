@@ -29,6 +29,8 @@ npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
 cd my-dapp
 ```
 
+> **Note:** The degit command references a specific template path in the aptos-labs/create-aptos-dapp repository. If you encounter errors, verify the template path exists at https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates
+
 ### Step 2: Configure Environment
 
 ```bash
@@ -397,7 +399,6 @@ aptos move test
 
 ## NEVER Rules
 
-- ❌ NEVER use `npx create-aptos-dapp` (interactive CLI) - use degit instead
 - ❌ NEVER skip Move.toml configuration
 - ❌ NEVER use hardcoded addresses in code
 - ❌ NEVER skip verifying compilation after scaffolding

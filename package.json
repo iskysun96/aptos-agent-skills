@@ -1,13 +1,25 @@
 {
-  "name": "aptos-move-agent-skills",
+  "name": "aptos-agent-skills",
   "version": "1.0.0",
-  "description": "Specialized skills for AI assistants to build secure, modern Aptos Move V2 smart contracts",
-  "private": true,
+  "description": "AI skills for building fullstack Aptos dApps - Move smart contracts and frontend integration",
+  "keywords": ["aptos", "move", "smart-contracts", "agent-skills", "ai", "claude", "cursor", "web3"],
+  "author": "iskysun96",
+  "license": "MIT",
+  "homepage": "https://github.com/iskysun96/aptos-agent-skills",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iskysun96/aptos-agent-skills.git"
+  },
   "scripts": {
     "format": "prettier --write \"**/*.md\"",
     "format:check": "prettier --check \"**/*.md\""
   },
   "devDependencies": {
     "prettier": "^3.8.1"
+  },
+  "agentSkills": {
+    "version": "1.0",
+    "skillsDir": "skills",
+    "patternsDir": "patterns"
   }
 }

@@ -1,6 +1,10 @@
 ---
 name: troubleshoot-errors
 description: "Diagnoses and fixes Aptos Move compilation, runtime, and deployment errors. Triggers on: 'error', 'fix this', 'debug', 'troubleshoot', 'why is this failing', error codes like 'EOBJECT_DOES_NOT_EXIST', 'ABORTED', 'RESOURCE_NOT_FOUND', 'Type mismatch', 'ability constraint'."
+metadata:
+  category: move
+  tags: ["debugging", "errors", "troubleshooting", "fixes"]
+  priority: medium
 ---
 
 # Troubleshoot Errors Skill

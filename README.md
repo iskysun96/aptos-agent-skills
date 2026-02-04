@@ -14,14 +14,43 @@ This repository provides specialized skills and patterns for AI assistants (Clau
 - **100% Test Coverage** - Automated test generation with coverage requirements
 - **Auto-Activation** - Skills trigger automatically based on developer actions
 
+## Installation
+
+### Via npx skills (Recommended)
+
+```bash
+npx skills add iskysun96/aptos-agent-skills
+```
+
+### Claude Code Plugin
+
+```bash
+/plugin marketplace add iskysun96/aptos-agent-skills
+```
+
+### Selective Installation
+
+```bash
+# Core Move skills only
+npx skills add iskysun96/aptos-agent-skills \
+  --skill write-contracts \
+  --skill generate-tests \
+  --skill security-audit \
+  --skill deploy-contracts
+```
+
+See [INSTALL.md](INSTALL.md) for more installation options.
+
 ## Quick Start
 
 ### For Claude Code Users
 
-1. Clone this repository into your project or alongside it:
+1. Install via npx skills or clone this repository:
 
    ```bash
-   git clone https://github.com/your-org/aptos-agent-skills.git
+   npx skills add iskysun96/aptos-agent-skills
+   # or
+   git clone https://github.com/iskysun96/aptos-agent-skills.git
    ```
 
 2. The `CLAUDE.md` file will be automatically detected and loaded by Claude Code
@@ -35,73 +64,54 @@ This repository provides specialized skills and patterns for AI assistants (Clau
 
 ### For Other Editors (Cursor, Copilot)
 
-1. Clone this repository
+1. Install via npx skills or clone this repository
 2. Reference skill files in your prompts:
    ```
    @skills/move/write-contracts/SKILL.md Help me build an NFT marketplace
    ```
-3. Include `setups/AGENTS.md` in your workspace context
+3. Include `AGENTS.md` in your workspace context
 
 ## Repository Structure
 
 ```
 aptos-agent-skills/
+├── AGENTS.md                              # Main orchestration for AI assistants
 ├── CLAUDE.md                              # Auto-loader for Claude Code
+├── INSTALL.md                             # Installation guide
 ├── README.md
 ├── package.json
+├── .claude-plugin/
+│   └── marketplace.json                   # Claude Code marketplace config
 │
 ├── skills/
-│   │
-│   ├── project/                           # Project scaffolding & setup
-│   │   └── scaffold-project/              # Bootstrap from templates (degit)
-│   │
-│   ├── move/                              # Move smart contract development
-│   │   ├── write-contracts/
-│   │   ├── generate-tests/
-│   │   ├── security-audit/
-│   │   ├── deploy-contracts/
-│   │   ├── search-aptos-examples/
-│   │   ├── use-aptos-cli/
-│   │   ├── troubleshoot-errors/
-│   │   ├── analyze-gas-optimization/
-│   │   ├── generate-move-scripts/
-│   │   └── implement-upgradeable-contracts/
-│   │
-│   ├── sdk/                               # TypeScript SDK usage
-│   │   ├── use-typescript-sdk/            # SDK client & operations
-│   │   └── query-onchain-data/            # Reading blockchain state
-│   │
-│   ├── wallet/                            # Wallet integration
-│   │   └── integrate-wallet-adapter/      # Wallet connection & management
-│   │
-│   ├── frontend/                          # Frontend patterns
-│   │   ├── connect-contract-to-frontend/  # Entry & view functions
-│   │   └── handle-transactions/           # Transaction UX
-│   │
-│   └── testing/                           # Testing & QA
-│       └── test-fullstack-dapp/           # E2E testing patterns
+│   ├── project/
+│   │   └── scaffold-project/              # Bootstrap from templates
+│   └── move/
+│       ├── write-contracts/
+│       ├── generate-tests/
+│       ├── security-audit/
+│       ├── deploy-contracts/
+│       ├── search-aptos-examples/
+│       ├── use-aptos-cli/
+│       ├── troubleshoot-errors/
+│       ├── analyze-gas-optimization/
+│       ├── generate-move-scripts/
+│       └── implement-upgradeable-contracts/
 │
 ├── patterns/
-│   │
-│   ├── move/                              # Move reference docs
-│   │   ├── OBJECTS.md
-│   │   ├── SECURITY.md
-│   │   ├── DIGITAL_ASSETS.md
-│   │   ├── FUNGIBLE_ASSETS.md
-│   │   ├── MOVE_V2_SYNTAX.md
-│   │   ├── ADVANCED_TYPES.md
-│   │   └── STORAGE_OPTIMIZATION.md
-│   │
-│   └── fullstack/                         # Fullstack reference docs
-│       ├── TYPESCRIPT_SDK.md              # Complete SDK reference
-│       ├── WALLET_ADAPTER.md              # Wallet integration patterns
-│       └── FRONTEND_PATTERNS.md           # React + Aptos patterns
+│   └── move/
+│       ├── OBJECTS.md
+│       ├── SECURITY.md
+│       ├── DIGITAL_ASSETS.md
+│       ├── FUNGIBLE_ASSETS.md
+│       ├── MOVE_V2_SYNTAX.md
+│       ├── ADVANCED_TYPES.md
+│       └── STORAGE_OPTIMIZATION.md
 │
 └── setups/
-    ├── AGENTS.md                          # Workflow orchestration
-    ├── claude-code/README.md
-    ├── cursor/README.md
-    └── copilot/README.md
+    ├── cursor/README.md                   # Cursor setup guide
+    ├── copilot/README.md                  # GitHub Copilot setup guide
+    └── claude-code/README.md              # Claude Code setup guide
 ```
 
 ## Core Principles

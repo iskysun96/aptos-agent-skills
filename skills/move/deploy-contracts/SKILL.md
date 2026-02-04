@@ -1,6 +1,10 @@
 ---
 name: deploy-contracts
 description: "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment checklist', 'deploy to devnet'."
+metadata:
+  category: move
+  tags: ["deployment", "devnet", "testnet", "mainnet", "publishing"]
+  priority: high
 ---
 
 # Deploy Contracts Skill

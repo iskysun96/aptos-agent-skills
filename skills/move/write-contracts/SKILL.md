@@ -1,6 +1,10 @@
 ---
 name: write-contracts
 description: "Generates secure Aptos Move V2 smart contracts with Object model, Digital Asset integration, security patterns, and storage type guidance. Includes comprehensive storage decision framework for optimal data structure selection. Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move module', 'create token contract', 'build DAO', 'implement staking'. Ask storage questions when: 'store', 'track', 'registry', 'mapping', 'list', 'collection'."
+metadata:
+  category: move
+  tags: ["smart-contracts", "move", "nft", "defi", "objects"]
+  priority: critical
 ---
 
 # Write Contracts Skill

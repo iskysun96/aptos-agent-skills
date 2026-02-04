@@ -1,6 +1,10 @@
 ---
 name: scaffold-project
 description: "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project', 'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init aptos project', 'create fullstack dapp'."
+metadata:
+  category: project
+  tags: ["scaffolding", "templates", "project-setup", "dapp"]
+  priority: high
 ---
 
 # Scaffold Project Skill

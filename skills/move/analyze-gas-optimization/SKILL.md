@@ -1,3 +1,12 @@
+---
+name: analyze-gas-optimization
+description: "Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting optimizations. Triggers on: 'optimize gas', 'reduce gas costs', 'gas analysis', 'make contract cheaper', 'gas efficiency', 'analyze gas usage', 'reduce transaction costs'."
+metadata:
+  category: move
+  tags: ["gas", "optimization", "performance", "costs"]
+  priority: high
+---
+
 # Skill: analyze-gas-optimization
 
 Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting

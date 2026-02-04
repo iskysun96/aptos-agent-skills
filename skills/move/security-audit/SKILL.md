@@ -1,6 +1,10 @@
 ---
 name: security-audit
 description: "Audits Move contracts for security vulnerabilities before deployment using 7-category checklist. Triggers on: 'audit contract', 'security check', 'review security', 'check for vulnerabilities', 'security audit', 'is this secure', 'find security issues'."
+metadata:
+  category: move
+  tags: ["security", "audit", "vulnerabilities", "best-practices"]
+  priority: critical
 ---
 
 # Security Audit Skill

@@ -1,3 +1,12 @@
+---
+name: generate-move-scripts
+description: "Generate Move scripts for complex, atomic multi-operation transactions that execute multiple contract calls in a single transaction. Triggers on: 'create move script', 'write script', 'atomic transaction', 'multiple operations in one transaction', 'batch operations', 'complex transaction', 'atomic swap', 'flash loan pattern'."
+metadata:
+  category: move
+  tags: ["scripts", "atomic", "transactions", "batch"]
+  priority: medium
+---
+
 # Skill: generate-move-scripts
 
 Generate Move scripts for complex, atomic multi-operation transactions that execute multiple contract calls in a single

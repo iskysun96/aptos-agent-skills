@@ -1,6 +1,10 @@
 ---
 name: search-aptos-examples
 description: "Searches aptos-core and official examples for reference implementations before writing contracts. Triggers on: 'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does aptos implement', 'similar contract'."
+metadata:
+  category: move
+  tags: ["examples", "reference", "patterns", "aptos-core"]
+  priority: high
 ---
 
 # Search Aptos Examples Skill

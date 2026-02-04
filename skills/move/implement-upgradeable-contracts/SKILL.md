@@ -1,3 +1,12 @@
+---
+name: implement-upgradeable-contracts
+description: "Design and implement upgradeable contract patterns for Aptos Move V2, enabling safe contract evolution while maintaining state and security. Triggers on: 'upgradeable contract', 'contract upgrade', 'version management', 'contract migration', 'upgrade strategy', 'backward compatibility', 'proxy pattern'."
+metadata:
+  category: move
+  tags: ["upgrades", "migration", "versioning", "evolution"]
+  priority: medium
+---
+
 # Skill: implement-upgradeable-contracts
 
 Design and implement upgradeable contract patterns for Aptos Move V2, enabling safe contract evolution while maintaining

@@ -1,0 +1,33 @@
+{
+  "name": "aptos-agent-skills",
+  "version": "1.0.0",
+  "description": "AI skills for building fullstack Aptos dApps - Move smart contracts and frontend integration",
+  "author": "iskysun96",
+  "license": "MIT",
+  "homepage": "https://github.com/iskysun96/aptos-agent-skills",
+  "skills": [
+    { "name": "scaffold-project", "path": "skills/project/scaffold-project", "category": "project" },
+    { "name": "write-contracts", "path": "skills/move/write-contracts", "category": "move" },
+    { "name": "generate-tests", "path": "skills/move/generate-tests", "category": "move" },
+    { "name": "security-audit", "path": "skills/move/security-audit", "category": "move" },
+    { "name": "deploy-contracts", "path": "skills/move/deploy-contracts", "category": "move" },
+    { "name": "search-aptos-examples", "path": "skills/move/search-aptos-examples", "category": "move" },
+    { "name": "use-aptos-cli", "path": "skills/move/use-aptos-cli", "category": "move" },
+    { "name": "troubleshoot-errors", "path": "skills/move/troubleshoot-errors", "category": "move" },
+    { "name": "analyze-gas-optimization", "path": "skills/move/analyze-gas-optimization", "category": "move" },
+    { "name": "generate-move-scripts", "path": "skills/move/generate-move-scripts", "category": "move" },
+    { "name": "implement-upgradeable-contracts", "path": "skills/move/implement-upgradeable-contracts", "category": "move" }
+  ],
+  "categories": {
+    "project": { "name": "Project Scaffolding", "description": "Creating and setting up Aptos dApp projects" },
+    "move": { "name": "Move Smart Contracts", "description": "Writing, testing, and deploying Move contracts" }
+  },
+  "patterns": [
+    { "name": "DIGITAL_ASSETS", "path": "patterns/move/DIGITAL_ASSETS.md" },
+    { "name": "FUNGIBLE_ASSETS", "path": "patterns/move/FUNGIBLE_ASSETS.md" },
+    { "name": "OBJECTS", "path": "patterns/move/OBJECTS.md" },
+    { "name": "SECURITY", "path": "patterns/move/SECURITY.md" },
+    { "name": "MOVE_V2_SYNTAX", "path": "patterns/move/MOVE_V2_SYNTAX.md" },
+    { "name": "TESTING", "path": "patterns/move/TESTING.md" }
+  ]
+}

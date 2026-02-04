@@ -2,12 +2,12 @@
 
 This repository provides specialized skills for AI assistants to build secure, modern Aptos dApps - both Move smart contracts and fullstack applications.
 
-**Main AI Instructions:** See [`setups/AGENTS.md`](setups/AGENTS.md) for complete guidance.
+**Main AI Instructions:** See [`AGENTS.md`](AGENTS.md) for complete guidance.
 
 ## Quick Links
 
 ### Move Development
-- **[AI Assistant Guide](setups/AGENTS.md)** - Main orchestration file with workflows
+- **[AI Assistant Guide](AGENTS.md)** - Main orchestration file with workflows
 - **[Digital Assets](patterns/move/DIGITAL_ASSETS.md)** - NFT standard (CRITICAL for NFTs)
 - **[Fungible Assets](patterns/move/FUNGIBLE_ASSETS.md)** - Token standard (CRITICAL for tokens/coins)
 - **[Object Patterns](patterns/move/OBJECTS.md)** - Object model reference

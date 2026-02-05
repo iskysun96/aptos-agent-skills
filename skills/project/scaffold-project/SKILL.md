@@ -1,6 +1,9 @@
 ---
 name: scaffold-project
-description: "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project', 'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init aptos project', 'create fullstack dapp'."
+description:
+  "Initializes new Aptos dApp projects using degit to bootstrap from official templates. Triggers on: 'create project',
+  'scaffold project', 'new dApp', 'new Move project', 'initialize project', 'setup project', 'start new contract', 'init
+  aptos project', 'create fullstack dapp'."
 metadata:
   category: project
   tags: ["scaffolding", "templates", "project-setup", "dapp"]
@@ -11,14 +14,15 @@ metadata:
 
 ## Overview
 
-This skill creates new Aptos dApp projects by bootstrapping directly from official templates using `degit`. This approach provides clean copies of production-ready templates without git history.
+This skill creates new Aptos dApp projects by bootstrapping directly from official templates using `degit`. This
+approach provides clean copies of production-ready templates without git history.
 
 ## Project Types
 
-| Type | Template | Use Case |
-|------|----------|----------|
-| **Fullstack dApp** | `boilerplate-template` | Frontend + smart contracts |
-| **Contract-only** | `contract-boilerplate-template` | Smart contracts without frontend |
+| Type               | Template                        | Use Case                         |
+| ------------------ | ------------------------------- | -------------------------------- |
+| **Fullstack dApp** | `boilerplate-template`          | Frontend + smart contracts       |
+| **Contract-only**  | `contract-boilerplate-template` | Smart contracts without frontend |
 
 ---
 
@@ -33,7 +37,9 @@ npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
 cd my-dapp
 ```
 
-> **Note:** The degit command references a specific template path in the aptos-labs/create-aptos-dapp repository. If you encounter errors, verify the template path exists at https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates
+> **Note:** The degit command references a specific template path in the aptos-labs/create-aptos-dapp repository. If you
+> encounter errors, verify the template path exists at
+> https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates
 
 ### Step 2: Configure Environment
 
@@ -125,13 +131,13 @@ my-dapp/
 
 ### Key Directories Explained
 
-| Directory | Purpose |
-|-----------|---------|
+| Directory                   | Purpose                                   |
+| --------------------------- | ----------------------------------------- |
 | `frontend/entry-functions/` | Transaction payloads for write operations |
-| `frontend/view-functions/` | Queries for read operations |
-| `frontend/lib/` | Aptos client and wallet provider setup |
-| `contract/sources/` | Move smart contract modules |
-| `scripts/move/` | Deployment and utility scripts |
+| `frontend/view-functions/`  | Queries for read operations               |
+| `frontend/lib/`             | Aptos client and wallet provider setup    |
+| `contract/sources/`         | Move smart contract modules               |
+| `scripts/move/`             | Deployment and utility scripts            |
 
 ---
 
@@ -273,58 +279,6 @@ After bootstrapping, complete these steps:
 
 ---
 
-## Move.toml Templates
-
-### For NFT Projects
-
-```toml
-[package]
-name = "nft_collection"
-version = "1.0.0"
-
-[addresses]
-nft_addr = "_"
-
-[dev-addresses]
-nft_addr = "0xCAFE"
-
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-```
-
-### For DeFi/Token Projects
-
-```toml
-[package]
-name = "defi_protocol"
-version = "1.0.0"
-
-[addresses]
-defi_addr = "_"
-
-[dev-addresses]
-defi_addr = "0xCAFE"
-
-[dependencies.AptosFramework]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-framework"
-
-[dependencies.AptosToken]
-git = "https://github.com/aptos-labs/aptos-core.git"
-rev = "mainnet"
-subdir = "aptos-move/framework/aptos-token-objects"
-```
-
----
-
 ## Move-Only Reference (Manual Setup)
 
 For cases where you need manual Move setup without templates:
@@ -399,7 +353,7 @@ aptos move test
 - ✅ ALWAYS run `npm install` after bootstrapping
 - ✅ ALWAYS verify compilation and tests pass
 - ✅ ALWAYS initialize git after setup
-- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS use named addresses (my*addr = "*")
 
 ## NEVER Rules
 
@@ -412,9 +366,9 @@ aptos move test
 
 ## Template Sources
 
-| Template | GitHub URL |
-|----------|-----------|
-| Fullstack | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template |
+| Template      | GitHub URL                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| Fullstack     | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/boilerplate-template          |
 | Contract-only | https://github.com/aptos-labs/create-aptos-dapp/tree/main/templates/contract-boilerplate-template |
 
 ---
@@ -422,11 +376,13 @@ aptos move test
 ## References
 
 **Official Documentation:**
+
 - CLI Reference: https://aptos.dev/build/cli
 - Move.toml: https://aptos.dev/build/cli/working-with-move-contracts
 - TypeScript SDK: https://aptos.dev/sdks/ts-sdk
 
 **Related Skills:**
+
 - `write-contracts` - Write Move modules after scaffolding
 - `generate-tests` - Create test suite
 - `connect-contract-to-frontend` - Wire up frontend to contracts
@@ -434,4 +390,5 @@ aptos move test
 
 ---
 
-**Remember:** Use `degit` for clean bootstrapping. The boilerplate template provides the best starting point for custom dApps.
+**Remember:** Use `degit` for clean bootstrapping. The boilerplate template provides the best starting point for custom
+dApps.

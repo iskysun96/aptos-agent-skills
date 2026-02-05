@@ -1,6 +1,9 @@
 ---
 name: deploy-contracts
-description: "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment checklist', 'deploy to devnet'."
+description:
+  "Safely deploys Move contracts to Aptos networks (devnet, testnet, mainnet) with pre-deployment verification. Triggers
+  on: 'deploy contract', 'publish to testnet', 'deploy to mainnet', 'how to deploy', 'publish module', 'deployment
+  checklist', 'deploy to devnet'."
 metadata:
   category: move
   tags: ["deployment", "devnet", "testnet", "mainnet", "publishing"]
@@ -18,6 +21,7 @@ This skill guides safe deployment of Move contracts to Aptos networks. **Always 
 Before deploying, verify ALL items:
 
 ### Security Audit ⭐ CRITICAL - See [SECURITY.md](../../../patterns/move/SECURITY.md)
+
 - [ ] Security audit completed (use `security-audit` skill)
 - [ ] All critical vulnerabilities fixed
 - [ ] All security patterns verified (arithmetic safety, storage scoping, reference safety, business logic)
@@ -28,18 +32,21 @@ Before deploying, verify ALL items:
 - [ ] Randomness security (if applicable - entry functions, gas balanced)
 
 ### Testing
+
 - [ ] 100% test coverage achieved: `aptos move test --coverage`
 - [ ] All tests passing: `aptos move test`
 - [ ] Coverage report shows 100.0%
 - [ ] Edge cases tested
 
 ### Code Quality
+
 - [ ] Code compiles without errors: `aptos move compile`
 - [ ] No hardcoded addresses (use named addresses)
 - [ ] Error codes clearly defined
 - [ ] Functions properly documented
 
 ### Configuration
+
 - [ ] Move.toml configured correctly
 - [ ] Named addresses set up: `my_addr = "_"`
 - [ ] Dependencies specified with correct versions
@@ -52,6 +59,7 @@ Before deploying, verify ALL items:
 There are TWO ways to deploy contracts. For modern object-based contracts, use `deploy-object`:
 
 **✅ CORRECT: Object Deployment (Modern Pattern)**
+
 ```bash
 aptos move deploy-object \
     --address-name my_addr \
@@ -60,12 +68,14 @@ aptos move deploy-object \
 ```
 
 **What this does:**
+
 1. Creates an object to host your contract code
 2. Deploys the package to that object's address
 3. Returns the object address (deterministic, based on deployer + package name)
 4. Object address becomes your contract address
 
 **❌ WRONG: Using Regular Publish for Object Contracts**
+
 ```bash
 # ❌ Don't use this for object-based contracts
 aptos move publish \
@@ -73,10 +83,12 @@ aptos move publish \
 ```
 
 **When to use each:**
+
 - `deploy-object`: Modern contracts using objects (RECOMMENDED)
 - `publish`: Legacy account-based deployment (older pattern)
 
 **How to tell if you need object deployment:**
+
 - Your contract creates named objects in `init_module`
 - Your contract uses `object::create_named_object()`
 - You want a deterministic contract address
@@ -85,19 +97,23 @@ aptos move publish \
 ### Alternative Object Deployment Commands
 
 **Option 1: `deploy-object` (Recommended - Simplest)**
+
 ```bash
 aptos move deploy-object --address-name my_addr --profile devnet
 ```
+
 - Automatically creates object and deploys code
 - Object address is deterministic
 - Best for most use cases
 
 **Option 2: `create-object-and-publish-package` (Advanced)**
+
 ```bash
 aptos move create-object-and-publish-package \
     --address-name my_addr \
     --named-addresses my_addr=default
 ```
+
 - More complex command with more options
 - Use only if you need specific object configuration
 - Generally not needed
@@ -262,11 +278,7 @@ Create deployment record:
 ```markdown
 # Deployment Record
 
-**Date:** 2026-01-23
-**Network:** Mainnet
-**Module:** my_module
-**Address:** 0x123abc...
-**Transaction:** 0x456def...
+**Date:** 2026-01-23 **Network:** Mainnet **Module:** my_module **Address:** 0x123abc... **Transaction:** 0x456def...
 
 ## Verification
 
@@ -286,51 +298,6 @@ Create deployment record:
 - 100% test coverage verified
 - Tested on testnet for 1 week before mainnet
 ```
-
-## Network-Specific Commands
-
-### Devnet Deployment
-
-```bash
-aptos move publish \
-    --network devnet \
-    --named-addresses my_addr=<devnet_address>
-```
-
-**Devnet Details:**
-- **Purpose:** Quick testing, experimentation
-- **Stability:** May be reset
-- **Faucet:** Available
-- **URL:** https://fullnode.devnet.aptoslabs.com/v1
-
-### Testnet Deployment
-
-```bash
-aptos move publish \
-    --network testnet \
-    --named-addresses my_addr=<testnet_address>
-```
-
-**Testnet Details:**
-- **Purpose:** Pre-production testing
-- **Stability:** More stable than devnet
-- **Faucet:** Available
-- **URL:** https://fullnode.testnet.aptoslabs.com/v1
-
-### Mainnet Deployment
-
-```bash
-aptos move publish \
-    --network mainnet \
-    --named-addresses my_addr=<mainnet_address> \
-    --max-gas 20000
-```
-
-**Mainnet Details:**
-- **Purpose:** Production
-- **Stability:** Permanent
-- **Faucet:** Not available (real APT required)
-- **URL:** https://fullnode.mainnet.aptoslabs.com/v1
 
 ## Module Upgrades
 
@@ -389,6 +356,7 @@ aptos move publish \
 ### Mainnet Costs
 
 **Gas costs are paid in APT:**
+
 - Gas units × Gas price = Total cost
 - Example: 5000 gas units × 100 Octas/gas = 500,000 Octas = 0.005 APT
 
@@ -469,6 +437,7 @@ aptos move publish \
 ## Deployment Checklist
 
 **Before Deployment:**
+
 - [ ] Security audit passed
 - [ ] 100% test coverage
 - [ ] All tests passing
@@ -477,12 +446,14 @@ aptos move publish \
 - [ ] Target network selected (testnet first!)
 
 **During Deployment:**
+
 - [ ] Correct network selected
 - [ ] Correct address specified
 - [ ] Transaction submitted
 - [ ] Transaction hash recorded
 
 **After Deployment:**
+
 - [ ] Module visible in explorer
 - [ ] View functions work
 - [ ] Entry functions tested
@@ -517,16 +488,19 @@ aptos move publish \
 ## References
 
 **Official Documentation:**
+
 - CLI Publishing: https://aptos.dev/build/cli/working-with-move-contracts
 - Network Endpoints: https://aptos.dev/nodes/networks
 - Gas and Fees: https://aptos.dev/concepts/gas-txn-fee
 
 **Explorers:**
+
 - Mainnet: https://explorer.aptoslabs.com/?network=mainnet
 - Testnet: https://explorer.aptoslabs.com/?network=testnet
 - Devnet: https://explorer.aptoslabs.com/?network=devnet
 
 **Related Skills:**
+
 - `security-audit` - Audit before deployment
 - `generate-tests` - Ensure tests exist
 - `use-aptos-cli` - CLI command reference

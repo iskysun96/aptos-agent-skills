@@ -143,6 +143,7 @@ contract
 
 **Output:** TypeScript integration with the Aptos blockchain
 
+
 ## Skill Activation Table
 
 | Skill                      | Activates When                                                 | Priority | Auto-Active           |

@@ -23,9 +23,7 @@
         "./skills/move/search-aptos-examples",
         "./skills/move/use-aptos-cli",
         "./skills/move/troubleshoot-errors",
-        "./skills/move/analyze-gas-optimization",
-        "./skills/move/generate-move-scripts",
-        "./skills/move/implement-upgradeable-contracts"
+        "./skills/move/analyze-gas-optimization"
       ]
     }
   ]

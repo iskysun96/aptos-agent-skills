@@ -61,9 +61,10 @@ await aptos.fundAccount({
 });
 
 // Account queries
-const balance = await aptos.getAccountAPTAmount({
+const balance = await aptos.getBalance({
   accountAddress: account.accountAddress
 });
+// Returns bigint in octas (1 APT = 100_000_000 octas)
 const resources = await aptos.getAccountResources({
   accountAddress: account.accountAddress
 });
@@ -218,6 +219,34 @@ try {
     else if (msg.includes("OUT_OF_GAS")) { /* Ran out of gas */ }
   }
 }
+```
+
+---
+
+## Fungible Asset Transfers (v1.39+)
+
+```typescript
+// Transfer between FA stores directly
+await aptos.transferFungibleAssetBetweenStores({
+  sender: account,
+  fungibleAssetMetadataAddress: metadataAddr,
+  senderStoreAddress: fromStore,
+  recipientStoreAddress: toStore,
+  amount: 1000n,
+});
+```
+
+---
+
+## Bun Runtime Compatibility
+
+When using Bun instead of Node.js, disable HTTP/2 to avoid compatibility issues:
+
+```typescript
+const config = new AptosConfig({
+  network: Network.TESTNET,
+  clientConfig: { http2: false },
+});
 ```
 
 ---

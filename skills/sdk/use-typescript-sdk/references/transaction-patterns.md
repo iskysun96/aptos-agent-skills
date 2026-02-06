@@ -119,3 +119,16 @@ const pendingTx = await aptos.transaction.submit.multiAgent({
 
 await aptos.waitForTransaction({ transactionHash: pendingTx.hash });
 ```
+
+---
+
+## Deprecated APIs
+
+The following APIs are deprecated and should NOT be used:
+
+| Deprecated API                                    | Replacement                                 | Since |
+| ------------------------------------------------- | ------------------------------------------- | ----- |
+| `aptos.getAccountCoinAmount()`                    | `aptos.getBalance()`                        | v5.1  |
+| `aptos.getAccountAPTAmount()`                     | `aptos.getBalance()`                        | v5.1  |
+| `scriptComposer`                                  | Batch transactions or separate calls        | v6.0  |
+| `aptos.deriveAccountFromPrivateKey()`             | `Account.fromPrivateKey()`                  | v3.1  |

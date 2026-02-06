@@ -23,32 +23,37 @@ metadata:
 3. **ALWAYS configure the network** via `AptosConfig` with environment variables
 4. **ALWAYS use `Network.TESTNET`** as the default for development (NOT devnet, which resets frequently)
 
+### Balance & Queries
+
+5. **ALWAYS use `aptos.getBalance()`** for APT balance queries (NOT the deprecated `getAccountCoinAmount` or
+   `getAccountAPTAmount`)
+
 ### Transactions
 
-5. **ALWAYS call `waitForTransaction`** after submitting any transaction
-6. **ALWAYS simulate transactions** before submitting for critical or high-value operations
-7. **ALWAYS wrap blockchain calls** in try/catch with specific error handling
-8. **ALWAYS use the build-sign-submit pattern**: `transaction.build.simple()` then `signAndSubmitTransaction()`
+6. **ALWAYS call `waitForTransaction`** after submitting any transaction
+7. **ALWAYS simulate transactions** before submitting for critical or high-value operations
+8. **ALWAYS wrap blockchain calls** in try/catch with specific error handling
+9. **ALWAYS use the build-sign-submit pattern**: `transaction.build.simple()` then `signAndSubmitTransaction()`
 
 ### Security
 
-9. **NEVER hardcode private keys** in source code or frontend bundles
-10. **NEVER expose private keys** in client-side code or logs
-11. **NEVER store private keys** in environment variables accessible to the browser (use `VITE_` prefix only for public
+10. **NEVER hardcode private keys** in source code or frontend bundles
+11. **NEVER expose private keys** in client-side code or logs
+12. **NEVER store private keys** in environment variables accessible to the browser (use `VITE_` prefix only for public
     config)
-12. **ALWAYS load private keys from environment variables** in server-side scripts only, using `process.env`
+13. **ALWAYS load private keys from environment variables** in server-side scripts only, using `process.env`
 
 ### Type Safety
 
-13. **ALWAYS use `bigint`** for u128 and u256 values (JavaScript `number` loses precision)
-14. **ALWAYS pass `Object<T>` references** as address strings in `functionArguments`
-15. **ALWAYS use typed entry/view function wrappers** instead of raw string-based calls in production code
+14. **ALWAYS use `bigint`** for u128 and u256 values (JavaScript `number` loses precision)
+15. **ALWAYS pass `Object<T>` references** as address strings in `functionArguments`
+16. **ALWAYS use typed entry/view function wrappers** instead of raw string-based calls in production code
 
 ### Wallet Adapter
 
-16. **ALWAYS use `@aptos-labs/wallet-adapter-react`** for frontend wallet integration
-17. **ALWAYS wrap your app** with `AptosWalletAdapterProvider`
-18. **ALWAYS use `useWallet()` hook** to access wallet functions in React components
+17. **ALWAYS use `@aptos-labs/wallet-adapter-react`** for frontend wallet integration
+18. **ALWAYS wrap your app** with `AptosWalletAdapterProvider`
+19. **ALWAYS use `useWallet()` hook** to access wallet functions in React components
 
 ## Quick Workflow
 
@@ -379,6 +384,8 @@ console.log("Gas estimate:", simResult.gas_used);
 8. **NEVER store private keys in browser-accessible env vars** (e.g., `VITE_PRIVATE_KEY`)
 9. **NEVER use `Account.generate()` in frontend code** for real users - use wallet adapter instead
 10. **NEVER use raw `aptos.signAndSubmitTransaction` in React** - use the wallet adapter's `signAndSubmitTransaction`
+11. **NEVER use `scriptComposer`** - it was removed in v6.0; use batch transactions or separate calls instead
+12. **NEVER use `getAccountCoinAmount` or `getAccountAPTAmount`** - deprecated; use `getBalance()` instead
 
 ## Edge Cases to Handle
 
@@ -460,6 +467,80 @@ src/
   components/
     WalletProvider.tsx           # AptosWalletAdapterProvider wrapper
     IncrementButton.tsx          # Components calling entry functions
+```
+
+## SDK Version Notes (v5.2+ / v6.0)
+
+### Balance Queries (v5.1+)
+
+```typescript
+// CORRECT (v5.1+)
+const balance = await aptos.getBalance({
+  accountAddress: account.accountAddress,
+});
+// Returns bigint in octas (1 APT = 100_000_000 octas)
+
+// DEPRECATED - do NOT use
+// await aptos.getAccountCoinAmount(...)
+// await aptos.getAccountAPTAmount(...)
+```
+
+### AIP-80 Private Key Format (v2.0+)
+
+Ed25519 and Secp256k1 private keys now use an AIP-80 prefixed format when serialized with `toString()`:
+
+```typescript
+const key = new Ed25519PrivateKey("0x...");
+key.toString(); // Returns AIP-80 prefixed format, NOT raw hex
+```
+
+### AccountAddress Parsing (v1.32+)
+
+`AccountAddress.fromString()` now only accepts SHORT format (60-64 hex chars) by default. Use
+`AccountAddress.from()` for flexible parsing:
+
+```typescript
+// CORRECT
+const addr = AccountAddress.from("0x1"); // Accepts any format
+const addr2 = AccountAddress.fromString(
+  "0x000000000000000000000000000000000000000000000000000000000000001",
+); // SHORT format only
+
+// MAY FAIL in v1.32+
+// AccountAddress.fromString("0x1") -- too short for SHORT format
+```
+
+### Fungible Asset Transfers (v1.39+)
+
+```typescript
+// Transfer between FA stores directly
+await aptos.transferFungibleAssetBetweenStores({
+  sender: account,
+  fungibleAssetMetadataAddress: metadataAddr,
+  senderStoreAddress: fromStore,
+  recipientStoreAddress: toStore,
+  amount: 1000n,
+});
+```
+
+### Bun Runtime Compatibility
+
+When using Bun instead of Node.js, disable HTTP/2 in the client config:
+
+```typescript
+const config = new AptosConfig({
+  network: Network.TESTNET,
+  clientConfig: { http2: false },
+});
+```
+
+### Account Abstraction (v1.34+, AIP-104)
+
+```typescript
+// Access account abstraction APIs
+const abstractedAccount = await aptos.abstraction.lookupAccount({
+  authenticationKey: key,
+});
 ```
 
 ## References

@@ -1,6 +1,6 @@
 # Aptos Move V2 Modern Syntax Guide
 
-**Purpose:** Guide to modern Move V2 syntax features including function values, enums, signed integers, inline
+**Purpose:** Guide to modern Move V2 syntax features including function values, enum types, positional structs, signed integers, inline
 functions, lambdas, and current best practices.
 
 **Target:** AI assistants generating Move V2 smart contracts
@@ -13,8 +13,8 @@ Move V2 introduces modern syntax features that make code more concise, expressiv
 
 - **Function values (Move 2.2+)**: First-class functions stored on-chain and passed across modules
 - **Enum types (Move 2.0+)**: Variant types with pattern matching for state machines and data versioning
-- **Signed integers (Move 2.3+)**: Native `i8` through `i256` types
 - **Positional structs (Move 2.0+)**: Wrapper types without named fields (`struct Amount(u64)`)
+- **Signed integers (Move 2.3+)**: Native `i8` through `i256` types
 - **Inline functions with lambdas**: Higher-order functions for iteration and control flow
 - **Receiver-style method calls (Move 2.0+)**: Dot notation `value.func(arg)`
 - **Index notation (Move 2.0+)**: `vector[i]` instead of `vector::borrow`
@@ -128,29 +128,44 @@ See `SECURITY.md` Pattern 12 for full reentrancy safety guidance.
 
 ## Enum Types (Move 2.0+)
 
-Enum types define different variants of data layout in a single type.
+Enum types define different variants of data layout in a single type. They support three field styles: no fields,
+positional fields, and named fields.
 
 ### Basic Enum Declaration
 
 ```move
+/// Fieldless variants
 enum Color has copy, drop { Red, Blue, Green }
 
+/// Named fields
 enum Shape has copy, drop {
     Circle { radius: u64 },
     Rectangle { width: u64, height: u64 },
 }
 
+/// Positional fields
 enum Result<T> has copy, drop, store {
     Err(u64),
     Ok(T),
 }
 ```
 
-### Creating and Matching
+### Creating Enum Values
 
 ```move
-let shape = Shape::Circle { radius: 10 };
+let c = Color::Red;
+let s = Shape::Circle { radius: 10 };
+let r: Result<u64> = Result::Ok(42);
+```
 
+### Pattern Matching with `match`
+
+The `match` expression destructures enums. The compiler enforces **exhaustive** matching -- all variants must be handled
+or a wildcard `_` must be used.
+
+#### Basic Match
+
+```move
 fun area(shape: &Shape): u64 {
     match (shape) {
         Shape::Circle { radius } => *radius * *radius * 314 / 100,
@@ -159,13 +174,114 @@ fun area(shape: &Shape): u64 {
 }
 ```
 
-The compiler enforces exhaustive matching. Use `_` for wildcard.
+#### Mutable Reference Matching
 
-### Testing Variants
+```move
+fun double_radius(shape: &mut Shape) {
+    match (shape) {
+        Shape::Circle { radius } => *radius = *radius * 2,
+        _ => (),
+    }
+}
+```
+
+#### Nested Patterns with Guards
+
+```move
+fun describe(shape: &Shape): String {
+    match (shape) {
+        Shape::Circle { radius } if *radius == 0 => string::utf8(b"point"),
+        Shape::Circle { radius } if *radius > 100 => string::utf8(b"large circle"),
+        Shape::Circle { .. } => string::utf8(b"circle"),
+        Shape::Rectangle { width, height } if width == height => string::utf8(b"square"),
+        Shape::Rectangle { .. } => string::utf8(b"rectangle"),
+    }
+}
+```
+
+#### Name Resolution in Match Arms
+
+Inside a match arm, variant field names are automatically in scope. Use `..` to ignore remaining fields:
+
+```move
+match (config) {
+    Config::V1 { admin, .. } => *admin,
+    Config::V2 { admin, .. } => *admin,
+}
+```
+
+### Testing Variants with `is`
+
+The `is` operator tests which variant a value holds without destructuring. Use `|` to test multiple variants:
 
 ```move
 fun is_success<T>(result: &Result<T>): bool {
     result is Result::Ok
+}
+
+fun is_terminal(state: &OrderState): bool {
+    state is OrderState::Completed | OrderState::Cancelled
+}
+```
+
+### Direct Field Selection
+
+You can access fields directly on an enum value using dot notation. This aborts at runtime if the value holds a
+different variant.
+
+```move
+let s = Shape::Circle { radius: 10 };
+let r = s.radius;  // OK: returns 10
+// let w = s.width; // ABORT: Circle doesn't have 'width'
+```
+
+**Warning:** Prefer `match` over direct field selection in production code to avoid runtime aborts.
+
+### Let Binding with Enums
+
+You can use `let` to bind fields from a specific variant. The binding does **not** check exhaustiveness, so it aborts at
+runtime if the variant doesn't match:
+
+```move
+let Shape::Circle { radius } = shape;
+// Aborts if shape is not a Circle
+```
+
+### Destroying Enum Values
+
+Enums without `drop` must be explicitly destructured to consume them:
+
+```move
+enum Token {
+    Fungible { amount: u64 },
+    NonFungible { id: u64 },
+}
+
+fun consume_token(token: Token) {
+    match (token) {
+        Token::Fungible { amount: _ } => (),
+        Token::NonFungible { id: _ } => (),
+    }
+}
+```
+
+### Recursive Enums
+
+Enums can be recursive using `Box` for heap allocation:
+
+```move
+enum Expr has drop {
+    Literal(u64),
+    Add(Box<Expr>, Box<Expr>),
+    Mul(Box<Expr>, Box<Expr>),
+}
+
+fun eval(expr: &Expr): u64 {
+    match (expr) {
+        Expr::Literal(value) => *value,
+        Expr::Add(left, right) => eval(left) + eval(right),
+        Expr::Mul(left, right) => eval(left) * eval(right),
+    }
 }
 ```
 
@@ -185,77 +301,103 @@ fun get_admin(config: &Config): address {
         Config::V2 { admin, .. } => *admin,
     }
 }
+
+fun is_paused(config: &Config): bool {
+    match (config) {
+        Config::V1 { .. } => false,
+        Config::V2 { paused, .. } => *paused,
+    }
+}
 ```
 
-### Upgrade Compatibility
+### Upgrade Compatibility Rules
 
-- Original variants must appear first in identical order
-- New variants can only be added at the end
-- Existing abilities cannot be removed
+When upgrading a module that declares an enum:
 
----
-
-## Signed Integer Types (Move 2.3+)
-
-Native signed integer types with full VM support:
-
-| Type   | Size     | Range             |
-| ------ | -------- | ----------------- |
-| `i8`   | 1 byte   | -128 to 127       |
-| `i16`  | 2 bytes  | -32,768 to 32,767 |
-| `i32`  | 4 bytes  | -2^31 to 2^31-1   |
-| `i64`  | 8 bytes  | -2^63 to 2^63-1   |
-| `i128` | 16 bytes | -2^127 to 2^127-1 |
-| `i256` | 32 bytes | -2^255 to 2^255-1 |
-
-Builtin constants: `MAX_U64`, `MIN_I32`, `MAX_I64`, etc.
-
-Use for price deltas, offsets, coordinates, and profit/loss calculations. Always prefer native signed integers over
-custom libraries.
+- **Original variants must appear first** in identical order
+- **New variants can only be added at the end**
+- **Existing abilities cannot be removed**
+- **Runtime handling of missing variants:** If code adds a variant in an upgrade, existing `match` expressions from
+  older code will not cover the new variant. Use a wildcard `_` arm to safely handle unknown future variants.
 
 ---
 
 ## Positional Structs (Move 2.0+)
 
+Positional structs use unnamed fields accessed by position, ideal for newtype wrappers:
+
 ```move
+/// Newtype wrappers for type safety
+struct UserId(u64) has copy, drop, store;
+struct OrderId(u64) has copy, drop, store;
 struct Amount(u64) has copy, drop, store;
 
-fun example() {
-    let amount = Amount(100);
-    let Amount(value) = amount;
-    assert!(value == 100, 0);
+/// Can't accidentally mix up IDs
+fun get_order(user: UserId, order: OrderId): Order {
+    // Type system prevents passing OrderId as UserId
 }
 ```
 
-Use cases: newtype pattern, function type wrappers, simple data containers.
+### Positional vs Named Fields
+
+| Feature       | Positional (`struct Foo(u64)`)  | Named (`struct Foo { val: u64 }`) |
+| ------------- | ------------------------------- | --------------------------------- |
+| Access style  | `foo.0`                         | `foo.val`                         |
+| Readability   | Brief, for simple wrappers      | Clear, for multi-field structs    |
+| Destructuring | `let Foo(x) = foo`              | `let Foo { val: x } = foo`        |
+| Best for      | Newtypes, single-field wrappers | Domain objects, configs           |
+
+Positional fields also work in enum variants:
+
+```move
+enum Result<T> has copy, drop {
+    Ok(T),
+    Err(u64),
+}
+```
 
 ---
 
-## Additional Move 2 Syntax
+## Signed Integer Types (Move 2.3+)
 
-### Compound Assignments (Move 2.1+)
+Move 2.3 introduces native signed integer types:
+
+| Type   | Size    | Range                           |
+| ------ | ------- | ------------------------------- |
+| `i8`   | 8-bit   | -128 to 127                     |
+| `i16`  | 16-bit  | -32,768 to 32,767               |
+| `i32`  | 32-bit  | -2,147,483,648 to 2,147,483,647 |
+| `i64`  | 64-bit  | -9.2e18 to 9.2e18               |
+| `i128` | 128-bit | -1.7e38 to 1.7e38               |
+| `i256` | 256-bit | -5.8e76 to 5.8e76               |
+
+### Builtin Constants
 
 ```move
-x += 5; x -= 2; x *= 3;
+let max = MAX_U64; // 18446744073709551615
+let min = MIN_I32; // -2147483648
+let max_signed = MAX_I64;
 ```
 
-### Loop Labels (Move 2.1+)
+### Use Cases
 
 ```move
-'outer: loop {
-    loop { if (done) break 'outer; }
+/// Price deltas that can be negative
+struct PriceDelta has copy, drop, store {
+    delta_bps: i64,
+}
+
+/// Accounting with credits and debits
+fun apply_adjustment(balance: u64, adjustment: i64): u64 {
+    if (adjustment >= 0) {
+        balance + (adjustment as u64)
+    } else {
+        let abs = (0 - adjustment) as u64;
+        assert!(balance >= abs, E_INSUFFICIENT_BALANCE);
+        balance - abs
+    }
 }
 ```
-
-### Package Visibility (Move 2.0+)
-
-```move
-package fun internal_helper(): u64 { 42 }
-```
-
-### Optional Acquires (Move 2.2+)
-
-The compiler can infer `acquires` annotations automatically.
 
 ---
 
@@ -471,7 +613,7 @@ public fun create_item(creator: &signer, name: String): Object<Item> {
 ### Type-Safe Object References
 
 ```move
-// ✅ MODERN: Type-safe object references
+// MODERN: Type-safe object references
 public entry fun transfer_item(
     owner: &signer,
     item: Object<Item>,  // Type-safe!
@@ -486,7 +628,7 @@ public entry fun transfer_item(
     );
 }
 
-// ❌ OLD: Raw addresses (avoid)
+// OLD: Raw addresses (avoid)
 public entry fun transfer_item_old(
     owner: &signer,
     item_addr: address,  // No type safety
@@ -650,17 +792,17 @@ struct Registry has key {
     items: vector<u64>,
 }
 
-// ✅ V2: Use index notation for reading
+// V2: Use index notation for reading
 public fun get_item(registry: &Registry, index: u64): u64 {
     *&registry.items[index]  // Clean and readable
 }
 
-// ✅ V2: Use index notation for writing
+// V2: Use index notation for writing
 public fun update_item(registry: &mut Registry, index: u64, value: u64) {
     *&mut registry.items[index] = value;  // Clean mutation
 }
 
-// ✅ V2: Iterate with index notation
+// V2: Iterate with index notation
 public fun sum_all(registry: &Registry): u64 {
     let sum = 0;
     let i = 0;
@@ -678,17 +820,17 @@ public fun sum_all(registry: &Registry): u64 {
 **OLD (Pre-V2 Syntax):**
 
 ```move
-// ❌ OLD: vector::borrow syntax
+// OLD: vector::borrow syntax
 public fun get_item_old(registry: &Registry, index: u64): u64 {
     *vector::borrow(&registry.items, index)  // More verbose
 }
 
-// ❌ OLD: vector::borrow_mut syntax
+// OLD: vector::borrow_mut syntax
 public fun update_item_old(registry: &mut Registry, index: u64, value: u64) {
     *vector::borrow_mut(&mut registry.items, index) = value;
 }
 
-// ❌ OLD: Iteration with borrow
+// OLD: Iteration with borrow
 public fun sum_all_old(registry: &Registry): u64 {
     let sum = 0;
     let i = 0;
@@ -725,7 +867,7 @@ module my_addr::items {
         name: String,
     }
 
-    // ✅ MODERN: Use 'self' as first parameter
+    // MODERN: Use 'self' as first parameter
     public fun is_owner(self: &Object<Item>, user: &signer): bool acquires Item {
         let item_data = borrow_global<Item>(object::object_address(self));
         item_data.owner == signer::address_of(user)
@@ -755,13 +897,13 @@ module my_addr::items {
 module my_addr::marketplace {
     use my_addr::items;
 
-    // ✅ MODERN: Call with dot notation
+    // MODERN: Call with dot notation
     public entry fun update_item_if_owner(
         user: &signer,
         item: Object<Item>,
         new_value: u64
     ) {
-        // Receiver-style call - reads much more naturally!
+        // Receiver-style call - reads much more naturally
         assert!(item.is_owner(user), E_NOT_OWNER);
 
         // Can chain multiple calls
@@ -771,7 +913,7 @@ module my_addr::marketplace {
         item.set_value(new_value);
     }
 
-    // ❌ OLD: Traditional function call style
+    // OLD: Traditional function call style
     public entry fun update_item_old_style(
         user: &signer,
         item: Object<Item>,
@@ -818,7 +960,7 @@ module marketplace_addr::listings {
         active: bool,
     }
 
-    // ✅ Define receiver-style functions with 'self'
+    // Define receiver-style functions with 'self'
     public fun is_active(self: &Object<Listing>): bool acquires Listing {
         let listing = borrow_global<Listing>(object::object_address(self));
         listing.active
@@ -839,12 +981,11 @@ module marketplace_addr::listings {
         listing.active = false;
     }
 
-    // ✅ Use receiver style in other functions
+    // Use receiver style in other functions
     public entry fun cancel_listing(
         seller: &signer,
         listing: Object<Listing>
     ) acquires Listing {
-        // Beautiful, readable code!
         assert!(listing.is_active(), E_ALREADY_INACTIVE);
         assert!(listing.is_seller(seller), E_NOT_SELLER);
 
@@ -855,7 +996,6 @@ module marketplace_addr::listings {
         buyer: &signer,
         listing: Object<Listing>
     ) acquires Listing {
-        // Chain checks naturally
         assert!(listing.is_active(), E_NOT_ACTIVE);
 
         let price = listing.get_price();
@@ -1039,15 +1179,59 @@ module my_addr::marketplace {
 
 ---
 
+## Additional Move 2 Syntax Features
+
+### Compound Assignments (Move 2.1+)
+
+```move
+x += 1;
+x -= amount;
+x *= 2;
+x /= divisor;
+x %= modulus;
+```
+
+### Loop Labels (Move 2.1+)
+
+```move
+'outer: loop {
+    let i = 0;
+    while (i < len) {
+        if (found) break 'outer;
+        i += 1;
+    };
+};
+```
+
+### Dot-Dot Patterns (Move 2.1+)
+
+Ignore remaining fields in struct destructuring:
+
+```move
+let Config::V2 { admin, .. } = config;
+```
+
+### Package Visibility (Move 2.1+)
+
+```move
+public(package) fun internal_helper() {
+    // Visible to other modules in same package, but not to external packages
+}
+```
+
+---
+
 ## Best Practices Summary
 
 **DO:**
 
 - ✅ Use function values for cross-module callbacks and plugin systems (Move 2.2+)
 - ✅ Use enum types for variant data and state machines (Move 2.0+)
+- ✅ Use positional structs for newtype wrappers (`struct Amount(u64)`)
 - ✅ Use signed integers (`i8`-`i256`) for deltas and offsets (Move 2.3+)
 - ✅ Use `#[module_lock]` when function value callbacks must not re-enter your module
 - ✅ Use `match` expressions for exhaustive enum handling
+- ✅ Add wildcard `_` arms in `match` for future upgrade compatibility
 - ✅ Use inline functions for iteration logic within a module
 - ✅ Use lambdas for concise operation definitions
 - ✅ Use `Object<T>` for type-safe object references
@@ -1073,6 +1257,8 @@ module my_addr::marketplace {
 - ❌ Skip `init_module` when contracts need initialization
 - ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
 - ❌ Store function values without considering reentrancy implications
+- ❌ Use direct field selection on enums in production code (prefer `match`)
+- ❌ Use structs for state machines when enums are a better fit
 - ❌ Reorder enum variants during upgrades (breaks compatibility)
 
 ---
@@ -1092,7 +1278,7 @@ module my_addr::marketplace {
 
 - `OBJECTS.md` - Detailed object patterns
 - `SECURITY.md` - Security with modern syntax (incl. reentrancy safety)
-- `ADVANCED_TYPES.md` - Advanced type patterns
+- `ADVANCED_TYPES.md` - Advanced type patterns (enums, phantom types, generics)
 - `TESTING.md` - Testing modern code
 
 ---

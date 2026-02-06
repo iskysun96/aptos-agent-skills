@@ -49,9 +49,12 @@ Permission refs control critical token operations:
 
 - **MintRef**: Create new tokens
 - **BurnRef**: Destroy tokens
-- **TransferRef**: Control transfer logic (for non-transferable tokens)
+- **TransferRef**: Control transfer logic (for non-transferable tokens, vault withdrawals, escrow)
 
 **CRITICAL:** Store these refs securely in module resources with proper access control.
+
+**Vault/Escrow Pattern:** Use `withdraw_with_ref(&transfer_ref, store, amount)` to withdraw from a
+programmatically-controlled store (e.g., vault or escrow account) without requiring the store owner's signer.
 
 ---
 
@@ -129,8 +132,8 @@ module my_addr::my_token {
         });
     }
 
-    /// Get metadata object address
     #[view]
+    /// Get metadata object address
     public fun get_metadata(): Object<Metadata> {
         let metadata_addr = object::create_object_address(&@my_addr, b"MY_TOKEN");
         object::address_to_object<Metadata>(metadata_addr)
@@ -167,8 +170,8 @@ module my_addr::my_token {
         fungible_asset::burn(&refs.burn_ref, fa);
     }
 
-    /// Get balance of an account
     #[view]
+    /// Get balance of an account
     public fun balance(account: address): u64 {
         let metadata = get_metadata();
         primary_fungible_store::balance(account, metadata)

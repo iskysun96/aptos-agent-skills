@@ -23,7 +23,8 @@
         "./skills/move/search-aptos-examples",
         "./skills/move/use-aptos-cli",
         "./skills/move/troubleshoot-errors",
-        "./skills/move/analyze-gas-optimization"
+        "./skills/move/analyze-gas-optimization",
+        "./skills/sdk/use-typescript-sdk"
       ]
     }
   ]

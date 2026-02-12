@@ -389,7 +389,7 @@ aptos move test
 - ✅ ALWAYS run `npm install` after bootstrapping
 - ✅ ALWAYS verify compilation and tests pass
 - ✅ ALWAYS initialize git after setup
-- ✅ ALWAYS use named addresses (my_addr = "\_")
+- ✅ ALWAYS use named addresses (my_addr = "_")
 
 ## NEVER Rules
 
@@ -399,6 +399,9 @@ aptos move test
 - ❌ NEVER skip Move.toml configuration
 - ❌ NEVER use hardcoded addresses in code
 - ❌ NEVER skip verifying compilation after scaffolding
+- ❌ NEVER read `.env` files after creation — to verify existence, use `ls -la .env` not `cat .env`
+- ❌ NEVER display `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY` values in responses
+- ❌ NEVER run `git add .` or `git add -A` until `.gitignore` contains `.env` — always verify first
 
 ---
 

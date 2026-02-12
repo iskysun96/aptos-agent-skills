@@ -331,27 +331,27 @@ await aptos.waitForTransaction({ transactionHash: pendingTx.hash });
 
 ## Type Mappings: Move to TypeScript
 
-| Move Type    | TypeScript Type        | Example                                             |
-| ------------ | ---------------------- | --------------------------------------------------- |
-| `u8`         | `number`               | `255`                                               |
-| `u16`        | `number`               | `65535`                                             |
-| `u32`        | `number`               | `4294967295`                                        |
-| `u64`        | `number \| bigint`     | `1000000`                                           |
-| `u128`       | `bigint`               | `BigInt("340282366920938463463374607431768211455")` |
-| `u256`       | `bigint`               | `BigInt("...")`                                     |
-| `i8`         | `number`               | `-128` (Move 2.3+)                                  |
-| `i16`        | `number`               | `-32768` (Move 2.3+)                                |
-| `i32`        | `number`               | `-2147483648` (Move 2.3+)                           |
-| `i64`        | `number \| bigint`     | Use `bigint` for large values (Move 2.3+)           |
+| Move Type    | TypeScript Type        | Example                                              |
+| ------------ | ---------------------- | ---------------------------------------------------- |
+| `u8`         | `number`               | `255`                                                |
+| `u16`        | `number`               | `65535`                                              |
+| `u32`        | `number`               | `4294967295`                                         |
+| `u64`        | `number \| bigint`     | `1000000`                                            |
+| `u128`       | `bigint`               | `BigInt("340282366920938463463374607431768211455")`  |
+| `u256`       | `bigint`               | `BigInt("...")`                                      |
+| `i8`         | `number`               | `-128` (Move 2.3+)                                   |
+| `i16`        | `number`               | `-32768` (Move 2.3+)                                 |
+| `i32`        | `number`               | `-2147483648` (Move 2.3+)                            |
+| `i64`        | `number \| bigint`     | Use `bigint` for large values (Move 2.3+)            |
 | `i128`       | `bigint`               | `BigInt("-170141183460469231731687303715884105728")` |
-| `i256`       | `bigint`               | `BigInt("...")` (Move 2.3+)                         |
-| `bool`       | `boolean`              | `true`                                              |
-| `address`    | `string`               | `"0x1"`                                             |
-| `String`     | `string`               | `"hello"`                                           |
-| `vector<u8>` | `Uint8Array \| string` | `new Uint8Array([1,2,3])` or hex string             |
-| `vector<T>`  | `T[]`                  | `[1, 2, 3]` for `vector<u64>`                       |
-| `Object<T>`  | `string`               | Object address as hex string                        |
-| `Option<T>`  | `T \| null`            | Value or `null`                                     |
+| `i256`       | `bigint`               | `BigInt("...")` (Move 2.3+)                          |
+| `bool`       | `boolean`              | `true`                                               |
+| `address`    | `string`               | `"0x1"`                                              |
+| `String`     | `string`               | `"hello"`                                            |
+| `vector<u8>` | `Uint8Array \| string` | `new Uint8Array([1,2,3])` or hex string              |
+| `vector<T>`  | `T[]`                  | `[1, 2, 3]` for `vector<u64>`                        |
+| `Object<T>`  | `string`               | Object address as hex string                         |
+| `Option<T>`  | `T \| null`            | Value or `null`                                      |
 
 ## Transaction Simulation
 
@@ -386,8 +386,8 @@ const gasProfile = await aptos.gasProfile({
   sender: account.accountAddress,
   data: {
     function: `${MODULE_ADDRESS}::module::function_name`,
-    functionArguments: [],
-  },
+    functionArguments: []
+  }
 });
 
 console.log("Gas profile:", gasProfile);
@@ -497,7 +497,7 @@ src/
 ```typescript
 // CORRECT (v5.1+)
 const balance = await aptos.getBalance({
-  accountAddress: account.accountAddress,
+  accountAddress: account.accountAddress
 });
 // Returns bigint in octas (1 APT = 100_000_000 octas)
 
@@ -517,15 +517,13 @@ key.toString(); // Returns AIP-80 prefixed format, NOT raw hex
 
 ### AccountAddress Parsing (v1.32+)
 
-`AccountAddress.fromString()` now only accepts SHORT format (60-64 hex chars) by default. Use
-`AccountAddress.from()` for flexible parsing:
+`AccountAddress.fromString()` now only accepts SHORT format (60-64 hex chars) by default. Use `AccountAddress.from()`
+for flexible parsing:
 
 ```typescript
 // CORRECT
 const addr = AccountAddress.from("0x1"); // Accepts any format
-const addr2 = AccountAddress.fromString(
-  "0x000000000000000000000000000000000000000000000000000000000000001",
-); // SHORT format only
+const addr2 = AccountAddress.fromString("0x000000000000000000000000000000000000000000000000000000000000001"); // SHORT format only
 
 // MAY FAIL in v1.32+
 // AccountAddress.fromString("0x1") -- too short for SHORT format
@@ -540,7 +538,7 @@ await aptos.transferFungibleAssetBetweenStores({
   fungibleAssetMetadataAddress: metadataAddr,
   senderStoreAddress: fromStore,
   recipientStoreAddress: toStore,
-  amount: 1000n,
+  amount: 1000n
 });
 ```
 
@@ -551,7 +549,7 @@ When using Bun instead of Node.js, disable HTTP/2 in the client config:
 ```typescript
 const config = new AptosConfig({
   network: Network.TESTNET,
-  clientConfig: { http2: false },
+  clientConfig: { http2: false }
 });
 ```
 
@@ -561,25 +559,22 @@ The `aptos.abstraction` namespace provides APIs for custom authentication:
 
 ```typescript
 // Check if AA is enabled for an account
-const isEnabled =
-  await aptos.abstraction.isAccountAbstractionEnabled({
-    accountAddress: "0x...",
-    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
-  });
+const isEnabled = await aptos.abstraction.isAccountAbstractionEnabled({
+  accountAddress: "0x...",
+  authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`
+});
 
 // Enable AA on an account
-const enableTxn =
-  await aptos.abstraction.enableAccountAbstractionTransaction({
-    accountAddress: account.accountAddress,
-    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
-  });
+const enableTxn = await aptos.abstraction.enableAccountAbstractionTransaction({
+  accountAddress: account.accountAddress,
+  authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`
+});
 
 // Disable AA
-const disableTxn =
-  await aptos.abstraction.disableAccountAbstractionTransaction({
-    accountAddress: account.accountAddress,
-    authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`,
-  });
+const disableTxn = await aptos.abstraction.disableAccountAbstractionTransaction({
+  accountAddress: account.accountAddress,
+  authenticationFunction: `${MODULE_ADDRESS}::auth::authenticate`
+});
 
 // Use AbstractedAccount for signing with custom auth logic
 import { AbstractedAccount } from "@aptos-labs/ts-sdk";

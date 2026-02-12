@@ -191,7 +191,8 @@ const [count] = await aptos.view({
 
 ### TypeScript SDK
 
-- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet adapter)
+- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet
+  adapter)
 
 ## Example Workflows
 

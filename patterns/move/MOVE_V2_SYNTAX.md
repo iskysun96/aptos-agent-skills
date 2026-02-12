@@ -73,12 +73,12 @@ let threshold = 100;
 let is_above = |x| x > threshold;
 ```
 
-**Lambda restrictions:** Cannot capture references, parameters cannot be type-annotated, cannot contain `return`.
+**Lambda restrictions:** Cannot capture references, cannot contain `return`. Parameters may need explicit type
+annotations when the compiler cannot infer types.
 
 ### Currying Pattern
 
 ```move
-#[persistent]
 fun add(x: u64, y: u64): u64 { x + y }
 
 fun example() {
@@ -107,9 +107,9 @@ The VM detects module reentrancy when function values cause callbacks. Use `#[mo
 ```move
 #[module_lock]
 fun transfer(from: address, to: address, amount: u64, notify: |u64|) {
-    account::deposit(to, amount);
-    notify(amount);  // Reentrancy attempts blocked
     account::withdraw(from, amount);
+    notify(amount);  // Reentrancy attempts blocked
+    account::deposit(to, amount);
 }
 ```
 
@@ -1092,7 +1092,7 @@ module my_addr::marketplace {
 
 - `OBJECTS.md` - Detailed object patterns
 - `SECURITY.md` - Security with modern syntax (incl. reentrancy safety)
-- `ADVANCED_TYPES.md` - Advanced type patterns including enums
+- `ADVANCED_TYPES.md` - Advanced type patterns
 - `TESTING.md` - Testing modern code
 
 ---

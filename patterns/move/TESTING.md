@@ -703,6 +703,8 @@ For each contract, verify you have tests for:
 | Accessing struct fields across modules | Compilation error           | Add public view accessor functions (see Pattern 8)            |
 | Wrong error expectation after escrow   | Test fails unexpectedly     | Track ownership changes - after escrow, seller no longer owns |
 | Unnecessary `acquires` annotations     | Compiler warnings/errors    | Only list resources YOUR code borrows, not framework calls    |
+| `///` doc comment before `#[view]`     | Compiler warning            | Place `#[view]` first, then `///` doc comment on next line    |
+| `borrow_mut(&map.field, &key)`         | Mutability mismatch error   | Use `borrow_mut(&mut map.field, &key)` with `&mut`            |
 
 ---
 

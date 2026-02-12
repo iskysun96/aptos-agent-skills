@@ -57,6 +57,8 @@ metadata:
 21. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
 22. **Use `#[view]` annotation** for read-only accessor functions
 23. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
+24. **Place `#[view]` BEFORE doc comments** - `/// comment` before `#[view]` causes compiler warnings. Write `#[view]`
+    first, then `///`
 
 ## Quick Workflow
 

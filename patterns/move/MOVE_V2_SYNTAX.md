@@ -250,7 +250,7 @@ x += 5; x -= 2; x *= 3;
 ### Package Visibility (Move 2.0+)
 
 ```move
-public(package) fun internal_helper(): u64 { 42 }
+package fun internal_helper(): u64 { 42 }
 ```
 
 ### Optional Acquires (Move 2.2+)

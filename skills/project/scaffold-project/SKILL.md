@@ -319,8 +319,6 @@ After bootstrapping, complete these steps:
 
 **⚠️ Before committing:** Double-check that `.env` is NOT staged (`git status`)
 
-
-
 ---
 
 ## Move-Only Reference (Manual Setup)

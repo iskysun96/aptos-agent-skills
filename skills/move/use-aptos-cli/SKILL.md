@@ -247,7 +247,8 @@ aptos move run \
 
 ## Configuration
 
-> **Security:** NEVER read this file from the user's filesystem. The structure below is for reference only. Always use `"0x..."` placeholders for private key values.
+> **Security:** NEVER read this file from the user's filesystem. The structure below is for reference only. Always use
+> `"0x..."` placeholders for private key values.
 
 ### Config File (~/.aptos/config.yaml)
 

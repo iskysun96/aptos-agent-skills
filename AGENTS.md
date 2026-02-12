@@ -99,7 +99,8 @@ contract
 **Steps:**
 
 1. Activate `security-audit` skill → ensure security checklist passes
-2. **Credential safety:** Do not read `~/.aptos/config.yaml` or `.env` files. Use `aptos account list` to verify account addresses.
+2. **Credential safety:** Do not read `~/.aptos/config.yaml` or `.env` files. Use `aptos account list` to verify account
+   addresses.
 3. Activate `generate-tests` skill → ensure 100% coverage
 4. Run `aptos move compile` to verify compilation
 5. Activate `deploy-contracts` skill
@@ -143,7 +144,6 @@ contract
 6. Reference `patterns/fullstack/TYPESCRIPT_SDK.md` for complete API reference
 
 **Output:** TypeScript integration with the Aptos blockchain
-
 
 ## Skill Activation Table
 
@@ -228,22 +228,28 @@ When working with Aptos Move V2, you MUST NEVER:
 
 ## Private Key & Credential Security
 
-These rules govern YOUR behavior as an AI assistant. Private keys are the highest-sensitivity asset — exposure means total loss of funds.
+These rules govern YOUR behavior as an AI assistant. Private keys are the highest-sensitivity asset — exposure means
+total loss of funds.
 
 **Files containing secrets — NEVER read or display:**
+
 - `~/.aptos/config.yaml` — Contains private keys for all profiles
 - `.env` files — May contain `VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`
 - Any file matching: `*.key`, `*.pem`, `*.secret`, `*credentials*`
 
 **NEVER:**
+
 - ❌ NEVER read or display the contents of `~/.aptos/config.yaml` or `.env` files
 - ❌ NEVER display, print, or include private key values in your responses
-- ❌ NEVER run commands that output private keys (`cat ~/.aptos/config.yaml`, `echo $VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`, `env | grep KEY`, `printenv`)
-- ❌ NEVER repeat a private key if a user shares one in chat — instead warn: "I see you've shared a private key. I won't repeat it. Please rotate this key immediately if it was shared in an insecure channel."
+- ❌ NEVER run commands that output private keys (`cat ~/.aptos/config.yaml`,
+  `echo $VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY`, `env | grep KEY`, `printenv`)
+- ❌ NEVER repeat a private key if a user shares one in chat — instead warn: "I see you've shared a private key. I won't
+  repeat it. Please rotate this key immediately if it was shared in an insecure channel."
 - ❌ NEVER run `git add .` or `git add -A` without first verifying `.env` is in `.gitignore`
 - ❌ NEVER include private key values in code examples — use placeholder `"0x..."` instead
 
 **ALWAYS:**
+
 - ✅ ALWAYS use `"0x..."` as placeholder when showing config structure
 - ✅ ALWAYS warn users before running `aptos init` that it generates a private key to store securely
 - ✅ ALWAYS verify `.gitignore` contains `.env` BEFORE any `git add` command

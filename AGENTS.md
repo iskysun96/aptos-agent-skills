@@ -105,7 +105,7 @@ contract
 4. Run `aptos move compile` to verify compilation
 5. Activate `deploy-contracts` skill
 6. Choose network (devnet, testnet, mainnet)
-7. Run `aptos move publish --named-addresses <name>=<address>`
+7. Run `aptos move deploy-object --address-name <name>`
 8. Verify deployment with `aptos account list --account <address>`
 9. Document deployed addresses
 

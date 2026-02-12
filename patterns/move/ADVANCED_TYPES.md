@@ -87,25 +87,21 @@ Enums with `Box` enable tree-like data structures:
 
 ```move
 module my_addr::expression_tree {
+    use std::box::Box;
+
     /// Arithmetic expression tree
     enum Expr has drop {
         Literal(u64),
         Add(Box<Expr>, Box<Expr>),
         Mul(Box<Expr>, Box<Expr>),
-        Neg(Box<Expr>),
     }
 
     /// Evaluate expression recursively
     fun eval(expr: &Expr): u64 {
         match (expr) {
             Expr::Literal(val) => *val,
-            Expr::Add(left, right) => eval(left) + eval(right),
-            Expr::Mul(left, right) => eval(left) * eval(right),
-            Expr::Neg(inner) => {
-                let val = eval(inner);
-                // Saturating negate for unsigned
-                0
-            },
+            Expr::Add(left, right) => eval(&*left) + eval(&*right),
+            Expr::Mul(left, right) => eval(&*left) * eval(&*right),
         }
     }
 

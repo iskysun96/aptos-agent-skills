@@ -193,7 +193,7 @@ fun describe(shape: &Shape): String {
         Shape::Circle { radius } if *radius == 0 => string::utf8(b"point"),
         Shape::Circle { radius } if *radius > 100 => string::utf8(b"large circle"),
         Shape::Circle { .. } => string::utf8(b"circle"),
-        Shape::Rectangle { width, height } if width == height => string::utf8(b"square"),
+        Shape::Rectangle { width, height } if *width == *height => string::utf8(b"square"),
         Shape::Rectangle { .. } => string::utf8(b"rectangle"),
     }
 }
@@ -279,8 +279,8 @@ enum Expr has drop {
 fun eval(expr: &Expr): u64 {
     match (expr) {
         Expr::Literal(value) => *value,
-        Expr::Add(left, right) => eval(left) + eval(right),
-        Expr::Mul(left, right) => eval(left) * eval(right),
+        Expr::Add(left, right) => eval(&*left) + eval(&*right),
+        Expr::Mul(left, right) => eval(&*left) * eval(&*right),
     }
 }
 ```
@@ -374,14 +374,16 @@ Move 2.3 introduces native signed integer types:
 ### Builtin Constants
 
 ```move
-let max = MAX_U64; // 18446744073709551615
-let min = MIN_I32; // -2147483648
-let max_signed = MAX_I64;
+let max = std::u64::MAX; // 18446744073709551615
+let min = std::i32::MIN; // -2147483648
+let max_signed = std::i64::MAX;
 ```
 
 ### Use Cases
 
 ```move
+const E_INSUFFICIENT_BALANCE: u64 = 1;
+
 /// Price deltas that can be negative
 struct PriceDelta has copy, drop, store {
     delta_bps: i64,

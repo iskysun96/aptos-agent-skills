@@ -1,12 +1,12 @@
 ---
 name: search-aptos-examples
 description:
-  "Searches aptos-core and official examples for reference implementations before writing contracts. Triggers on:
+  "Searches aptos-core and daily-move for reference implementations before writing contracts. Triggers on:
   'search examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does
-  aptos implement', 'similar contract'."
+  aptos implement', 'similar contract', 'daily-move'."
 metadata:
   category: move
-  tags: ["examples", "reference", "patterns", "aptos-core"]
+  tags: ["examples", "reference", "patterns", "aptos-core", "daily-move"]
   priority: high
 ---
 
@@ -14,12 +14,13 @@ metadata:
 
 ## Overview
 
-This skill helps you find relevant examples in the official Aptos repository before writing new contracts. **Always
+This skill helps you find relevant examples in official Aptos repositories before writing new contracts. **Always
 search examples first** to follow established patterns.
 
-**Repository:** `aptos-labs/aptos-core/aptos-move/move-examples/`
+**Repositories:**
 
-**Contains:** 53+ official Aptos Move examples demonstrating best practices
+- **`aptos-labs/aptos-core/aptos-move/move-examples/`** — 53+ official Move examples demonstrating best practices
+- **`aptos-labs/daily-move/snippets/`** — 17 curated educational examples covering design patterns, Move 2 features, composable NFTs, and more
 
 ## Core Workflow
 
@@ -45,6 +46,10 @@ Categorize your contract:
 2. **`mint_nft/`** - NFT minting patterns
 3. **`nft_dao/`** - NFT-gated governance
 4. **`collection_manager/`** - Collection management
+5. **(daily-move) `composable-nfts/`** - NFTs that contain other NFTs
+6. **(daily-move) `modifying-nfts/`** - Mutable NFT metadata patterns
+7. **(daily-move) `parallel-nfts/`** - Concurrent NFT minting
+8. **(daily-move) `liquid-nfts/`** - Fractionalized/liquid NFTs
 
 **When to use:** Building NFT collections, digital collectibles, tokenized assets
 
@@ -53,6 +58,9 @@ Categorize your contract:
 1. **`fungible_asset/`** - Modern fungible token standard
 2. **`coin/`** - Basic coin implementation
 3. **`managed_fungible_asset/`** - Controlled fungible assets
+4. **(daily-move) `fa-lockup-example/`** - FA lockup and escrow patterns
+5. **(daily-move) `fractional-token/`** - Fractional token ownership
+6. **(daily-move) `controlled-mint/`** - Controlled minting with access control
 
 **When to use:** Creating tokens, currencies, reward points
 
@@ -78,6 +86,9 @@ Categorize your contract:
 1. **`hello_blockchain/`** - Module structure basics
 2. **`message_board/`** - Simple state management
 3. **`resource_account/`** - Resource patterns (legacy - avoid for new code)
+4. **(daily-move) `error-codes/`** - Error code conventions and patterns
+5. **(daily-move) `private-vs-public/`** - Function visibility and access
+6. **(daily-move) `objects/`** - Object model fundamentals
 
 **When to use:** Learning Move basics, simple contracts
 
@@ -86,8 +97,19 @@ Categorize your contract:
 1. **`object_playground/`** - Object model exploration
 2. **`capability/`** - Capability-based security
 3. **`upgradeable/`** - Upgradeable contracts
+4. **(daily-move) `design-patterns/`** - Autonomous objects and other design patterns
+5. **(daily-move) `struct-capabilities/`** - Struct-based capability patterns
+6. **(daily-move) `move-2/`** - Move 2 language features and idioms
+7. **(daily-move) `storage/`** - Storage layout and optimization patterns
+8. **(daily-move) `data-structures/`** - Heap data structure implementation
 
 **When to use:** Complex architectures, security patterns
+
+#### Gaming
+
+1. **(daily-move) `lootbox/`** - Randomized loot box mechanics
+
+**When to use:** Building games, randomized rewards, loot systems
 
 ### Step 3: Review Example Code
 
@@ -129,16 +151,23 @@ Categorize your contract:
 
 ## Example Discovery Table
 
-| Building        | Search For                          | Key Files                                    |
-| --------------- | ----------------------------------- | -------------------------------------------- |
-| NFT Collection  | `token_objects`, `mint_nft`         | `token_objects/sources/token.move`           |
-| Fungible Token  | `fungible_asset`                    | `fungible_asset/sources/fungible_asset.move` |
-| Marketplace     | `marketplace`                       | `marketplace/sources/marketplace.move`       |
-| DAO             | `dao`, `voting`                     | `dao/sources/dao.move`                       |
-| Token Swap      | `swap`, `liquidity_pool`            | `swap/sources/swap.move`                     |
-| Staking         | `staking`                           | `staking/sources/staking.move`               |
-| Simple Contract | `hello_blockchain`, `message_board` | `hello_blockchain/sources/hello.move`        |
-| Object Patterns | `object_playground`                 | `object_playground/sources/playground.move`  |
+| Building          | Search For                          | Source     | Key Files                                    |
+| ----------------- | ----------------------------------- | ---------- | -------------------------------------------- |
+| NFT Collection    | `token_objects`, `mint_nft`         | aptos-core | `token_objects/sources/token.move`           |
+| Fungible Token    | `fungible_asset`                    | aptos-core | `fungible_asset/sources/fungible_asset.move` |
+| Marketplace       | `marketplace`                       | aptos-core | `marketplace/sources/marketplace.move`       |
+| DAO               | `dao`, `voting`                     | aptos-core | `dao/sources/dao.move`                       |
+| Token Swap        | `swap`, `liquidity_pool`            | aptos-core | `swap/sources/swap.move`                     |
+| Staking           | `staking`                           | aptos-core | `staking/sources/staking.move`               |
+| Simple Contract   | `hello_blockchain`, `message_board` | aptos-core | `hello_blockchain/sources/hello.move`        |
+| Object Patterns   | `object_playground`                 | aptos-core | `object_playground/sources/playground.move`  |
+| Composable NFTs   | `composable-nfts`                   | daily-move | `snippets/composable-nfts/`                  |
+| FA Lockup/Escrow  | `fa-lockup-example`                 | daily-move | `snippets/fa-lockup-example/`                |
+| Design Patterns   | `design-patterns`                   | daily-move | `snippets/design-patterns/`                  |
+| Move 2 Features   | `move-2`                            | daily-move | `snippets/move-2/`                           |
+| Data Structures   | `data-structures`                   | daily-move | `snippets/data-structures/`                  |
+| Storage Patterns  | `storage`                           | daily-move | `snippets/storage/`                          |
+| Loot Box Patterns | `lootbox`                           | daily-move | `snippets/lootbox/`                          |
 
 ## How to Access Examples
 
@@ -167,7 +196,23 @@ cd token_objects
 cat sources/token.move
 ```
 
-### Option 3: Search Aptos Documentation
+### Option 3: daily-move Repository
+
+**Browse online:**
+
+```
+https://github.com/aptos-labs/daily-move/tree/main/snippets
+```
+
+**Clone locally:**
+
+```bash
+git clone https://github.com/aptos-labs/daily-move.git
+cd daily-move/snippets
+ls -la
+```
+
+### Option 4: Search Aptos Documentation
 
 ```
 https://aptos.dev/build/smart-contracts
@@ -250,7 +295,7 @@ public fun transfer<T: key>(
 ## ALWAYS Rules
 
 - ✅ ALWAYS search examples before writing new contracts
-- ✅ ALWAYS prioritize official aptos-core examples
+- ✅ ALWAYS check both aptos-core (canonical) and daily-move (educational) repositories
 - ✅ ALWAYS understand patterns before copying
 - ✅ ALWAYS adapt patterns to your use case
 - ✅ ALWAYS maintain security checks from examples
@@ -271,6 +316,7 @@ Before writing contract code:
 
 - [ ] Identified category (NFT, DeFi, DAO, etc.)
 - [ ] Found 2-3 relevant examples in aptos-core
+- [ ] Checked daily-move snippets for educational examples
 - [ ] Reviewed module structure
 - [ ] Identified security patterns
 - [ ] Understood object creation patterns
@@ -320,7 +366,8 @@ Before writing contract code:
 
 **Official Examples:**
 
-- Repository: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
+- aptos-core: https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/move-examples
+- daily-move: https://github.com/aptos-labs/daily-move/tree/main/snippets
 - Documentation: https://aptos.dev/build/smart-contracts
 
 **Related Skills:**

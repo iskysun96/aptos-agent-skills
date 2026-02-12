@@ -389,7 +389,7 @@ aptos move test
 - ✅ ALWAYS run `npm install` after bootstrapping
 - ✅ ALWAYS verify compilation and tests pass
 - ✅ ALWAYS initialize git after setup
-- ✅ ALWAYS use named addresses (my_addr = "_")
+- ✅ ALWAYS use named addresses (my*addr = "*")
 
 ## NEVER Rules
 

@@ -1,7 +1,7 @@
 # Aptos Move V2 Modern Syntax Guide
 
-**Purpose:** Guide to modern Move V2 syntax features including function values, enum types, positional structs, signed integers, inline
-functions, lambdas, and current best practices.
+**Purpose:** Guide to modern Move V2 syntax features including function values, enum types, positional structs, signed
+integers, inline functions, lambdas, and current best practices.
 
 **Target:** AI assistants generating Move V2 smart contracts
 

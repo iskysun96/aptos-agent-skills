@@ -145,6 +145,21 @@ contract
 
 **Output:** TypeScript integration with the Aptos blockchain
 
+### Workflow 8: Modernize Move Contracts
+
+**Trigger:** User says "modernize contract", "upgrade to v2", "update move syntax", "migrate to v2"
+
+**Steps:**
+
+1. Activate `modernize-move` skill
+2. Analyze contract for V1/outdated patterns → produce Analysis Report
+3. Present report, user confirms scope (syntax-only / standard / full)
+4. Establish test safety net (generate tests if none exist)
+5. Apply modernizations tier by tier, testing after each tier
+6. Final verification with coverage report
+
+**Output:** Modernized Move V2+ contract with all tests passing
+
 ## Skill Activation Table
 
 | Skill                      | Activates When                                                 | Priority | Auto-Active           |
@@ -155,6 +170,7 @@ contract
 | `scaffold-project`         | "create project", "new move app", "scaffold"                   | High     | No                    |
 | `search-aptos-examples`    | "find example", "search aptos", before writing contracts       | High     | Yes (before writing)  |
 | `analyze-gas-optimization` | "optimize gas", "reduce gas costs", "gas efficiency"           | High     | No                    |
+| `modernize-move`           | "modernize", "upgrade to v2", "migrate", "update syntax"       | High     | No                    |
 | `use-aptos-cli`            | "run aptos", "compile", "test", "deploy"                       | Medium   | No                    |
 | `deploy-contracts`         | "deploy", "publish"                                            | Medium   | No                    |
 | `use-typescript-sdk`       | "typescript sdk", "ts-sdk", "aptos client", "frontend"         | High     | No                    |

@@ -31,6 +31,7 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 | [use-aptos-cli](skills/move/use-aptos-cli/SKILL.md)                       | CLI command reference    |
 | [troubleshoot-errors](skills/move/troubleshoot-errors/SKILL.md)           | Debug common errors      |
 | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md) | Optimize gas usage       |
+| [modernize-move](skills/move/modernize-move/SKILL.md)                     | Modernize V1 contracts   |
 | [use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)              | TypeScript SDK guide     |
 
 ## Integration

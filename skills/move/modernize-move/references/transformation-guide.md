@@ -1,0 +1,379 @@
+# Modernize Move — Transformation Guide
+
+Step-by-step transformation instructions with before/after code, safety checks, and edge cases for each detection rule.
+
+---
+
+## Tier 1 Transformations — Syntax
+
+### T1-01: Vector Borrow → Index Notation
+
+**Before:**
+```move
+let item = *vector::borrow(&items, i);
+let name = *vector::borrow(&registry.names, index);
+let nested = *vector::borrow(&borrow_global<State>(addr).items, i);
+```
+
+**After:**
+```move
+let item = items[i];
+let name = registry.names[index];
+let nested = borrow_global<State>(addr).items[i];
+```
+
+**Steps:**
+1. Find all `vector::borrow(&` calls
+2. Replace `*vector::borrow(&v, i)` with `v[i]`
+3. For nested access like `*vector::borrow(&container.field, i)`, use `container.field[i]`
+4. Remove the leading `*` dereference — index notation returns the value directly
+
+**Edge cases:**
+- When the result is used as a reference (`vector::borrow(&v, i)` without `*`), replace with `&v[i]`
+- When inside `borrow_global`, the index notation chains directly: `borrow_global<R>(addr).items[i]`
+- `vector::borrow` on a local variable: `*vector::borrow(&v, i)` → `v[i]`
+
+### T1-02: Vector Borrow Mut → Mutable Index
+
+**Before:**
+```move
+*vector::borrow_mut(&mut items, i) = new_value;
+let elem = vector::borrow_mut(&mut items, i);
+*elem = new_value;
+```
+
+**After:**
+```move
+items[i] = new_value;
+let elem = &mut items[i];
+*elem = new_value;
+```
+
+**Steps:**
+1. Find all `vector::borrow_mut(&mut` calls
+2. For direct assignment: `*vector::borrow_mut(&mut v, i) = val` → `v[i] = val`
+3. For reference binding: `vector::borrow_mut(&mut v, i)` → `&mut v[i]`
+
+**Edge cases:**
+- When mutating a struct field within the vector element, keep the mutable reference pattern: `let elem = &mut v[i]; elem.field = val`
+- For `borrow_global_mut` chains: `*vector::borrow_mut(&mut borrow_global_mut<S>(addr).items, i)` → `borrow_global_mut<S>(addr).items[i]`
+
+### T1-03: Module Function Call → Receiver Style
+
+**Before:**
+```move
+let value = items::get_value(&item);
+assert!(items::is_owner(&item, user), E_NOT_OWNER);
+items::set_value(&item, new_value);
+```
+
+**After:**
+```move
+let value = item.get_value();
+assert!(item.is_owner(user), E_NOT_OWNER);
+item.set_value(new_value);
+```
+
+**Steps:**
+1. Identify candidate calls: `module::func(&obj, ...)`
+2. **CRITICAL:** Read the target function definition and verify the first parameter is named `self`
+3. If first param is `self: &T` or `self: &mut T` or `self: T`, convert to receiver style
+4. Remove the first argument from the call (it becomes the receiver)
+5. Drop the module prefix — the compiler discovers receiver functions automatically
+
+**Safety checks:**
+- If first parameter is NOT named `self`, do NOT convert — it will not compile
+- Verify the function is `public` — private functions cannot be called receiver-style from other modules
+- Check for name conflicts — if two imported modules define the same receiver function name for the same type, the call is ambiguous
+
+**Edge cases:**
+- `&obj` vs `&mut obj` — both work with receiver style, the compiler infers mutability from the function signature
+- Functions with generics: `module::func<T>(&obj, ...)` → `obj.func<T>(...)` — generic params stay
+
+### T1-04 through T1-08: Compound Assignments
+
+**Before:**
+```move
+count = count + 1;
+balance = balance - amount;
+value = value * multiplier;
+result = result / divisor;
+remainder = remainder % modulus;
+```
+
+**After:**
+```move
+count += 1;
+balance -= amount;
+value *= multiplier;
+result /= divisor;
+remainder %= modulus;
+```
+
+**Steps:**
+1. Find patterns matching `x = x <op> expr`
+2. Verify both sides reference the exact same variable name
+3. Replace with `x <op>= expr`
+
+**Edge cases:**
+- `self.field = self.field + 1` → `self.field += 1` — works for struct field access
+- `*ref = *ref + 1` → `*ref += 1` — works for dereferenced mutable references
+- `x = expr + x` — do NOT convert. The variable must be on the left side of the operator. `x = 1 + x` is NOT the same pattern (addition is commutative but the syntax transform is not general).
+- Multi-term expressions: `x = x + a + b` → `x += a + b` — safe because `+` is left-associative
+
+---
+
+## Tier 2 Transformations — Visibility & Error Handling
+
+### T2-01: Friend Visibility → Package Visibility
+
+**Before:**
+```move
+module my_addr::core {
+    friend my_addr::helper;
+    friend my_addr::utils;
+
+    public(friend) fun internal_transfer(from: address, to: address, amount: u64) {
+        // ...
+    }
+}
+```
+
+**After:**
+```move
+module my_addr::core {
+    public(package) fun internal_transfer(from: address, to: address, amount: u64) {
+        // ...
+    }
+}
+```
+
+**Steps:**
+1. Replace all `public(friend) fun` with `public(package) fun`
+2. Remove all `friend` declarations (T2-02) — they are no longer needed
+3. Verify all callers are in the same package (check Move.toml `[addresses]`)
+
+**Safety checks:**
+- `public(package)` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
+- If any callers are in a DIFFERENT package, you cannot use `public(package)` — keep `public(friend)` or make fully `public`.
+
+### T2-02: Friend Declarations → Remove
+
+**Before:**
+```move
+friend my_addr::helper;
+friend my_addr::utils;
+```
+
+**After:** (lines deleted)
+
+**Steps:**
+1. Complete T2-01 first (convert all `public(friend)` to `public(package)`)
+2. Delete all `friend` declaration lines
+3. Remove any `use` imports that were only needed for friend declarations
+
+### T2-03: Magic Abort Numbers → Named Constants
+
+**Before:**
+```move
+public fun transfer(from: &signer, to: address, amount: u64) {
+    assert!(amount > 0, 1);
+    assert!(signer::address_of(from) != to, 2);
+    let balance = get_balance(signer::address_of(from));
+    assert!(balance >= amount, 3);
+    // ...
+}
+```
+
+**After:**
+```move
+const E_ZERO_AMOUNT: u64 = 1;
+const E_SELF_TRANSFER: u64 = 2;
+const E_INSUFFICIENT_BALANCE: u64 = 3;
+
+public fun transfer(from: &signer, to: address, amount: u64) {
+    assert!(amount > 0, E_ZERO_AMOUNT);
+    assert!(signer::address_of(from) != to, E_SELF_TRANSFER);
+    let balance = get_balance(signer::address_of(from));
+    assert!(balance >= amount, E_INSUFFICIENT_BALANCE);
+    // ...
+}
+```
+
+**Steps:**
+1. Find all `assert!(..., <literal>)` and `abort <literal>` occurrences
+2. Group by numeric value — same number should get the same constant
+3. Create `const E_DESCRIPTIVE_NAME: u64 = <original_value>;` for each unique number
+4. Replace literal numbers with constant names in `assert!` and `abort` calls
+5. **CRITICAL:** The numeric value MUST stay the same. Only the name changes.
+
+**Test impact:**
+- Tests using `#[expected_failure(abort_code = 1)]` still work (numeric value unchanged)
+- Optionally update tests to use `#[expected_failure(abort_code = module_name::E_ZERO_AMOUNT)]` for readability — but this is cosmetic, not required
+
+**Edge cases:**
+- Constants like `0` used as abort codes — name them `E_GENERIC_ERROR` or investigate the context
+- If a constant with the same value already exists, reuse it rather than creating a duplicate
+- `abort` expressions in nested contexts: `if (cond) { abort 5 }` → `if (cond) { abort E_SOME_ERROR }`
+
+### T2-04 + T2-05: EventHandle → #[event] Struct
+
+**Key changes:**
+- `event::emit_event(&mut handle.events, MyEvent { ... })` → `event::emit(MyEvent { ... })`
+- Add `#[event]` attribute above event struct definitions
+- Remove `EventHandle<T>` fields from storage structs
+- Remove `account::new_event_handle<T>(signer)` calls from `init_module`
+- Update imports: remove `EventHandle`, remove `account` if only used for handles
+- If storage struct ONLY contained event handles, remove the entire struct + its `acquires`
+
+**Steps:**
+1. Add `#[event]` attribute above each event struct
+2. Replace all `emit_event` calls with `event::emit()`
+3. Remove `EventHandle<T>` fields and their initialization
+4. Clean up imports, `acquires`, and `borrow_global_mut` for removed structs
+
+**Safety checks:**
+- External indexers may depend on EventHandle-based event stream. The `#[event]` pattern uses a different stream. Note in analysis report.
+- If already deployed and indexed, coordinate with indexer updates.
+
+---
+
+## Tier 3 Transformations — API & Pattern Migrations
+
+**Apply ONE AT A TIME. Run tests after each. Revert on failure.**
+
+### T3-01: Raw Address Params → Object<T>
+
+**Before:**
+```move
+public entry fun transfer_item(
+    owner: &signer,
+    item_addr: address,
+    recipient: address
+) acquires Item {
+    let item = borrow_global<Item>(item_addr);
+    assert!(item.owner == signer::address_of(owner), E_NOT_OWNER);
+    // ...
+}
+```
+
+**After:**
+```move
+public entry fun transfer_item(
+    owner: &signer,
+    item: Object<Item>,
+    recipient: address
+) acquires Item {
+    assert!(object::owner(item) == signer::address_of(owner), E_NOT_OWNER);
+    let item_data = borrow_global<Item>(object::object_address(&item));
+    // ...
+}
+```
+
+**Steps:**
+1. Change parameter type from `address` to `Object<T>`
+2. Replace `borrow_global<T>(addr)` with `borrow_global<T>(object::object_address(&obj))`
+3. Update ownership checks to use `object::owner(obj)`
+4. Update all callers and tests
+
+**Safety checks:**
+- This changes the function's ABI — all off-chain callers (TypeScript, CLI) must update
+- The `address` parameter might be used for non-object purposes (user address, not object address). Only convert addresses that reference objects.
+
+### T3-03: Coin Module → Fungible Asset
+
+This is a major rewrite. Key API differences:
+
+| Coin API | Fungible Asset API |
+|----------|--------------------|
+| `coin::register<CoinType>(account)` | Automatic via `primary_fungible_store` |
+| `coin::transfer<CoinType>(from, to, amount)` | `primary_fungible_store::transfer(from, metadata, to, amount)` |
+| `coin::balance<CoinType>(addr)` | `primary_fungible_store::balance(addr, metadata)` |
+| `coin::withdraw<CoinType>(from, amount)` | `fungible_asset::withdraw(from, store, amount)` |
+| `CoinType` generic parameter | `Object<Metadata>` parameter |
+
+**Approach:** Write the new module alongside the old one, migrate incrementally, then remove the old module.
+
+### T3-05: SmartTable → BigOrderedMap
+
+Replace `SmartTable<K, V>` with `BigOrderedMap<K, V>`. Replace `smart_table::` prefix with `big_ordered_map::`.
+
+**Key API differences:**
+- `contains(&table, &key)` → `contains(&map, key)` (no reference on key)
+- `remove(&mut table, &key)` → `remove(&mut map, key)` (no reference on key)
+- `borrow(&table, &key)` → `borrow(&map, key)` (no reference on key)
+- `borrow_mut(&mut table, &key)` → `borrow_mut(&mut map, key)` (no reference on key)
+- Initialization: `smart_table::new()` → `big_ordered_map::new()`
+
+### T3-07: While-Loop Iteration → Inline Functions + Lambdas
+
+**Before:**
+```move
+public fun sum_amounts(items: &vector<Item>): u64 {
+    let total = 0;
+    let i = 0;
+    let len = vector::length(items);
+    while (i < len) {
+        let item = vector::borrow(items, i);
+        total = total + item.amount;
+        i = i + 1;
+    };
+    total
+}
+```
+
+**After:**
+```move
+inline fun for_each<T>(v: &vector<T>, f: |&T|) {
+    let i = 0;
+    let len = vector::length(v);
+    while (i < len) {
+        f(&v[i]);
+        i += 1;
+    }
+}
+
+public fun sum_amounts(items: &vector<Item>): u64 {
+    let total = 0;
+    for_each(items, |item| {
+        total += item.amount;
+    });
+    total
+}
+```
+
+**Steps:**
+1. Define inline helper functions (`for_each`, `map`, `filter`, `fold`) if not already present
+2. Identify while-loops that iterate over vectors
+3. Replace with appropriate inline function + lambda
+4. Combine with T1-01 (index notation) and T1-04 (compound assignment) for cleaner result
+
+**Edge cases:**
+- Loops with `break` or `continue` cannot be converted to `for_each` — lambdas don't support these
+- Loops that mutate the vector being iterated need `for_each_mut`
+- Loops with early returns need restructuring — extract the return value as a mutable variable
+
+### T3-08: Custom Signed Int → Native Types
+
+Replace custom `struct I64 { value: u64, negative: bool }` with native `i64`. Replace custom arithmetic functions (`add_i64`, `sub_i64`, etc.) with native operators (`+`, `-`, `*`, `/`). Remove the custom module and update all callers.
+
+---
+
+## General Safety Protocol
+
+Before applying ANY tier of transformations:
+
+1. **Verify test baseline** — all tests must pass before changes
+2. **Apply changes for one tier** — do not mix tiers
+3. **Run `aptos move test`** — verify all tests still pass
+4. **If tests fail:**
+   - Identify which specific change caused the failure
+   - Revert that change
+   - Investigate whether the transformation was applied incorrectly
+   - Fix and retry, or skip that specific rule
+5. **Proceed to next tier** only after current tier passes
+
+After all transformations:
+
+6. **Run `aptos move test --coverage`** — verify coverage is maintained
+7. **Generate summary report** — what changed, what was skipped, and why

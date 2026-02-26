@@ -445,7 +445,7 @@ public fun sum_all(items: &vector<u64>): u64 {
 | `for (i in 0..n)` | **Default choice.** Counter-based iteration over ranges or vector indices |
 | `vector::for_each_ref` / `vector::fold` / etc. | Functional-style iteration with lambdas (see Stdlib Inline Functions below) |
 | `loop` | Infinite loops with explicit `break` conditions |
-| `while` | Only when step size != 1 (e.g., `i += 2`) or complex termination conditions |
+| `while` | When iteration count isn't known upfront: dynamic termination conditions, step size != 1, searching/draining |
 
 ---
 
@@ -597,7 +597,7 @@ public fun dot_product(a: vector<u64>, b: vector<u64>): u64 {
 
 ### Custom Inline Functions
 
-Only define custom inline helpers when no stdlib function fits. Always use `for` loops (never `while`) inside custom helpers.
+Only define custom inline helpers when no stdlib function fits. Prefer `for` loops for counter-based iteration inside custom helpers.
 
 ```move
 /// Custom: sliding window pairs (no stdlib equivalent)
@@ -622,7 +622,7 @@ inline fun for_each_pair<T>(v: &vector<T>, f: |&T, &T|) {
 
 1. **Use stdlib first** — `vector::for_each_ref`, `vector::map`, `vector::fold`, etc. cover most iteration patterns
 2. **Use `inline` for reference-returning helpers** — the main code-reuse pattern for `inline fun`
-3. **Use `for` loops inside custom inline functions** — never use `while` loops with manual counters
+3. **Prefer `for` loops for counter-based iteration** — use `while` only when the termination condition is dynamic
 4. **Lambdas cannot use `break`, `continue`, or `return`** — if you need these, use a `for` loop directly
 5. **Lambdas capture by value** — cannot capture references; captured mutable variables can be modified
 
@@ -1272,7 +1272,7 @@ public(package) fun internal_helper() {
 - ✅ Use `#[module_lock]` when function value callbacks must not re-enter your module
 - ✅ Use `match` expressions for exhaustive enum handling
 - ✅ Add wildcard `_` arms in `match` for future upgrade compatibility
-- ✅ Use `for` loops over `while` loops — always prefer `for (i in 0..n)` over manual counter patterns
+- ✅ Use `for` loops for counter-based iteration — prefer `for (i in 0..n)` over manual counter `while` loops
 - ✅ Use stdlib inline functions (`vector::for_each_ref`, `vector::map`, `vector::fold`) for vector iteration
 - ✅ Use lambdas for concise operation definitions
 - ✅ Only define custom inline functions when no stdlib equivalent exists
@@ -1296,7 +1296,7 @@ public(package) fun internal_helper() {
 - ❌ Create helper functions that just return named addresses
 - ❌ Skip event emission for significant activities
 - ❌ Use old syntax (`vector::borrow`) when V2 syntax (`vector[i]`) is available
-- ❌ Use `while` loops with manual counters — use `for (i in 0..n)` instead
+- ❌ Use `while` loops with manual counters when `for (i in 0..n)` works
 - ❌ Define custom `for_each`/`map`/`fold` helpers when stdlib versions exist
 - ❌ Skip `init_module` when contracts need initialization
 - ❌ Use custom signed integer libraries when native `i8`-`i256` types are available
@@ -1327,5 +1327,4 @@ public(package) fun internal_helper() {
 
 ---
 
-**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace `for` loops, stdlib inline
-functions, lambdas, function values, enums, and type-safe objects. Never use `while` loops with manual counters.
+**Remember:** Use modern Move V2 syntax for cleaner, safer, more maintainable code. Embrace `for` loops for counter-based iteration, stdlib inline functions, lambdas, function values, enums, and type-safe objects. Use `while` when the termination condition is dynamic.

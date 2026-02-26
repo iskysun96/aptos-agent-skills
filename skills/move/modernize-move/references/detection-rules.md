@@ -91,7 +91,7 @@ These changes produce identical compiled output. Safe to apply unconditionally.
       // body
   };
   ```
-- **ALWAYS apply:** For loops should always be used over while loops when iterating with a counter. There are no cases where a counter-based while loop is preferable.
+- **When to apply:** Convert `while` loops that use a counter with a known range to `for` loops. Keep `while` for loops where the iteration count isn't known upfront (e.g., dynamic termination conditions, searching until a match, processing until a queue is empty).
 - **Detection regex:** `while\s*\(\w+\s*<\s*` combined with `\w+\s*=\s*\w+\s*\+\s*1` or `\w+\s*\+=\s*1` in the loop body
 - **Note:** Also catches vector iteration patterns like `while (i < vector::length(&v))`. After conversion, combine with T1-01/T1-02 for index notation: `for (i in 0..vector::length(&v)) { ... v[i] ... }`
 

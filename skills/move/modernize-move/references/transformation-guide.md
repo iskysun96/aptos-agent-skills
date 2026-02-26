@@ -123,7 +123,7 @@ remainder %= modulus;
 
 ### T1-09: While Loop with Counter → For Range Loop
 
-**For loops should ALWAYS be used over while loops.** This is the single most impactful Tier 1 modernization — it eliminates counter boilerplate and makes loop intent immediately clear.
+**Convert counter-based `while` loops to `for` loops.** This is the single most impactful Tier 1 modernization — it eliminates counter boilerplate and makes loop intent immediately clear. Use the same rule as in other languages: `for` when the iteration range is known upfront, `while` when termination depends on a dynamic condition.
 
 **Before:**
 ```move
@@ -161,7 +161,8 @@ for (i in 0..vector::length(&items)) {
 - Counter used after loop: if `i` is read after the while loop exits, you need to keep a separate variable since the for-loop variable is scoped to the loop body
 - Loops with `break`: `for` loops support `break` and `continue`, so these convert directly
 - Nested loops: convert each independently, inner loop first
-- Counter step != 1: `i = i + 2` — cannot use `for` range loop (keep as while). This is the only case where while is acceptable.
+- Counter step != 1: `i = i + 2` — cannot use `for` range loop (keep as `while`)
+- Dynamic termination: loops that exit based on a runtime condition (e.g., searching for a value, draining a queue) are naturally `while` loops — do not force these into `for`
 
 ---
 

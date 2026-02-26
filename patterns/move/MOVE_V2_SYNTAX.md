@@ -431,7 +431,7 @@ fun sum(n: u64): u64 {
 /// Iterate over vector with for loop + index notation
 public fun sum_all(items: &vector<u64>): u64 {
     let total = 0;
-    for (i in 0..vector::length(items)) {
+    for (i in 0..items.length()) {
         total += items[i];
     };
     total

@@ -73,6 +73,28 @@ These changes produce identical compiled output. Safe to apply unconditionally.
 - **Replace with:** `remainder %= modulus`
 - **Detection regex:** `(\w+)\s*=\s*\1\s*%\s*`
 
+### T1-09: While Loop with Counter → For Range Loop (Move 2.0+)
+
+- **Confidence:** High
+- **Search for:** `while` loop with a counter variable initialized before and incremented inside (`i = i + 1` or `i += 1`)
+- **Pattern:**
+  ```move
+  let i = 0;
+  while (i < n) {
+      // body
+      i = i + 1;
+  };
+  ```
+- **Replace with:**
+  ```move
+  for (i in 0..n) {
+      // body
+  };
+  ```
+- **ALWAYS apply:** For loops should always be used over while loops when iterating with a counter. There are no cases where a counter-based while loop is preferable.
+- **Detection regex:** `while\s*\(\w+\s*<\s*` combined with `\w+\s*=\s*\w+\s*\+\s*1` or `\w+\s*\+=\s*1` in the loop body
+- **Note:** Also catches vector iteration patterns like `while (i < vector::length(&v))`. After conversion, combine with T1-01/T1-02 for index notation: `for (i in 0..vector::length(&v)) { ... v[i] ... }`
+
 ---
 
 ## Tier 2 — Visibility & Error Handling (Low Risk)
@@ -190,13 +212,22 @@ Different APIs or architectural patterns. Apply ONE AT A TIME with test verifica
 - **Scope of change:** All code that creates, reads, or pattern-matches on the entity needs rewriting.
 - **Detection regex:** Manual analysis required — look for groups of structs with shared prefixes or `status`/`type` discriminator fields
 
-### T3-07: While-Loop Iteration → Inline Functions + Lambdas
+### T3-07: Manual Loop Iteration → Stdlib Inline Functions + Lambdas
 
 - **Confidence:** Medium
-- **Search for:** `while (i < vector::length(` or `while (i < len)` with `vector::borrow` inside
-- **Replace with:** `for_each(&v, |elem| { ... })` using stdlib or custom inline functions
-- **Scope of change:** Requires defining inline helper functions if not already present. May need to restructure loop body if it uses `break`/`continue`.
-- **Detection regex:** `while\s*\(\w+\s*<\s*(vector::length|len)`
+- **Search for:** `for (i in 0..vector::length(` with index access inside, or any remaining while loops iterating over vectors
+- **Replace with:** Stdlib inline functions with lambdas:
+  - Read-only iteration: `vector::for_each_ref(&v, |elem| { ... })`
+  - Mutable iteration: `vector::for_each_mut(&mut v, |elem| { ... })`
+  - Consuming iteration: `vector::for_each(v, |elem| { ... })`
+  - With index: `vector::enumerate_ref(&v, |i, elem| { ... })`
+  - Transform: `vector::map(v, |elem| { ... })`
+  - Reduce: `vector::fold(v, init, |acc, elem| { ... })`
+  - Filter: `vector::filter(v, |elem| { ... })`
+  - Check: `vector::any(&v, |elem| { ... })` / `vector::all(&v, |elem| { ... })`
+- **Prerequisite:** Apply T1-09 (while → for) first. This rule converts for-loops over vectors into functional-style stdlib calls.
+- **Scope of change:** Restructures loop body into lambda. Loops with `break`/`continue` cannot be converted — keep as `for` loops.
+- **Detection regex:** `for\s*\(\w+\s+in\s+0\.\.vector::length` or remaining `while\s*\(\w+\s*<\s*(vector::length|len)`
 
 ### T3-08: Custom Signed Int Workarounds → Native Types (Move 2.3+)
 

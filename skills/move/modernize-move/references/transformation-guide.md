@@ -121,6 +121,48 @@ remainder %= modulus;
 - `x = expr + x` — do NOT convert. The variable must be on the left side of the operator. `x = 1 + x` is NOT the same pattern (addition is commutative but the syntax transform is not general).
 - Multi-term expressions: `x = x + a + b` → `x += a + b` — safe because `+` is left-associative
 
+### T1-09: While Loop with Counter → For Range Loop
+
+**For loops should ALWAYS be used over while loops.** This is the single most impactful Tier 1 modernization — it eliminates counter boilerplate and makes loop intent immediately clear.
+
+**Before:**
+```move
+let i = 0;
+let len = vector::length(&items);
+while (i < len) {
+    let item = items[i];
+    process(item);
+    i = i + 1;
+};
+```
+
+**After:**
+```move
+for (i in 0..vector::length(&items)) {
+    let item = items[i];
+    process(item);
+};
+```
+
+**Steps:**
+1. Find all while loops with a counter variable pattern: `let i = 0; ... while (i < bound) { ... i = i + 1; }`
+2. Replace with `for (i in 0..bound) { ... }`
+3. Remove the counter initialization (`let i = 0;`) — the `for` loop declares it
+4. Remove the counter increment (`i = i + 1;` or `i += 1;`) — the `for` loop handles it
+5. If the bound was stored in a variable only for the while condition (`let len = ...`), inline it into the `for` range if it's a simple expression
+
+**Range syntax:**
+- `for (i in 0..n)` — iterates `i` from `0` to `n-1` (upper bound is exclusive)
+- `for (i in start..end)` — iterates from `start` to `end-1`
+- Bounds are evaluated **once** at loop entry
+
+**Edge cases:**
+- Non-zero start: `let i = offset; while (i < limit) { ... i += 1; }` → `for (i in offset..limit) { ... }`
+- Counter used after loop: if `i` is read after the while loop exits, you need to keep a separate variable since the for-loop variable is scoped to the loop body
+- Loops with `break`: `for` loops support `break` and `continue`, so these convert directly
+- Nested loops: convert each independently, inner loop first
+- Counter step != 1: `i = i + 2` — cannot use `for` range loop (keep as while). This is the only case where while is acceptable.
+
 ---
 
 ## Tier 2 Transformations — Visibility & Error Handling
@@ -305,18 +347,16 @@ Replace `SmartTable<K, V>` with `BigOrderedMap<K, V>`. Replace `smart_table::` p
 - `borrow_mut(&mut table, &key)` → `borrow_mut(&mut map, key)` (no reference on key)
 - Initialization: `smart_table::new()` → `big_ordered_map::new()`
 
-### T3-07: While-Loop Iteration → Inline Functions + Lambdas
+### T3-07: Manual Loop Iteration → Stdlib Inline Functions + Lambdas
 
-**Before:**
+**Prerequisite:** Apply T1-09 first so all while loops are already converted to `for` loops. This rule then converts `for`-loop-over-vector patterns into functional-style stdlib calls.
+
+**Before (after T1-09 has been applied):**
 ```move
 public fun sum_amounts(items: &vector<Item>): u64 {
     let total = 0;
-    let i = 0;
-    let len = vector::length(items);
-    while (i < len) {
-        let item = vector::borrow(items, i);
-        total = total + item.amount;
-        i = i + 1;
+    for (i in 0..vector::length(items)) {
+        total += items[i].amount;
     };
     total
 }
@@ -324,34 +364,39 @@ public fun sum_amounts(items: &vector<Item>): u64 {
 
 **After:**
 ```move
-inline fun for_each<T>(v: &vector<T>, f: |&T|) {
-    let i = 0;
-    let len = vector::length(v);
-    while (i < len) {
-        f(&v[i]);
-        i += 1;
-    }
-}
-
 public fun sum_amounts(items: &vector<Item>): u64 {
-    let total = 0;
-    for_each(items, |item| {
-        total += item.amount;
-    });
-    total
+    vector::fold(*items, 0, |acc, item| acc + item.amount)
 }
 ```
 
+**Stdlib inline functions to use (do NOT define custom helpers when stdlib equivalents exist):**
+
+| Pattern | Stdlib Function | Signature |
+|---------|----------------|-----------|
+| Read each element | `vector::for_each_ref` | `(&vector<T>, \|&T\|)` |
+| Mutate each element | `vector::for_each_mut` | `(&mut vector<T>, \|&mut T\|)` |
+| Consume each element | `vector::for_each` | `(vector<T>, \|T\|)` |
+| Read with index | `vector::enumerate_ref` | `(&vector<T>, \|u64, &T\|)` |
+| Mutate with index | `vector::enumerate_mut` | `(&mut vector<T>, \|u64, &mut T\|)` |
+| Transform elements | `vector::map` / `vector::map_ref` | `(vector<T>, \|T\|U): vector<U>` |
+| Reduce to value | `vector::fold` | `(vector<T>, Acc, \|Acc, T\|Acc): Acc` |
+| Filter elements | `vector::filter` | `(vector<T>, \|&T\|bool): vector<T>` |
+| Any match | `vector::any` | `(&vector<T>, \|&T\|bool): bool` |
+| All match | `vector::all` | `(&vector<T>, \|&T\|bool): bool` |
+| Zip two vectors | `vector::zip` / `vector::zip_ref` | `(vector<T>, vector<U>, \|T, U\|)` |
+
 **Steps:**
-1. Define inline helper functions (`for_each`, `map`, `filter`, `fold`) if not already present
-2. Identify while-loops that iterate over vectors
-3. Replace with appropriate inline function + lambda
-4. Combine with T1-01 (index notation) and T1-04 (compound assignment) for cleaner result
+1. Identify `for` loops that iterate over a vector using index access
+2. Determine which stdlib function fits the loop pattern (see table above)
+3. Replace the loop with the stdlib call + lambda
+4. Combine with T1-04/T1-08 (compound assignments) inside lambdas for cleaner result
 
 **Edge cases:**
-- Loops with `break` or `continue` cannot be converted to `for_each` — lambdas don't support these
-- Loops that mutate the vector being iterated need `for_each_mut`
-- Loops with early returns need restructuring — extract the return value as a mutable variable
+- Loops with `break` or `continue` cannot be converted — lambdas don't support these. Keep as `for` loops.
+- Loops that need both index and element: use `enumerate_ref` or `enumerate_mut`
+- Loops with early returns: extract the return value as a mutable variable, or use `vector::any`/`vector::all` if the return is boolean
+- Loops that build a new collection: use `vector::map` or `vector::filter`
+- Only define custom inline helpers when no stdlib function fits the pattern
 
 ### T3-08: Custom Signed Int → Native Types
 

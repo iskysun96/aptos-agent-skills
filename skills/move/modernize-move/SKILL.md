@@ -47,6 +47,8 @@ Five non-negotiable rules for every modernization:
 - Upgrading Move V1 contracts to V2 syntax
 - Migrating `public(friend)` to `public(package)`
 - Converting `vector::borrow` to index notation
+- Converting `while` loops with counters to `for` range loops
+- Replacing manual vector iteration with stdlib inline functions (`vector::for_each_ref`, `vector::map`, `vector::fold`, etc.) and lambdas
 - Replacing magic abort numbers with named constants
 - Converting `EventHandle` to `#[event]` pattern
 - Migrating legacy `coin`/`TokenV1` to modern `fungible_asset`/Digital Assets
@@ -195,11 +197,11 @@ Five non-negotiable rules for every modernization:
 
 | Tier | What Changes | Risk | Examples |
 |------|-------------|------|----------|
-| 1 — Syntax | Code reads differently, compiles identically | Zero | `vector::borrow(&v, i)` → `v[i]`, `x = x + 1` → `x += 1` |
+| 1 — Syntax | Code reads differently, compiles identically | Zero | `vector::borrow(&v, i)` → `v[i]`, `x = x + 1` → `x += 1`, `while (i < n) { ... i += 1 }` → `for (i in 0..n) { ... }` |
 | 2 — Visibility & Errors | Same semantics, cleaner declarations | Low | `public(friend)` → `public(package)`, magic numbers → `E_*` constants |
-| 3 — API Migrations | Different APIs, same intended behavior | Medium-High | `coin` → `fungible_asset`, `SmartTable` → `BigOrderedMap` |
+| 3 — API Migrations | Different APIs, same intended behavior | Medium-High | `coin` → `fungible_asset`, `SmartTable` → `BigOrderedMap`, manual loops → stdlib `vector::for_each_ref`/`map`/`fold` with lambdas |
 
-See [detection-rules.md](references/detection-rules.md) for the complete rule catalog (21 rules across 3 tiers).
+See [detection-rules.md](references/detection-rules.md) for the complete rule catalog (22 rules across 3 tiers).
 
 ## Rationalizations to Reject
 

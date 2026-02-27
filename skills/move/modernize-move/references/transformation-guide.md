@@ -170,7 +170,7 @@ for (i in 0..vector::length(&items)) {
 
 ## Tier 2 Transformations — Visibility & Error Handling
 
-### T2-01: Friend Visibility → Package Visibility
+### T2-01: Friend / Public(package) Visibility → Package Fun
 
 **Before:**
 ```move
@@ -179,6 +179,11 @@ module my_addr::core {
     friend my_addr::utils;
 
     public(friend) fun internal_transfer(from: address, to: address, amount: u64) {
+        // ...
+    }
+
+    // Or the deprecated intermediate form:
+    public(package) fun other_helper(): u64 {
         // ...
     }
 }
@@ -190,11 +195,15 @@ module my_addr::core {
     package fun internal_transfer(from: address, to: address, amount: u64) {
         // ...
     }
+
+    package fun other_helper(): u64 {
+        // ...
+    }
 }
 ```
 
 **Steps:**
-1. Replace all `public(friend) fun` with `package fun`
+1. Replace all `public(friend) fun` and `public(package) fun` with `package fun`
 2. Remove all `friend` declarations (T2-02) — they are no longer needed
 3. Verify all callers are in the same package (check Move.toml `[addresses]`)
 

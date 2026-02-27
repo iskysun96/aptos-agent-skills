@@ -103,14 +103,14 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
 
 Same semantics, cleaner code. May require updating test annotations.
 
-### T2-01: Friend Visibility → Package Visibility (Move 2.1+)
+### T2-01: Friend / Public(package) Visibility → Package Fun (Move 2.1+)
 
 - **Confidence:** High
-- **Search for:** `public(friend) fun`
+- **Search for:** `public(friend) fun` or `public(package) fun`
 - **Replace with:** `package fun`
-- **Note:** Convert directly to `package fun` — do NOT use the intermediate `public(package) fun` form, which is deprecated.
+- **Note:** Both `public(friend)` and `public(package)` convert directly to `package fun`. The `public(package)` form is deprecated — do not use it as an intermediate step.
 - **Safety check:** Verify all calling modules are in the same package (check Move.toml). `package fun` restricts to same-package modules only.
-- **Detection regex:** `public\(friend\)\s+fun`
+- **Detection regex:** `public\(friend\)\s+fun` or `public\(package\)\s+fun`
 
 ### T2-02: Friend Declarations → Remove (Move 2.1+)
 

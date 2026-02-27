@@ -170,62 +170,47 @@ for (i in 0..vector::length(&items)) {
 
 ## Tier 2 Transformations — Visibility & Error Handling
 
-### T2-01: Friend / Public(package) Visibility → Package Fun
+### T2-01: Public(friend) → Friend Fun
 
 **Before:**
 ```move
-module my_addr::core {
-    friend my_addr::helper;
-    friend my_addr::utils;
-
-    public(friend) fun internal_transfer(from: address, to: address, amount: u64) {
-        // ...
-    }
-
-    // Or the deprecated intermediate form:
-    public(package) fun other_helper(): u64 {
-        // ...
-    }
+public(friend) fun internal_transfer(from: address, to: address, amount: u64) {
+    // ...
 }
 ```
 
 **After:**
 ```move
-module my_addr::core {
-    package fun internal_transfer(from: address, to: address, amount: u64) {
-        // ...
-    }
-
-    package fun other_helper(): u64 {
-        // ...
-    }
+friend fun internal_transfer(from: address, to: address, amount: u64) {
+    // ...
 }
 ```
 
 **Steps:**
-1. Replace all `public(friend) fun` and `public(package) fun` with `package fun`
-2. Remove all `friend` declarations (T2-02) — they are no longer needed
-3. Verify all callers are in the same package (check Move.toml `[addresses]`)
+1. Replace all `public(friend) fun` with `friend fun`
 
-**Safety checks:**
-- `public(package) fun` → `package fun`: purely syntactic shorthand, no semantic change. No safety check needed.
-- `public(friend) fun` → `package fun`: slight semantic widening — `package fun` makes the function visible to ALL modules in the same package, not just the listed friends. This is usually fine but could expose the function to new callers if the package has many modules.
-- If any `public(friend)` callers are in a DIFFERENT package, you cannot use `package fun` — keep `public(friend)` or make fully `public`.
+Purely syntactic — identical semantics, no safety check needed.
 
-### T2-02: Friend Declarations → Remove
+### T2-02: Public(package) → Package Fun
 
 **Before:**
 ```move
-friend my_addr::helper;
-friend my_addr::utils;
+public(package) fun other_helper(): u64 {
+    // ...
+}
 ```
 
-**After:** (lines deleted)
+**After:**
+```move
+package fun other_helper(): u64 {
+    // ...
+}
+```
 
 **Steps:**
-1. Complete T2-01 first (convert all `public(friend)` to `package fun`)
-2. Delete all `friend` declaration lines
-3. Remove any `use` imports that were only needed for friend declarations
+1. Replace all `public(package) fun` with `package fun`
+
+Purely syntactic — identical semantics, no safety check needed.
 
 ### T2-03: Magic Abort Numbers → Named Constants
 

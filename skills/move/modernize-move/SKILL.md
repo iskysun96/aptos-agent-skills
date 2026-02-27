@@ -74,7 +74,7 @@ Five non-negotiable rules for every modernization:
    - Grep for Tier 1 patterns (syntax) — highest confidence, most common
    - Grep for Tier 2 patterns (visibility, errors, events)
    - Grep for Tier 3 patterns (API migrations) — flag for manual review
-3. Cross-reference coupled patterns (T2-01+T2-02, T3-09+T3-10)
+3. Cross-reference coupled patterns (T3-09+T3-10)
 4. Categorize each finding: line number, rule ID, pattern name, proposed change, tier, confidence
 5. Build the Analysis Report
 

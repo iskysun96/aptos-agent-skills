@@ -102,22 +102,21 @@ T1-03 (receiver style) requires verifying the target function's first parameter 
 
 Same semantics, cleaner code. May require updating test annotations.
 
-### T2-01: Friend / Public(package) Visibility → Package Fun (Move 2.1+)
+### T2-01: Public(friend) → Friend Fun (Move 2.0+)
 
 - **Confidence:** High
-- **Search for:** `public(friend) fun` or `public(package) fun`
+- **Search for:** `public(friend) fun`
+- **Replace with:** `friend fun`
+- **Note:** Purely syntactic shorthand. `friend fun` is the shorter form of `public(friend) fun` — identical semantics.
+- **Detection regex:** `public\(friend\)\s+fun`
+
+### T2-02: Public(package) → Package Fun (Move 2.1+)
+
+- **Confidence:** High
+- **Search for:** `public(package) fun`
 - **Replace with:** `package fun`
-- **Note:** `public(package) fun` → `package fun` is purely syntactic (shorter form, identical semantics). `public(friend) fun` → `package fun` is a slight semantic widening: all same-package modules gain access, not just the listed friends.
-- **Safety check:** For `public(friend)` conversions, verify that exposing the function to all same-package modules is acceptable (check Move.toml). For `public(package)` conversions, no safety check needed — semantics are identical.
-- **Detection regex:** `public\(friend\)\s+fun` or `public\(package\)\s+fun`
-
-### T2-02: Friend Declarations → Remove (Move 2.1+)
-
-- **Confidence:** High
-- **Search for:** `friend my_addr::module_name;`
-- **Replace with:** Delete the entire line
-- **Safety check:** Only remove after converting all `public(friend)` to `package fun` (T2-01 first).
-- **Detection regex:** `^\s*friend\s+\w+::\w+;`
+- **Note:** Purely syntactic shorthand — identical semantics, no safety check needed.
+- **Detection regex:** `public\(package\)\s+fun`
 
 ### T2-03: Magic Abort Numbers → Named Constants
 
@@ -260,5 +259,5 @@ When analyzing a contract, scan in this order:
 1. **Grep for Tier 1 patterns** — highest confidence, most common
 2. **Grep for Tier 2 patterns** — second pass, check for friend/event patterns
 3. **Grep for Tier 3 patterns** — final pass, flag for manual review
-4. **Cross-reference findings** — some patterns are coupled (T2-01 + T2-02, T3-09 + T3-10)
+4. **Cross-reference findings** — some patterns are coupled (T2-01 → T2-02 applied in sequence, T3-09 + T3-10)
 5. **Build analysis report** — line numbers, rule ID, proposed change, confidence

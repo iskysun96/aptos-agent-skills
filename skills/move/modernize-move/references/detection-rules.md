@@ -108,6 +108,7 @@ Same semantics, cleaner code. May require updating test annotations.
 - **Confidence:** High
 - **Search for:** `public(friend) fun`
 - **Replace with:** `package fun`
+- **Note:** Convert directly to `package fun` — do NOT use the intermediate `public(package) fun` form, which is deprecated.
 - **Safety check:** Verify all calling modules are in the same package (check Move.toml). `package fun` restricts to same-package modules only.
 - **Detection regex:** `public\(friend\)\s+fun`
 

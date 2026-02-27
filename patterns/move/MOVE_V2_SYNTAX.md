@@ -1207,7 +1207,7 @@ module my_addr::marketplace {
     // ============ Inline Helpers ============
     inline fun for_each_item(f: |&Object<Item>|) acquires Marketplace {
         let marketplace = borrow_global<Marketplace>(@my_addr);
-        (&marketplace.items).for_each_ref(|item| {
+        &marketplace.items.for_each_ref(|item| {
             f(item);
         });
     }

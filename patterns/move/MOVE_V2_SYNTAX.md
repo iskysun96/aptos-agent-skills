@@ -1234,11 +1234,16 @@ x %= modulus;
 
 ### Loop Labels (Move 2.1+)
 
+Labels can only be applied to `while` and `loop` — not `for`.
+
 ```move
-'outer: loop {
-    for (i in 0..len) {
-        if (found) break 'outer;
+'outer: while (row < rows) {
+    let col = 0;
+    while (col < cols) {
+        if (grid[row][col] == target) break 'outer;
+        col += 1;
     };
+    row += 1;
 };
 ```
 

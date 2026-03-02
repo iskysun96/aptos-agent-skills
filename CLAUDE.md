@@ -4,20 +4,22 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 
 ## Project Scaffolding
 
-Use `create-aptos-dapp` with the boilerplate template to start new projects. **Run from the parent directory** — `degit`
-requires an empty target folder:
+Use the `create-aptos-dapp` boilerplate template to start new projects. Download and extract directly into the current
+directory:
 
 ```bash
-# Fullstack dApp (frontend + contracts) — run from PARENT directory
-npx degit aptos-labs/create-aptos-dapp/templates/boilerplate-template my-dapp
+# Fullstack dApp (frontend + contracts)
+curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main.tar.gz \
+  | tar xz --strip-components=3 "create-aptos-dapp-main/templates/boilerplate-template/"
 
-# Contract-only — run from PARENT directory
-npx degit aptos-labs/create-aptos-dapp/templates/contract-boilerplate-template my-contract
+# Contract-only
+curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main.tar.gz \
+  | tar xz --strip-components=3 "create-aptos-dapp-main/templates/contract-boilerplate-template/"
 ```
 
 **Post-scaffold checklist:**
 
-1. `cd my-dapp && npm install`
+1. `npm install`
 2. Create `.env` with `PROJECT_NAME`, `VITE_APP_NETWORK`, `VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS`
 3. Verify `.env` is in `.gitignore` before any git operations
 4. Update `contract/Move.toml` with project name and `my_addr = "_"`

@@ -480,6 +480,34 @@ aptos move deploy-object \
 - [ ] Deployment documented
 - [ ] Team notified
 
+## CLI Argument Types
+
+When calling entry or view functions via the CLI, use these type prefixes:
+
+### Primitive Types
+
+```bash
+--args u64:1000           # u8, u16, u32, u64, u128, u256
+--args bool:true          # boolean
+--args address:0x1        # address
+```
+
+### Complex Types
+
+```bash
+--args string:"Hello World"                    # UTF-8 string
+--args hex:0x48656c6c6f                        # raw bytes
+--args "u64:[1,2,3,4,5]"                       # vector<u64>
+--args "string:[\"one\",\"two\",\"three\"]"    # vector<String>
+```
+
+### Object Types
+
+```bash
+# For Object<T> parameters, pass the object address
+--args address:0x123abc...
+```
+
 ## ALWAYS Rules
 
 - ✅ ALWAYS run comprehensive security audit before deployment (use `security-audit` skill)
@@ -527,8 +555,6 @@ aptos move deploy-object \
 
 - `security-audit` - Audit before deployment
 - `generate-tests` - Ensure tests exist
-- `use-aptos-cli` - CLI command reference
-- `troubleshoot-errors` - Fix deployment errors
 
 ---
 

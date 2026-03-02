@@ -94,12 +94,6 @@ If you find specific issues without running the full workflow:
 - Clarify best practices
 - Add anti-patterns
 
-**For setup files:**
-
-- Improve `setups/AGENTS.md` orchestration
-- Add missing integrations
-- Update tool references
-
 ### 3. New Skills
 
 To add a new skill:
@@ -113,7 +107,6 @@ To add a new skill:
    - Code examples
    - Common pitfalls
 4. Update `CLAUDE.md` with skill reference
-5. Update `setups/AGENTS.md` if it affects workflow
 
 ### 4. Bug Fixes
 
@@ -201,7 +194,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 2. **Make changes:**
    - Update relevant files
    - Add examples if applicable
-   - Update references in CLAUDE.md or AGENTS.md if needed
+   - Update references in CLAUDE.md if needed
 
 3. **Test (if applicable):**
    - Run `aptos move compile` on code examples

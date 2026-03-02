@@ -15,15 +15,13 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/project/scaffold-project",
         "./skills/move/write-contracts",
         "./skills/move/generate-tests",
         "./skills/move/security-audit",
         "./skills/move/deploy-contracts",
         "./skills/move/search-aptos-examples",
-        "./skills/move/use-aptos-cli",
-        "./skills/move/troubleshoot-errors",
         "./skills/move/analyze-gas-optimization",
+        "./skills/move/modernize-move",
         "./skills/sdk/use-typescript-sdk"
       ]
     }

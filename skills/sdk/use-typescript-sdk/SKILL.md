@@ -606,4 +606,3 @@ import { AbstractedAccount } from "@aptos-labs/ts-sdk";
 
 - `write-contracts` - Write the Move contracts that this SDK interacts with
 - `deploy-contracts` - Deploy contracts before calling them from TypeScript
-- `scaffold-project` - Bootstrap a fullstack project with SDK already configured

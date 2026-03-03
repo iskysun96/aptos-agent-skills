@@ -82,10 +82,11 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
 5. `/deploy-contracts` → deploy contract to specified network
+6. `/use-typescript-sdk` → wire contracts into frontend (entry/view functions)
 
-### Frontend Integration
+### Frontend Integration (Existing Project)
 
-1. `/use-typescript-sdk` → set up Aptos client, wallet adapter, view/entry functions
+1. `/use-typescript-sdk` → add entry/view functions following existing patterns in the boilerplate
 
 ### Modernize Legacy Code
 

@@ -14,6 +14,18 @@ metadata:
 
 # Use TypeScript SDK Skill
 
+## Important: Boilerplate Template
+
+If the project was scaffolded with `create-aptos-dapp` (boilerplate template), **wallet adapter and SDK setup are already done.** Before writing new code, check what already exists:
+
+- `frontend/components/WalletProvider.tsx` — wallet adapter setup with auto-connect
+- `frontend/constants.ts` — `NETWORK`, `MODULE_ADDRESS`, `APTOS_API_KEY` from env vars
+- `frontend/entry-functions/` — existing entry function patterns (follow these for new ones)
+- `frontend/view-functions/` — existing view function patterns (follow these for new ones)
+- `frontend/components/` — working components (TransferAPT, MessageBoard, WalletSelector, etc.)
+
+**Do NOT recreate** wallet provider, client setup, or constants if they already exist. Instead, **follow the existing patterns** to add new entry/view functions for your Move contracts.
+
 ## Core Rules
 
 ### SDK Setup

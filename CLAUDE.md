@@ -20,10 +20,20 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 **Post-scaffold checklist:**
 
 1. `npm install`
-2. Create `.env` with `PROJECT_NAME`, `VITE_APP_NETWORK`, `VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS`
+2. Create `.env` (NEVER commit this file):
+   ```
+   PROJECT_NAME=my_dapp
+   VITE_APP_NETWORK=devnet
+   VITE_APTOS_API_KEY=              # Optional for devnet — get one at https://geomi.dev for higher rate limits
+   VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
+   #This is the module publisher account's private key. Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+   VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
+   ```
+   > **API Key:** Ask the user if they have a Geomi API key. It's optional for devnet but recommended for
+   > testnet/mainnet to avoid rate limits. Get one at https://geomi.dev (create project → API Resource → copy key).
 3. Verify `.env` is in `.gitignore` before any git operations
 4. Update `contract/Move.toml` with project name and `my_addr = "_"`
-5. Run `aptos init` to create deployer account
+5. Ask the user which network (devnet, testnet, mainnet), then run `aptos init --network <network> --assume-yes`
 6. Verify: `npm run move:compile && npm run move:test`
 7. `git init && git add . && git commit -m "Initial commit"`
 

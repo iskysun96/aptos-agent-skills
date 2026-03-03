@@ -81,7 +81,7 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 2. `/write-contracts` → write Move modules
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
-5. `/deploy-contracts` → deploy to testnet, then mainnet
+5. `/deploy-contracts` → deploy contract to specified network
 
 ### Frontend Integration
 

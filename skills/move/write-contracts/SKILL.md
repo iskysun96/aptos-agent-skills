@@ -30,6 +30,8 @@ metadata:
 7. **Generate all refs** (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
 8. **Return** `Object<T>` from constructors (NEVER return ConstructorRef)
 9. **Verify ownership** with `object::owner(obj) == signer::address_of(user)`
+10. **Use** `object::generate_signer(&constructor_ref)` for object signers
+11. **Use named objects** for singletons: `object::create_named_object(creator, seed)`
 
 ### Security
 

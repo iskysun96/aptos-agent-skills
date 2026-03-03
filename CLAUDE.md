@@ -96,60 +96,24 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 
 1. `/analyze-gas-optimization` → identify expensive operations, apply optimizations
 
-## ALWAYS Rules (Non-Negotiable)
+## Global Rules
 
-**Object Model:**
+These apply to ALL Move code, regardless of which skill is active. Individual skills have additional rules specific to
+their domain.
 
-- ✅ Use `Object<T>` for object references (never raw addresses)
-- ✅ Generate all refs (TransferRef, DeleteRef) in constructor BEFORE ConstructorRef is destroyed
-- ✅ Use `object::owner(obj)` to verify ownership
-- ✅ Use `object::generate_signer(&constructor_ref)` for object signers
-- ✅ Use named objects for singletons: `object::create_named_object(creator, seed)`
+**Move V2 Only:**
 
-**Security:**
+- ✅ ALWAYS use objects and `Object<T>` — NEVER use resource accounts
+- ✅ ALWAYS use Move V2 syntax — NEVER mix V1 and V2 patterns
+- ❌ NEVER use old examples without verifying they're V2-compatible
 
-- ✅ Verify signer authority: `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-- ✅ Check object ownership: `assert!(object::owner(obj) == signer::address_of(user), E_NOT_OWNER)`
-- ✅ Validate all numeric inputs: `assert!(amount > 0 && amount <= MAX, E_INVALID_AMOUNT)`
-- ✅ Use `phantom` for generic type safety: `struct Vault<phantom CoinType>`
-- ✅ Protect critical fields from `mem::swap` attacks
+**Security Fundamentals:**
 
-**Testing:**
-
-- ✅ Achieve 100% line coverage: `aptos move test --coverage`
-- ✅ Test all error paths with `#[expected_failure(abort_code = E_CODE)]`
-- ✅ Test access control with multiple signers
-- ✅ Test input validation with invalid data
-
-**Syntax:**
-
-- ✅ Use inline functions with lambdas for iteration
-- ✅ Use modern object functions: `object::address_to_object<T>(addr)`
-- ✅ Use proper error constants: `const E_NOT_OWNER: u64 = 1;`
-
-## NEVER Rules (Strictly Prohibited)
-
-**Legacy Patterns:**
-
-- ❌ NEVER use resource accounts (legacy pattern, use objects instead)
-- ❌ NEVER use raw addresses for objects (use `Object<T>`)
-- ❌ NEVER use `account::create_resource_account()` (replaced by named objects)
-
-**Security Violations:**
-
+- ✅ ALWAYS verify signer authority in entry functions
+- ✅ ALWAYS validate inputs (amounts, addresses, strings)
 - ❌ NEVER return ConstructorRef from functions (caller can destroy object)
 - ❌ NEVER expose `&mut` in public functions (allows mem::swap attacks)
-- ❌ NEVER skip signer verification in entry functions
-- ❌ NEVER trust caller addresses without verification
-- ❌ NEVER allow ungated transfers without good reason
-
-**Bad Practices:**
-
-- ❌ NEVER deploy without 100% test coverage
-- ❌ NEVER skip input validation
-- ❌ NEVER ignore security checklist
 - ❌ NEVER copy code without understanding security implications
-- ❌ NEVER use old examples without verifying they're V2-compatible
 
 ## Pattern References
 

@@ -525,6 +525,7 @@ When calling entry or view functions via the CLI, use these type prefixes:
 - ✅ ALWAYS run comprehensive security audit before deployment (use `security-audit` skill)
 - ✅ ALWAYS verify 100% test coverage with security tests
 - ✅ ALWAYS verify all SECURITY.md patterns (arithmetic, storage scoping, reference safety, business logic)
+- ✅ ALWAYS use `deploy-object` (NOT `resource_account::create_resource_account()` which is legacy)
 - ✅ ALWAYS deploy to testnet before mainnet
 - ✅ ALWAYS test on testnet thoroughly (happy paths, error cases, security scenarios)
 - ✅ ALWAYS backup private keys securely

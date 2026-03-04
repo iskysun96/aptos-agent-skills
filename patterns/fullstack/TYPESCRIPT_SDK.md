@@ -4,6 +4,8 @@
 
 **Package:** `@aptos-labs/ts-sdk` (NOT the deprecated `aptos` package)
 
+**Granular skills (by topic):** [ts-sdk-address](../../skills/sdk/ts-sdk-address/SKILL.md) · [ts-sdk-account](../../skills/sdk/ts-sdk-account/SKILL.md) · [ts-sdk-client](../../skills/sdk/ts-sdk-client/SKILL.md) · [ts-sdk-transactions](../../skills/sdk/ts-sdk-transactions/SKILL.md) · [ts-sdk-view-and-query](../../skills/sdk/ts-sdk-view-and-query/SKILL.md) · [ts-sdk-types](../../skills/sdk/ts-sdk-types/SKILL.md)
+
 ---
 
 ## Installation

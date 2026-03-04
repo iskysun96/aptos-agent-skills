@@ -169,8 +169,13 @@ const [count] = await aptos.view({
 
 ### TypeScript SDK
 
-- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet
-  adapter)
+- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet adapter)
+- **ts-sdk-address** - AccountAddress creation, AIP-40 format, derived addresses (object/resource/token)
+- **ts-sdk-account** - Account (signer) creation: generate, fromPrivateKey, fromDerivationPath
+- **ts-sdk-client** - Aptos client and AptosConfig (Network, singleton, Bun)
+- **ts-sdk-transactions** - Build, sign, submit, simulate; sponsored and multi-agent
+- **ts-sdk-view-and-query** - view(), getBalance, getAccountInfo, getAccountResources
+- **ts-sdk-types** - Move ↔ TypeScript types, TypeTag, bigint for u128/u256
 
 ## Example Workflows
 

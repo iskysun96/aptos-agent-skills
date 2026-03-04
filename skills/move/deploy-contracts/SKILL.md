@@ -147,65 +147,61 @@ echo $?
 
 ### Step 3: Deploy to Devnet (Optional)
 
-**Devnet is for quick testing and experimentation.**
+**Devnet is for quick testing and experimentation. Account is auto-funded on `aptos init`.**
+
+Check if a profile exists before initializing:
 
 ```bash
-# Initialize devnet account (if not already)
-aptos init --network devnet --profile devnet
+# Check if default profile exists (look for "default" in output)
+aptos config show-profiles
 
-# Get your account address
-aptos account list --profile devnet
+# If no profile exists, initialize one (auto-funds on devnet)
+aptos init --network devnet --assume-yes
 ```
 
-**Fund your account via web faucet:**
-
-1. Go to: `https://aptos.dev/network/faucet?address=<your_devnet_address>`
-2. Login and request devnet APT
-3. Return here and confirm you've funded the account
-
 ```bash
-# Verify balance
-aptos account balance --profile devnet
-
 # Deploy as object (modern pattern)
 aptos move deploy-object \
     --address-name my_addr \
-    --profile devnet \
+    --profile default \
     --assume-yes
 
 # Save the object address from output for future upgrades
 # Output: "Code was successfully deployed to object address 0x..."
 
 # Verify deployment
-aptos account list --account <object_address> --profile devnet
+aptos account list --account <object_address> --profile default
 ```
 
 ### Step 4: Deploy to Testnet (REQUIRED)
 
 **Testnet is for final testing before mainnet.**
 
-```bash
-# Initialize testnet account
-aptos init --network testnet --profile testnet
+Check if a profile exists before initializing:
 
-# Get your account address
-aptos account list --profile testnet
+```bash
+# Check if default profile exists
+aptos config show-profiles
+
+# If no profile exists, initialize one
+aptos init --network testnet --assume-yes
 ```
 
-**Fund your account via web faucet:**
+**Fund your account via web faucet (required — testnet faucet needs Google login):**
 
-1. Go to: `https://aptos.dev/network/faucet?address=<your_testnet_address>`
-2. Login and request testnet APT
-3. Return here and confirm you've funded the account
+1. Get your account address: `aptos config show-profiles`
+2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
+3. Login and request testnet APT
+4. Return here and confirm you've funded the account
 
 ```bash
 # Verify balance
-aptos account balance --profile testnet
+aptos account balance --profile default
 
 # Deploy to testnet as object (modern pattern)
 aptos move deploy-object \
     --address-name my_addr \
-    --profile testnet \
+    --profile default \
     --assume-yes
 
 # IMPORTANT: Save the object address from output
@@ -218,8 +214,8 @@ aptos move deploy-object \
 ```bash
 # Run entry functions to verify deployment
 aptos move run \
-    --profile testnet \
-    --function-id <testnet_address>::<module>::<function> \
+    --profile default \
+    --function-id <deployed_address>::<module>::<function> \
     --args ...
 
 # Test multiple scenarios
@@ -236,17 +232,27 @@ aptos move run \
 
 **Only deploy to mainnet after thorough testnet testing.**
 
-```bash
-# Initialize mainnet account
-aptos init --network mainnet --profile mainnet
+Check if a profile exists before initializing:
 
-# IMPORTANT: Backup your private key securely!
-# The private key is in ~/.aptos/config.yaml — DO NOT read this file; users must manage keys directly
+```bash
+# Check if default profile exists
+aptos config show-profiles
+
+# If no profile exists, initialize one
+# IMPORTANT: Warn user that this generates a private key — store it securely
+aptos init --network mainnet --assume-yes
+```
+
+**Fund your account:** Transfer real APT to your account address from an exchange or wallet.
+
+```bash
+# Verify balance
+aptos account balance --profile default
 
 # Deploy to mainnet as object (modern pattern)
 aptos move deploy-object \
     --address-name my_addr \
-    --profile mainnet \
+    --profile default \
     --max-gas 20000  # Optional: set gas limit
 
 # Review prompts carefully before confirming:
@@ -256,7 +262,7 @@ aptos move deploy-object \
 # OR use --assume-yes to auto-confirm (only if you're confident)
 aptos move deploy-object \
     --address-name my_addr \
-    --profile mainnet \
+    --profile default \
     --assume-yes
 
 # SAVE THE OBJECT ADDRESS from output
@@ -271,15 +277,15 @@ aptos move deploy-object \
 
 ```bash
 # Check module is published
-aptos account list --account <mainnet_address> --profile mainnet
+aptos account list --account <deployed_address> --profile default
 
 # Look for your module in the output
 # "0x...::my_module": { ... }
 
 # Run view function to verify
 aptos move view \
-    --profile mainnet \
-    --function-id <mainnet_address>::<module>::<view_function> \
+    --profile default \
+    --function-id <deployed_address>::<module>::<view_function> \
     --args ...
 ```
 
@@ -417,12 +423,18 @@ aptos move deploy-object --address-name main_addr --profile testnet
 
 ### "Insufficient APT balance"
 
-**Testnet/Devnet:** Use the web faucet (requires login):
+**Devnet:** Auto-funded on `aptos init`. If needed, run:
 
-1. Get your account address: `aptos account list --profile testnet`
+```bash
+aptos account fund-with-faucet --account default --amount 100000000 --profile default
+```
+
+**Testnet:** Use the web faucet (requires Google login):
+
+1. Get your account address: `aptos config show-profiles`
 2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
 3. Login and request testnet APT
-4. Verify balance: `aptos account balance --profile testnet`
+4. Verify balance: `aptos account balance --profile default`
 
 **Mainnet:** Transfer real APT to your account from an exchange or wallet.
 
@@ -480,11 +492,40 @@ aptos move deploy-object \
 - [ ] Deployment documented
 - [ ] Team notified
 
+## CLI Argument Types
+
+When calling entry or view functions via the CLI, use these type prefixes:
+
+### Primitive Types
+
+```bash
+--args u64:1000           # u8, u16, u32, u64, u128, u256
+--args bool:true          # boolean
+--args address:0x1        # address
+```
+
+### Complex Types
+
+```bash
+--args string:"Hello World"                    # UTF-8 string
+--args hex:0x48656c6c6f                        # raw bytes
+--args "u64:[1,2,3,4,5]"                       # vector<u64>
+--args "string:[\"one\",\"two\",\"three\"]"    # vector<String>
+```
+
+### Object Types
+
+```bash
+# For Object<T> parameters, pass the object address
+--args address:0x123abc...
+```
+
 ## ALWAYS Rules
 
 - ✅ ALWAYS run comprehensive security audit before deployment (use `security-audit` skill)
 - ✅ ALWAYS verify 100% test coverage with security tests
 - ✅ ALWAYS verify all SECURITY.md patterns (arithmetic, storage scoping, reference safety, business logic)
+- ✅ ALWAYS use `deploy-object` (NOT `resource_account::create_resource_account()` which is legacy)
 - ✅ ALWAYS deploy to testnet before mainnet
 - ✅ ALWAYS test on testnet thoroughly (happy paths, error cases, security scenarios)
 - ✅ ALWAYS backup private keys securely
@@ -527,8 +568,6 @@ aptos move deploy-object \
 
 - `security-audit` - Audit before deployment
 - `generate-tests` - Ensure tests exist
-- `use-aptos-cli` - CLI command reference
-- `troubleshoot-errors` - Fix deployment errors
 
 ---
 

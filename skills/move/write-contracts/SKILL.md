@@ -35,31 +35,31 @@ metadata:
 
 ### Security
 
-10. **ALWAYS verify signer authority** in entry functions:
+12. **ALWAYS verify signer authority** in entry functions:
     `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-11. **ALWAYS validate inputs**: non-zero amounts, address validation, string length checks
-12. **NEVER expose** `&mut` references in public functions
-13. **NEVER skip** signer verification in entry functions
+13. **ALWAYS validate inputs**: non-zero amounts, address validation, string length checks
+14. **NEVER expose** `&mut` references in public functions
+15. **NEVER skip** signer verification in entry functions
 
 ### Modern Syntax
 
-14. **Use inline functions** and lambdas for iteration
-15. **Use receiver-style** method calls: `obj.is_owner(user)` (define first param as `self`)
-16. **Use vector indexing**: `vector[index]` instead of `vector::borrow()`
-17. **Use direct named addresses**: `@marketplace_addr` (NOT helper functions)
+16. **Use inline functions** and lambdas for iteration
+17. **Use receiver-style** method calls: `obj.is_owner(user)` (define first param as `self`)
+18. **Use vector indexing**: `vector[index]` instead of `vector::borrow()`
+19. **Use direct named addresses**: `@marketplace_addr` (NOT helper functions)
 
 ### Required Patterns
 
-18. **Use init_module** for contract initialization on deployment
-19. **Emit events** for ALL significant activities (create, transfer, update, delete)
-20. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
+20. **Use init_module** for contract initialization on deployment
+21. **Emit events** for ALL significant activities (create, transfer, update, delete)
+22. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
 
 ### Testability
 
-21. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
-22. **Use `#[view]` annotation** for read-only accessor functions
-23. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
-24. **Place `#[view]` BEFORE doc comments** - `/// comment` before `#[view]` causes compiler warnings. Write `#[view]`
+23. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
+24. **Use `#[view]` annotation** for read-only accessor functions
+25. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
+26. **Place `#[view]` BEFORE doc comments** - `/// comment` before `#[view]` causes compiler warnings. Write `#[view]`
     first, then `///`
 
 ## Quick Workflow

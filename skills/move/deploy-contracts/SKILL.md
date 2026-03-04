@@ -426,15 +426,15 @@ aptos move deploy-object --address-name main_addr --profile testnet
 **Devnet:** Auto-funded on `aptos init`. If needed, run:
 
 ```bash
-aptos account fund-with-faucet --account default --amount 100000000 --profile devnet
+aptos account fund-with-faucet --account default --amount 100000000 --profile default
 ```
 
 **Testnet:** Use the web faucet (requires Google login):
 
-1. Get your account address: `aptos account list --profile testnet`
+1. Get your account address: `aptos config show-profiles`
 2. Go to: `https://aptos.dev/network/faucet?address=<your_address>`
 3. Login and request testnet APT
-4. Verify balance: `aptos account balance --profile testnet`
+4. Verify balance: `aptos account balance --profile default`
 
 **Mainnet:** Transfer real APT to your account from an exchange or wallet.
 

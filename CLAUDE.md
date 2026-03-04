@@ -26,7 +26,8 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
    VITE_APP_NETWORK=devnet
    VITE_APTOS_API_KEY=              # Optional for devnet — get one at https://geomi.dev for higher rate limits
    VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
-   #This is the module publisher account's private key. Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
+   # This is the module publisher account's private key.
+   # Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
    VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
    ```
    > **API Key:** Ask the user if they have a Geomi API key. It's optional for devnet but recommended for

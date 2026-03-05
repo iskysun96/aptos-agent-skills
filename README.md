@@ -7,7 +7,7 @@ Aptos Vibe tool) to help developers build secure, well-tested Aptos dApps follow
 
 ## Features
 
-- **8 Specialized Skills** - Context-aware skills for Move smart contract and TypeScript SDK development
+- **15 Specialized Skills** - Context-aware skills for Move smart contract and TypeScript SDK development
 - **Move Smart Contracts** - Modern Move V2 object model patterns
 - **Security-First** - Comprehensive security checklist and audit patterns
 - **100% Test Coverage** - Automated test generation with coverage requirements
@@ -84,7 +84,15 @@ aptos-agent-skills/
 │
 ├── skills/
 │   ├── sdk/
-│   │   └── use-typescript-sdk/            # TypeScript SDK guide
+│   │   └── typescript/
+│   │       ├── use-ts-sdk/                # TypeScript SDK orchestrator
+│   │       ├── ts-sdk-client/             # SDK client setup
+│   │       ├── ts-sdk-account/            # Account/signer creation
+│   │       ├── ts-sdk-address/            # Address parsing & derivation
+│   │       ├── ts-sdk-transactions/       # Build, sign, submit txns
+│   │       ├── ts-sdk-view-and-query/     # View functions & queries
+│   │       ├── ts-sdk-types/              # Move-to-TS type mapping
+│   │       └── ts-sdk-wallet-adapter/     # React wallet integration
 │   └── move/
 │       ├── write-contracts/
 │       ├── generate-tests/
@@ -169,8 +177,14 @@ const [count] = await aptos.view({
 
 ### TypeScript SDK
 
-- **use-typescript-sdk** - Guide for using @aptos-labs/ts-sdk (client setup, transactions, view functions, wallet
-  adapter)
+- **use-ts-sdk** - TypeScript SDK orchestrator (routes to granular skills below)
+- **ts-sdk-client** - Aptos client and AptosConfig (Network, singleton, Bun)
+- **ts-sdk-account** - Account (signer) creation: generate, fromPrivateKey, fromDerivationPath
+- **ts-sdk-address** - AccountAddress creation, AIP-40 format, derived addresses (object/resource/token)
+- **ts-sdk-transactions** - Build, sign, submit, simulate; sponsored and multi-agent
+- **ts-sdk-view-and-query** - view(), getBalance, getAccountInfo, getAccountResources
+- **ts-sdk-types** - Move ↔ TypeScript types, TypeTag, bigint for u128/u256
+- **ts-sdk-wallet-adapter** - React wallet integration (AptosWalletAdapterProvider, useWallet)
 
 ## Example Workflows
 
@@ -227,9 +241,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [x] Core Move skills (8 skills)
 - [x] Agent Skills Open Standard compliance
-- [x] TypeScript SDK skill (use-typescript-sdk)
-- [ ] Wallet integration skills (Coming Soon)
-- [ ] Frontend integration skills (Coming Soon)
+- [x] TypeScript SDK skills (8 granular skills: client, account, address, transactions, view/query, types, wallet adapter + orchestrator)
+- [x] Wallet integration skill (ts-sdk-wallet-adapter)
 - [ ] E2E testing skills (Coming Soon)
 - [ ] Example projects
 

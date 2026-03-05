@@ -40,16 +40,23 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 
 ## Skills
 
-| Slash Command               | Skill                                                                     | Purpose                          |
-| --------------------------- | ------------------------------------------------------------------------- | -------------------------------- |
-| `/write-contracts`          | [write-contracts](skills/move/write-contracts/SKILL.md)                   | Generate secure Move contracts   |
-| `/generate-tests`           | [generate-tests](skills/move/generate-tests/SKILL.md)                     | Create test suites (100% cov)    |
-| `/security-audit`           | [security-audit](skills/move/security-audit/SKILL.md)                     | Audit contracts before deploy    |
-| `/deploy-contracts`         | [deploy-contracts](skills/move/deploy-contracts/SKILL.md)                 | Deploy to devnet/testnet/mainnet |
-| `/search-aptos-examples`    | [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)       | Find patterns from aptos-core    |
-| `/analyze-gas-optimization` | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md) | Optimize gas usage               |
-| `/modernize-move`           | [modernize-move](skills/move/modernize-move/SKILL.md)                     | Modernize V1 contracts to V2     |
-| `/use-typescript-sdk`       | [use-typescript-sdk](skills/sdk/use-typescript-sdk/SKILL.md)              | TypeScript SDK integration       |
+| Slash Command               | Skill                                                                                     | Purpose                          |
+| --------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------- |
+| `/write-contracts`          | [write-contracts](skills/move/write-contracts/SKILL.md)                                   | Generate secure Move contracts   |
+| `/generate-tests`           | [generate-tests](skills/move/generate-tests/SKILL.md)                                     | Create test suites (100% cov)    |
+| `/security-audit`           | [security-audit](skills/move/security-audit/SKILL.md)                                     | Audit contracts before deploy    |
+| `/deploy-contracts`         | [deploy-contracts](skills/move/deploy-contracts/SKILL.md)                                 | Deploy to devnet/testnet/mainnet |
+| `/search-aptos-examples`    | [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)                       | Find patterns from aptos-core    |
+| `/analyze-gas-optimization` | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)                 | Optimize gas usage               |
+| `/modernize-move`           | [modernize-move](skills/move/modernize-move/SKILL.md)                                     | Modernize V1 contracts to V2     |
+| `/use-ts-sdk`               | [use-ts-sdk](skills/sdk/typescript/use-ts-sdk/SKILL.md)                                   | TypeScript SDK orchestrator      |
+| `/ts-sdk-client`            | [ts-sdk-client](skills/sdk/typescript/ts-sdk-client/SKILL.md)                             | SDK client setup                 |
+| `/ts-sdk-account`           | [ts-sdk-account](skills/sdk/typescript/ts-sdk-account/SKILL.md)                           | Account/signer creation          |
+| `/ts-sdk-address`           | [ts-sdk-address](skills/sdk/typescript/ts-sdk-address/SKILL.md)                           | Address parsing & derivation     |
+| `/ts-sdk-transactions`      | [ts-sdk-transactions](skills/sdk/typescript/ts-sdk-transactions/SKILL.md)                 | Build, sign, submit txns         |
+| `/ts-sdk-view-and-query`    | [ts-sdk-view-and-query](skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md)             | View functions & queries         |
+| `/ts-sdk-types`             | [ts-sdk-types](skills/sdk/typescript/ts-sdk-types/SKILL.md)                               | Move-to-TS type mapping          |
+| `/ts-sdk-wallet-adapter`    | [ts-sdk-wallet-adapter](skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md)             | React wallet integration         |
 
 ## When to Recommend Skills
 
@@ -64,7 +71,8 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 | "find example", "search aptos", "how does X work"         | `/search-aptos-examples`            |
 | "optimize gas", "reduce costs", "make cheaper"            | `/analyze-gas-optimization`         |
 | "modernize", "upgrade to v2", "update syntax"             | `/modernize-move`                   |
-| "typescript", "frontend", "call from JS", "SDK"           | `/use-typescript-sdk`               |
+| "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`                       |
+| "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`            |
 | "create project", "new dApp", "scaffold"                  | Project Scaffolding section (above) |
 
 ### Auto-Recommendation Rules
@@ -83,11 +91,11 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
 5. `/deploy-contracts` → deploy contract to specified network
-6. `/use-typescript-sdk` → wire contracts into frontend (entry/view functions)
+6. `/use-ts-sdk` → orchestrates frontend integration (routes to ts-sdk-client, ts-sdk-transactions, ts-sdk-view-and-query, ts-sdk-wallet-adapter as needed)
 
 ### Frontend Integration (Existing Project)
 
-1. `/use-typescript-sdk` → add entry/view functions following existing patterns in the boilerplate
+1. `/use-ts-sdk` → add entry/view functions following existing patterns in the boilerplate
 
 ### Modernize Legacy Code
 

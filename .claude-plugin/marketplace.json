@@ -22,7 +22,14 @@
         "./skills/move/search-aptos-examples",
         "./skills/move/analyze-gas-optimization",
         "./skills/move/modernize-move",
-        "./skills/sdk/use-typescript-sdk"
+        "./skills/sdk/typescript/use-ts-sdk",
+        "./skills/sdk/typescript/ts-sdk-client",
+        "./skills/sdk/typescript/ts-sdk-account",
+        "./skills/sdk/typescript/ts-sdk-address",
+        "./skills/sdk/typescript/ts-sdk-transactions",
+        "./skills/sdk/typescript/ts-sdk-view-and-query",
+        "./skills/sdk/typescript/ts-sdk-types",
+        "./skills/sdk/typescript/ts-sdk-wallet-adapter"
       ]
     }
   ]

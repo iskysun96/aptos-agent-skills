@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@aptos-labs/ts-sdk": ["./node_modules/@aptos-labs/ts-sdk"],
+      "@aptos-labs/wallet-adapter-react": ["./node_modules/@aptos-labs/wallet-adapter-react"]
+    }
+  },
+  "include": ["*.ts", "*.tsx"]
+}

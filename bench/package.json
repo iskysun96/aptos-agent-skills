@@ -1,0 +1,20 @@
+{
+  "name": "aptos-skill-bench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Skill benchmarking framework for Aptos agent skills using promptfoo",
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "build-prompts": "node scripts/build-prompts.js",
+    "eval": "bash scripts/run-all.sh",
+    "eval:move": "bash scripts/run-all.sh move",
+    "eval:sdk": "bash scripts/run-all.sh sdk",
+    "eval:skill": "bash scripts/run-all.sh skill",
+    "view": "npx promptfoo view"
+  },
+  "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.33.1",
+    "promptfoo": "^0.103.5",
+    "typescript": "^5.7.0"
+  }
+}

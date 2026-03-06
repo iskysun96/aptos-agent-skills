@@ -1,0 +1,10 @@
+- description: "Parse and Validate Address"
+  vars:
+    task: "Show how to parse and validate an Aptos address in TypeScript. Include handling of short addresses, long addresses, and invalid inputs."
+  assert:
+    - type: javascript
+      value: file://../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "AccountAddress"

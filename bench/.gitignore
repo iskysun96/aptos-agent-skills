@@ -1,0 +1,9 @@
+# Eval results (generated, not checked in)
+results/
+
+# Dependencies
+node_modules/
+
+# Override root .gitignore for bench-specific files
+!*.sh
+!ROADMAP.md

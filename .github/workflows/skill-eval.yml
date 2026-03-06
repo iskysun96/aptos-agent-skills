@@ -1,0 +1,170 @@
+name: Skill Evaluation
+
+on:
+  pull_request:
+    paths:
+      - 'skills/**/*.md'
+      - 'patterns/**/*.md'
+      - 'bench/**'
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Aptos CLI
+        run: |
+          curl -fsSL "https://aptos.dev/scripts/install_cli.py" | python3
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install bench dependencies
+        working-directory: bench
+        run: npm install
+
+      - name: Build prompts
+        working-directory: bench
+        run: node scripts/build-prompts.js
+
+      - name: Detect affected skills
+        id: detect
+        run: |
+          CHANGED_FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only)
+          SKILLS=""
+
+          # Map changed files to skills
+          for file in $CHANGED_FILES; do
+            case "$file" in
+              skills/move/write-contracts/*) SKILLS="$SKILLS write-contracts" ;;
+              skills/move/generate-tests/*) SKILLS="$SKILLS generate-tests" ;;
+              skills/move/security-audit/*) SKILLS="$SKILLS security-audit" ;;
+              skills/move/deploy-contracts/*) SKILLS="$SKILLS deploy-contracts" ;;
+              skills/move/search-aptos-examples/*) SKILLS="$SKILLS search-aptos-examples" ;;
+              skills/move/analyze-gas-optimization/*) SKILLS="$SKILLS analyze-gas-optimization" ;;
+              skills/move/modernize-move/*) SKILLS="$SKILLS modernize-move" ;;
+              skills/sdk/*) SKILLS="$SKILLS use-ts-sdk ts-sdk-client ts-sdk-account ts-sdk-address ts-sdk-transactions ts-sdk-view-and-query ts-sdk-types ts-sdk-wallet-adapter" ;;
+              patterns/move/SECURITY.md) SKILLS="$SKILLS write-contracts security-audit" ;;
+              patterns/move/OBJECTS.md) SKILLS="$SKILLS write-contracts" ;;
+              patterns/move/DIGITAL_ASSETS.md) SKILLS="$SKILLS write-contracts" ;;
+              patterns/move/FUNGIBLE_ASSETS.md) SKILLS="$SKILLS write-contracts" ;;
+              patterns/move/MOVE_V2_SYNTAX.md) SKILLS="$SKILLS write-contracts modernize-move" ;;
+              patterns/move/TESTING.md) SKILLS="$SKILLS generate-tests" ;;
+              patterns/move/STORAGE_OPTIMIZATION.md) SKILLS="$SKILLS analyze-gas-optimization" ;;
+              patterns/fullstack/TYPESCRIPT_SDK.md) SKILLS="$SKILLS use-ts-sdk ts-sdk-transactions" ;;
+              bench/**) SKILLS="all" ;;
+            esac
+          done
+
+          # Deduplicate
+          SKILLS=$(echo "$SKILLS" | tr ' ' '\n' | sort -u | tr '\n' ' ' | xargs)
+          echo "skills=$SKILLS" >> $GITHUB_OUTPUT
+          echo "Affected skills: $SKILLS"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run affected skill evals
+        if: steps.detect.outputs.skills != ''
+        working-directory: bench
+        run: |
+          SKILLS="${{ steps.detect.outputs.skills }}"
+          if [ "$SKILLS" = "all" ]; then
+            npm run eval
+          else
+            for skill in $SKILLS; do
+              echo "Evaluating: $skill"
+              npm run eval:skill -- "$skill" || true
+            done
+          fi
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Generate summary
+        if: always() && steps.detect.outputs.skills != ''
+        working-directory: bench
+        run: |
+          echo "## Skill Eval Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Skill | Status | Tests |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|-------|" >> $GITHUB_STEP_SUMMARY
+
+          for result in results/latest/*.json; do
+            if [ -f "$result" ]; then
+              SKILL=$(basename "$result" | sed 's/_[0-9]*\.json//')
+              # Extract pass/fail counts from promptfoo JSON output
+              TOTAL=$(node -e "const r=require('./$result'); console.log(r.results?.stats?.successes ?? 'N/A')" 2>/dev/null || echo "N/A")
+              FAILS=$(node -e "const r=require('./$result'); console.log(r.results?.stats?.failures ?? 'N/A')" 2>/dev/null || echo "N/A")
+              if [ "$FAILS" = "0" ] || [ "$FAILS" = "N/A" ]; then
+                echo "| $SKILL | ✅ | $TOTAL passed |" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "| $SKILL | ❌ | $FAILS failed |" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          done
+
+      - name: Post PR comment
+        if: always() && steps.detect.outputs.skills != '' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const resultsDir = 'bench/results/latest';
+
+            let body = '## 🔬 Skill Eval Results\n\n';
+            body += '| Skill | Status | Pass | Fail | Tokens | Cost |\n';
+            body += '|-------|--------|------|------|--------|------|\n';
+
+            try {
+              const files = fs.readdirSync(resultsDir).filter(f => f.endsWith('.json'));
+              for (const file of files) {
+                const data = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                const skill = file.replace(/_\d+\.json$/, '');
+                const stats = data.results?.stats || {};
+                const status = (stats.failures || 0) === 0 ? '✅' : '❌';
+                const tokens = stats.tokenUsage?.total || 'N/A';
+                const cost = stats.cost != null ? `$${stats.cost.toFixed(4)}` : 'N/A';
+                body += `| ${skill} | ${status} | ${stats.successes || 0} | ${stats.failures || 0} | ${tokens} | ${cost} |\n`;
+              }
+            } catch (e) {
+              body += `| Error reading results | ❌ | - | - | - | - |\n`;
+            }
+
+            body += '\n---\n*Generated by skill-eval CI*';
+
+            // Find and update existing comment or create new
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c => c.body.includes('Skill Eval Results'));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Upload results
+        if: always() && steps.detect.outputs.skills != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-eval-results
+          path: bench/results/latest/
+          retention-days: 90

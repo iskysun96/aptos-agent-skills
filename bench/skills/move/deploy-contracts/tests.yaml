@@ -1,0 +1,10 @@
+- description: "Deploy Contract to Testnet"
+  vars:
+    task: "Guide me through deploying a compiled Move contract to testnet. The contract module is at ./contract/ and I've already run aptos init. What are the exact commands and safety checks I should follow?"
+  assert:
+    - type: icontains
+      value: "aptos move publish"
+    - type: icontains
+      value: "testnet"
+    - type: llm-rubric
+      value: "The response should include: 1) compilation command, 2) the publish command with correct flags, 3) safety warnings about verifying the network and checking gas costs, 4) post-deployment verification steps."

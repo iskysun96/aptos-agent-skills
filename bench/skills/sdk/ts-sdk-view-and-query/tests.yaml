@@ -1,0 +1,23 @@
+- description: "Call View Function"
+  vars:
+    task: "Show me how to call a view function on Aptos using the TypeScript SDK. The function is my_module::get_balance(addr: address) which returns u64."
+  assert:
+    - type: javascript
+      value: file://../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "view"
+
+- description: "Get Account APT Balance"
+  vars:
+    task: "Show me how to get an account's APT balance using the Aptos TypeScript SDK. Use the current recommended API, not deprecated methods."
+  assert:
+    - type: javascript
+      value: file://../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "getBalance"
+    - type: not-icontains
+      value: "getAccountAPTAmount"

@@ -1,0 +1,15 @@
+- description: "Tests for NFT Collection"
+  vars:
+    task: "Write comprehensive Move unit tests for this NFT collection contract. Include tests for collection creation, minting, transfer, and error cases using #[expected_failure]. Aim for 100% coverage."
+    sourceCode: file://../../fixtures/contracts/nft-collection.move
+  assert:
+    - type: javascript
+      value: file://../../assertions/test-check.js
+
+- description: "Tests for Fungible Token"
+  vars:
+    task: "Write comprehensive Move unit tests for this fungible token contract. Include tests for minting, burning, transfer, access control violations, and edge cases. Use #[expected_failure] for error path testing."
+    sourceCode: file://../../fixtures/contracts/fungible-token.move
+  assert:
+    - type: javascript
+      value: file://../../assertions/test-check.js

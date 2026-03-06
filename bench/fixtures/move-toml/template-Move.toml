@@ -1,0 +1,11 @@
+[package]
+name = "eval_workspace"
+version = "1.0.0"
+upgrade_policy = "compatible"
+
+[addresses]
+my_addr = "_"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-framework.git", subdir = "aptos-move/framework/aptos-framework", rev = "main" }
+AptosTokenObjects = { git = "https://github.com/aptos-labs/aptos-framework.git", subdir = "aptos-move/framework/aptos-token-objects", rev = "main" }

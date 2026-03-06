@@ -1,0 +1,11 @@
+# Eval config for modernize-move
+providers:
+  - id: anthropic:messages:claude-sonnet-4-5-20250929
+    config:
+      temperature: 0
+      max_tokens: 8192
+
+prompts:
+  - file://prompt.json
+
+tests: file://tests.yaml

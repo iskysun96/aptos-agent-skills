@@ -1,0 +1,19 @@
+- description: "Unoptimized Contract Analysis"
+  vars:
+    task: "Analyze this Move smart contract for gas optimization opportunities. Identify expensive operations, suggest specific optimizations, and estimate the impact of each change."
+    contractCode: file://../../fixtures/contracts/unoptimized-contract.move
+  assert:
+    - type: icontains
+      value: "vector"
+    - type: icontains
+      value: "storage"
+    - type: llm-rubric
+      value: "The response should identify at least 3 specific gas optimization opportunities including unbounded iteration, excessive storage reads, and inefficient data structures. It should provide concrete code suggestions for each."
+
+- description: "Already Optimized Contract (False Positive Detection)"
+  vars:
+    task: "Analyze this Move smart contract for gas optimization opportunities. Identify expensive operations and suggest optimizations."
+    contractCode: file://../../fixtures/contracts/nft-collection.move
+  assert:
+    - type: llm-rubric
+      value: "The response should acknowledge that the contract is already reasonably well-optimized. It may suggest minor improvements but should not flag false optimization issues."

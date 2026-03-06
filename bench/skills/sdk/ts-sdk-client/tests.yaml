@@ -1,0 +1,23 @@
+- description: "Testnet Client Setup"
+  vars:
+    task: "Set up an Aptos SDK client configured for testnet in a TypeScript project. Show me the proper singleton pattern with AptosConfig."
+  assert:
+    - type: javascript
+      value: file://../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "AptosConfig"
+    - type: icontains
+      value: "@aptos-labs/ts-sdk"
+
+- description: "Client with Custom API Key"
+  vars:
+    task: "Set up an Aptos SDK client with a custom API key for higher rate limits. Show how to configure clientConfig with the API key from environment variables."
+  assert:
+    - type: javascript
+      value: file://../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "clientConfig"

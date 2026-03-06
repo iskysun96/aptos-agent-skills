@@ -90,3 +90,7 @@ testing/
 experiments/
 scratch/
 drafts/
+
+# Bench eval results
+bench/results/
+bench/node_modules/

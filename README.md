@@ -185,6 +185,7 @@ const [count] = await aptos.view({
 - **ts-sdk-view-and-query** - view(), getBalance, getAccountInfo, getAccountResources
 - **ts-sdk-types** - Move ↔ TypeScript types, TypeTag, bigint for u128/u256
 - **ts-sdk-wallet-adapter** - React wallet integration (AptosWalletAdapterProvider, useWallet)
+- **smoothsend-gasless** - Gasless transactions via SmoothSend (transactionSubmitter, Script Composer)
 
 ## Community Skills Overview
 

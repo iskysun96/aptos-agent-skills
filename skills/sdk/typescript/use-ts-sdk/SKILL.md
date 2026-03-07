@@ -50,6 +50,7 @@ Route to the appropriate granular skill based on the task:
 | Read on-chain data (view, balances, resources)    | [ts-sdk-view-and-query](../ts-sdk-view-and-query/SKILL.md)    |
 | Map Move types to TypeScript types                | [ts-sdk-types](../ts-sdk-types/SKILL.md)                      |
 | Connect wallet in React frontend                  | [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md)    |
+| Sponsor gas / gasless for users                   | [smoothsend-gasless](../smoothsend-gasless/SKILL.md)          |
 
 ## Fullstack dApp Workflow
 

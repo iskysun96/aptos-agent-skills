@@ -57,6 +57,7 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 | `/ts-sdk-view-and-query`    | [ts-sdk-view-and-query](skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md)             | View functions & queries         |
 | `/ts-sdk-types`             | [ts-sdk-types](skills/sdk/typescript/ts-sdk-types/SKILL.md)                               | Move-to-TS type mapping          |
 | `/ts-sdk-wallet-adapter`    | [ts-sdk-wallet-adapter](skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md)             | React wallet integration         |
+| `/smoothsend-gasless`       | [smoothsend-gasless](skills/sdk/typescript/smoothsend-gasless/SKILL.md)                   | Gasless / sponsor gas for users  |
 
 ## When to Recommend Skills
 
@@ -73,6 +74,7 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 | "modernize", "upgrade to v2", "update syntax"             | `/modernize-move`                   |
 | "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`                       |
 | "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`            |
+| "gasless", "sponsor gas", "users pay no APT", "transactionSubmitter" | `/smoothsend-gasless`       |
 | "create project", "new dApp", "scaffold"                  | Project Scaffolding section (above) |
 
 ### Auto-Recommendation Rules

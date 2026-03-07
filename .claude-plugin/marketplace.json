@@ -29,7 +29,8 @@
         "./skills/sdk/typescript/ts-sdk-transactions",
         "./skills/sdk/typescript/ts-sdk-view-and-query",
         "./skills/sdk/typescript/ts-sdk-types",
-        "./skills/sdk/typescript/ts-sdk-wallet-adapter"
+        "./skills/sdk/typescript/ts-sdk-wallet-adapter",
+        "./skills/sdk/typescript/smoothsend-gasless"
       ]
     },
     {

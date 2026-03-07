@@ -1,6 +1,6 @@
 # Eval config for ts-sdk-view-and-query
 providers:
-  - id: anthropic:messages:claude-sonnet-4-5-20250929
+  - id: anthropic:messages:claude-sonnet-4-5-20250514
     config:
       temperature: 0
       max_tokens: 8192

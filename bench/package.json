@@ -13,8 +13,8 @@
     "view": "npx promptfoo view"
   },
   "dependencies": {
-    "@aptos-labs/ts-sdk": "^1.33.1",
-    "promptfoo": "^0.103.5",
+    "@aptos-labs/ts-sdk": "^5.2.1",
+    "promptfoo": "^0.120.26",
     "typescript": "^5.7.0"
   }
 }

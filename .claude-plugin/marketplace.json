@@ -15,16 +15,21 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/project/scaffold-project",
         "./skills/move/write-contracts",
         "./skills/move/generate-tests",
         "./skills/move/security-audit",
         "./skills/move/deploy-contracts",
         "./skills/move/search-aptos-examples",
-        "./skills/move/use-aptos-cli",
-        "./skills/move/troubleshoot-errors",
         "./skills/move/analyze-gas-optimization",
-        "./skills/sdk/use-typescript-sdk"
+        "./skills/move/modernize-move",
+        "./skills/sdk/typescript/use-ts-sdk",
+        "./skills/sdk/typescript/ts-sdk-client",
+        "./skills/sdk/typescript/ts-sdk-account",
+        "./skills/sdk/typescript/ts-sdk-address",
+        "./skills/sdk/typescript/ts-sdk-transactions",
+        "./skills/sdk/typescript/ts-sdk-view-and-query",
+        "./skills/sdk/typescript/ts-sdk-types",
+        "./skills/sdk/typescript/ts-sdk-wallet-adapter"
       ]
     },
     {

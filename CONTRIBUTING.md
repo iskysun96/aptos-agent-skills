@@ -113,7 +113,6 @@ To add a new official skill:
    - Code examples
    - Common pitfalls
 4. Update `CLAUDE.md` with skill reference
-5. Update `setups/AGENTS.md` if it affects workflow
 
 ### 4. Community Skills
 
@@ -235,7 +234,7 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 2. **Make changes:**
    - Update relevant files
    - Add examples if applicable
-   - Update references in CLAUDE.md or AGENTS.md if needed
+   - Update references in CLAUDE.md if needed
 
 3. **Test (if applicable):**
    - Run `aptos move compile` on code examples

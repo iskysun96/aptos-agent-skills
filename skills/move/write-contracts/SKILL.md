@@ -30,43 +30,44 @@ metadata:
 7. **Generate all refs** (TransferRef, DeleteRef) in constructor before ConstructorRef destroyed
 8. **Return** `Object<T>` from constructors (NEVER return ConstructorRef)
 9. **Verify ownership** with `object::owner(obj) == signer::address_of(user)`
+10. **Use** `object::generate_signer(&constructor_ref)` for object signers
+11. **Use named objects** for singletons: `object::create_named_object(creator, seed)`
 
 ### Security
 
-10. **ALWAYS verify signer authority** in entry functions:
+12. **ALWAYS verify signer authority** in entry functions:
     `assert!(signer::address_of(user) == expected, E_UNAUTHORIZED)`
-11. **ALWAYS validate inputs**: non-zero amounts, address validation, string length checks
-12. **NEVER expose** `&mut` references in public functions
-13. **NEVER skip** signer verification in entry functions
+13. **ALWAYS validate inputs**: non-zero amounts, address validation, string length checks
+14. **NEVER expose** `&mut` references in public functions
+15. **NEVER skip** signer verification in entry functions
 
 ### Modern Syntax
 
-14. **Use inline functions** and lambdas for iteration
-15. **Use receiver-style** method calls: `obj.is_owner(user)` (define first param as `self`)
-16. **Use vector indexing**: `vector[index]` instead of `vector::borrow()`
-17. **Use direct named addresses**: `@marketplace_addr` (NOT helper functions)
+16. **Use inline functions** and lambdas for iteration
+17. **Use receiver-style** method calls: `obj.is_owner(user)` (define first param as `self`)
+18. **Use vector indexing**: `vector[index]` instead of `vector::borrow()`
+19. **Use direct named addresses**: `@marketplace_addr` (NOT helper functions)
 
 ### Required Patterns
 
-18. **Use init_module** for contract initialization on deployment
-19. **Emit events** for ALL significant activities (create, transfer, update, delete)
-20. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
+20. **Use init_module** for contract initialization on deployment
+21. **Emit events** for ALL significant activities (create, transfer, update, delete)
+22. **Define clear error constants** with descriptive names (E_NOT_OWNER, E_INSUFFICIENT_BALANCE)
 
 ### Testability
 
-21. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
-22. **Use `#[view]` annotation** for read-only accessor functions
-23. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
-24. **Place `#[view]` BEFORE doc comments** - `/// comment` before `#[view]` causes compiler warnings. Write `#[view]`
+23. **Add accessor functions** for struct fields - tests in separate modules cannot access struct fields directly
+24. **Use `#[view]` annotation** for read-only accessor functions
+25. **Return tuples** from accessors for multi-field access: `(seller, price, timestamp)`
+26. **Place `#[view]` BEFORE doc comments** - `/// comment` before `#[view]` causes compiler warnings. Write `#[view]`
     first, then `///`
 
 ## Quick Workflow
 
-1. **Search examples** → Use `search-aptos-examples` skill to find similar patterns in aptos-core
-2. **Create module structure** → Define structs, events, constants, init_module
-3. **Implement object creation** → Use proper constructor pattern with all refs generated upfront
-4. **Add access control** → Verify ownership and validate all inputs
-5. **Security check** → Use `security-audit` skill before deployment
+1. **Create module structure** → Define structs, events, constants, init_module
+2. **Implement object creation** → Use proper constructor pattern with all refs generated upfront
+3. **Add access control** → Verify ownership and validate all inputs
+4. **Security check** → Use `security-audit` skill before deployment
 
 ## Key Example: Object Creation Pattern
 
@@ -307,6 +308,6 @@ module my_addr::my_module {
 
 **Related Skills:**
 
-- `search-aptos-examples` - Find similar examples (use BEFORE writing)
+- `search-aptos-examples` - Find similar examples in aptos-core (optional)
 - `generate-tests` - Write tests for contracts (use AFTER writing contracts)
 - `security-audit` - Audit contracts before deployment

@@ -22,30 +22,13 @@ npx skills add iskysun96/aptos-agent-skills \
 
 ```bash
 npx skills add iskysun96/aptos-agent-skills \
-  --skill scaffold-project \
   --skill write-contracts \
   --skill generate-tests \
   --skill security-audit \
   --skill deploy-contracts \
   --skill search-aptos-examples \
-  --skill troubleshoot-errors
-```
-
-### All Move Skills
-
-```bash
-npx skills add iskysun96/aptos-agent-skills \
-  --skill scaffold-project \
-  --skill write-contracts \
-  --skill generate-tests \
-  --skill security-audit \
-  --skill deploy-contracts \
-  --skill search-aptos-examples \
-  --skill use-aptos-cli \
-  --skill troubleshoot-errors \
   --skill analyze-gas-optimization \
-  --skill generate-move-scripts \
-  --skill implement-upgradeable-contracts
+  --skill modernize-move
 ```
 
 ## Agent-Specific Installation
@@ -69,19 +52,16 @@ npx skills add iskysun96/aptos-agent-skills -a copilot
 
 ## Available Skills
 
-| Skill                             | Category | Description                             |
-| --------------------------------- | -------- | --------------------------------------- |
-| `scaffold-project`                | project  | Bootstrap Aptos dApp from templates     |
-| `write-contracts`                 | move     | Generate secure Move V2 smart contracts |
-| `generate-tests`                  | move     | Create comprehensive test suites        |
-| `security-audit`                  | move     | Audit contracts before deployment       |
-| `deploy-contracts`                | move     | Deploy to devnet/testnet/mainnet        |
-| `search-aptos-examples`           | move     | Find patterns from aptos-core           |
-| `use-aptos-cli`                   | move     | CLI command reference                   |
-| `troubleshoot-errors`             | move     | Debug common errors                     |
-| `analyze-gas-optimization`        | move     | Optimize gas usage                      |
-| `generate-move-scripts`           | move     | Create atomic transaction scripts       |
-| `implement-upgradeable-contracts` | move     | Contract upgrade patterns               |
+| Skill                      | Category | Description                             |
+| -------------------------- | -------- | --------------------------------------- |
+| `write-contracts`          | move     | Generate secure Move V2 smart contracts |
+| `generate-tests`           | move     | Create comprehensive test suites        |
+| `security-audit`           | move     | Audit contracts before deployment       |
+| `deploy-contracts`         | move     | Deploy to devnet/testnet/mainnet        |
+| `search-aptos-examples`    | move     | Find patterns from aptos-core           |
+| `analyze-gas-optimization` | move     | Optimize gas usage                      |
+| `modernize-move`           | move     | Modernize V1 contracts to V2            |
+| `use-typescript-sdk`       | sdk      | TypeScript SDK integration              |
 
 ## Verifying Installation
 
@@ -119,4 +99,4 @@ If you prefer manual installation:
    cp -r aptos-agent-skills/patterns/* ~/.claude/patterns/
    ```
 
-3. Reference in your project by including `AGENTS.md` in your workspace context.
+3. Reference in your project by including `CLAUDE.md` in your workspace context.

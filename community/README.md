@@ -39,4 +39,4 @@ Aptos Labs. Use them at your own discretion.
 
 ## Questions?
 
-Open an issue in this repository or reach out on the [Aptos Discord](https://discord.gg/aptosnetwork).
+Open an issue in this repository.

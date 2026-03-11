@@ -121,8 +121,8 @@ They are independently maintained by their authors and have not been reviewed or
 
 To contribute a community skill:
 
-1. Create `community/<skill-name>/SKILL.md`
-2. Use a flat structure — no sub-categorization within `community/`
+1. Create `community-skills/<skill-name>/SKILL.md`
+2. Use a flat structure — no sub-categorization within `community-skills/`
 3. Include `author` in your `SKILL.md` frontmatter metadata:
    ```yaml
    ---
@@ -138,7 +138,7 @@ To contribute a community skill:
 5. If your skill integrates a paid service, note that clearly in the description
 
 Your PR should **only**:
-- Add files under `community/<skill-name>/`
+- Add files under `community-skills/<skill-name>/`
 - Add a row to the **Community Skills** table in `CLAUDE.md`
 - Add your skill path to the `community-skills` plugin entry in `.claude-plugin/marketplace.json`
 

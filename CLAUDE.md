@@ -175,12 +175,12 @@ total loss of funds.
 Community skills are built by developers across the Aptos ecosystem. They
 showcase third-party tools, integrations, and patterns. These skills are
 independently maintained by their authors and have not been reviewed or
-audited by Aptos Labs. See [community/README.md](community/README.md)
+audited by Aptos Labs. See [community-skills/README.md](community-skills/README.md)
 for contribution guidelines.
 
 | Skill | Author | Purpose |
 | --- | --- | --- |
-| *(none yet — see community/ folder)* | | |
+| *(none yet — see community-skills/ folder)* | | |
 
 ## Integration
 

@@ -8,7 +8,7 @@ Aptos Labs. Use them at your own discretion.
 
 ## Contributing a Community Skill
 
-1. **Create a folder** at `community/<your-skill-name>/`
+1. **Create a folder** at `community-skills/<your-skill-name>/`
 2. **Add a `SKILL.md`** following the standard skill format (see any skill under `skills/` for reference)
 3. **Include metadata** in your `SKILL.md` frontmatter — at minimum:
    ```yaml
@@ -24,7 +24,7 @@ Aptos Labs. Use them at your own discretion.
 4. **Keep it self-contained** — one `SKILL.md` per skill, no bundled sample projects. Link to external repos or docs
    instead.
 5. **Open a PR** that:
-   - Adds your `community/<skill-name>/SKILL.md`
+   - Adds your `community-skills/<skill-name>/SKILL.md`
    - Adds a row to the **Community Skills** table in `CLAUDE.md`
    - Adds your skill path to the `community-skills` plugin entry in `.claude-plugin/marketplace.json`
    - Does **not** modify official skills, the official skills table, `use-ts-sdk` routing, or the official plugin entry

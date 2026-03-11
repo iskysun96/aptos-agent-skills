@@ -2,8 +2,12 @@
 /**
  * build-prompts.js
  *
- * Reads SKILL.md files and relevant pattern files, then writes a prompt.json
- * (promptfoo prompt file) into each skill's bench directory.
+ * Reads SKILL.md files and relevant pattern files, then writes:
+ *   - system-prompt.txt  (system message content)
+ *   - prompt.js          (promptfoo prompt function that injects vars)
+ *
+ * Using a JS prompt function guarantees variable substitution works,
+ * regardless of how promptfoo handles Nunjucks in JSON prompt files.
  *
  * Usage:
  *   node scripts/build-prompts.js
@@ -68,45 +72,45 @@ const SKILL_CONFIG = {
     patterns: [],
     benchDir: 'bench/skills/move/search-aptos-examples',
   },
-  // TS SDK skills — all use the same orchestrator SKILL.md
+  // TS SDK skills — orchestrator + sub-skills each have their own SKILL.md
   'use-ts-sdk': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
+    skillPath: 'skills/sdk/typescript/use-ts-sdk/SKILL.md',
     patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/use-ts-sdk',
   },
   'ts-sdk-client': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-client/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-client',
   },
   'ts-sdk-account': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-account/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-account',
   },
   'ts-sdk-address': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-address/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-address',
   },
   'ts-sdk-transactions': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
+    skillPath: 'skills/sdk/typescript/ts-sdk-transactions/SKILL.md',
     patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-transactions',
   },
   'ts-sdk-view-and-query': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-view-and-query',
   },
   'ts-sdk-types': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-types/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-types',
   },
   'ts-sdk-wallet-adapter': {
-    skillPath: 'skills/sdk/use-typescript-sdk/SKILL.md',
-    patterns: [],
+    skillPath: 'skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md',
+    patterns: ['patterns/fullstack/TYPESCRIPT_SDK.md'],
     benchDir: 'bench/skills/sdk/ts-sdk-wallet-adapter',
   },
 };
@@ -129,16 +133,34 @@ function readFileSafe(absolutePath, label) {
 }
 
 /**
- * Build the user-message template using promptfoo Nunjucks syntax.
- * Includes {{task}} and optional {{contractCode}} / {{sourceCode}} blocks.
+ * Build the prompt.js content that gets written to each skill directory.
+ * This function is invoked by promptfoo for each test case, ensuring
+ * variables (task, contractCode, sourceCode) are always injected.
  */
-function buildUserTemplate() {
-  const parts = [
-    '{{task}}',
-    '{{#if contractCode}}\n\nContract:\n```move\n{{contractCode}}\n```{{/if}}',
-    '{{#if sourceCode}}\n\nSource code:\n```move\n{{sourceCode}}\n```{{/if}}',
+function buildPromptJs() {
+  const lines = [
+    "const fs = require('fs');",
+    "const path = require('path');",
+    "",
+    "const systemPrompt = fs.readFileSync(",
+    "  path.join(__dirname, 'system-prompt.txt'), 'utf-8'",
+    ");",
+    "",
+    "module.exports = function ({ vars }) {",
+    "  let userContent = vars.task || '';",
+    "  if (vars.contractCode) {",
+    "    userContent += '\\n\\nContract:\\n```move\\n' + vars.contractCode + '\\n```';",
+    "  }",
+    "  if (vars.sourceCode) {",
+    "    userContent += '\\n\\nSource code:\\n```move\\n' + vars.sourceCode + '\\n```';",
+    "  }",
+    "  return [",
+    "    { role: 'system', content: systemPrompt },",
+    "    { role: 'user', content: userContent },",
+    "  ];",
+    "};",
   ];
-  return parts.join('');
+  return lines.join('\n') + '\n';
 }
 
 // ---------------------------------------------------------------------------
@@ -179,24 +201,22 @@ for (const [name, config] of Object.entries(SKILL_CONFIG)) {
   }
   const systemMessage = systemParts.join('\n\n---\n\n');
 
-  // Build messages array (promptfoo prompt format) ----------------------------
-  const messages = [
-    { role: 'system', content: systemMessage },
-    { role: 'user', content: buildUserTemplate() },
-  ];
-
   // Ensure bench directory exists ---------------------------------------------
   fs.mkdirSync(benchAbsDir, { recursive: true });
 
-  // Write prompt.json ---------------------------------------------------------
-  const outPath = path.join(benchAbsDir, 'prompt.json');
-  fs.writeFileSync(outPath, JSON.stringify(messages, null, 2) + '\n', 'utf-8');
+  // Write system-prompt.txt ---------------------------------------------------
+  const systemPromptPath = path.join(benchAbsDir, 'system-prompt.txt');
+  fs.writeFileSync(systemPromptPath, systemMessage, 'utf-8');
+
+  // Write prompt.js -----------------------------------------------------------
+  const promptJsPath = path.join(benchAbsDir, 'prompt.js');
+  fs.writeFileSync(promptJsPath, buildPromptJs(), 'utf-8');
 
   const patternLabel =
     config.patterns.length > 0
       ? ` + ${config.patterns.length} pattern(s)`
       : '';
-  console.log(`  ${name}: ${outPath}${patternLabel}`);
+  console.log(`  ${name}: ${promptJsPath}${patternLabel}`);
   generated++;
 }
 

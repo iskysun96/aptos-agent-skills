@@ -6,6 +6,6 @@ providers:
       max_tokens: 8192
 
 prompts:
-  - file://prompt.json
+  - file://prompt.js
 
 tests: file://tests.yaml

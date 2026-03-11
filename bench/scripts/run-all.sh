@@ -87,6 +87,11 @@ for CONFIG in $CONFIGS; do
         echo -e "${RED}  ✗ ${CATEGORY}/${SKILL} failed${NC}"
         FAILED=$((FAILED + 1))
     fi
+
+    # Show per-assertion breakdown
+    if [ -f "$OUTPUT_FILE" ]; then
+        node "$SCRIPT_DIR/format-results.js" "$OUTPUT_FILE" || true
+    fi
     echo ""
 done
 

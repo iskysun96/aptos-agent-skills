@@ -182,6 +182,25 @@ for contribution guidelines.
 | --- | --- | --- |
 | *(none yet — see community-skills/ folder)* | | |
 
+### Community Intent-to-Command Mapping
+
+| User Says | Recommend |
+| --- | --- |
+| *(none yet)* | |
+
+### Routing Rule for Community Skills
+
+When a user's intent matches a community skill, **do not silently invoke it**.
+Instead, pause and inform the user:
+
+1. Mention that a community-contributed skill is available for their use case
+2. Name the skill and its author
+3. Briefly note what it does and whether it involves a paid/third-party service
+4. Ask the user if they'd like to use it, or if they prefer an alternative approach
+   (e.g., native Aptos SDK capabilities)
+
+Only proceed with the community skill after the user opts in.
+
 ## Integration
 
 **Claude Code:** This file is automatically loaded when detected in the repository.

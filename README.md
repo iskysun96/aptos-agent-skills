@@ -188,6 +188,8 @@ const [count] = await aptos.view({
 
 ## Community Skills Overview
 
+- **smoothsend-gasless** - Gasless transactions via SmoothSend (transactionSubmitter, Script Composer). Paid service; free on testnet, credit-based on mainnet.
+
 ## Example Workflows
 
 ### Workflow: Build Move Contracts

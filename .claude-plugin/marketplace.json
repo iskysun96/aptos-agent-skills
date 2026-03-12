@@ -37,7 +37,9 @@
       "description": "Community-built skills showcasing third-party tools and integrations. Independently maintained by their authors.",
       "source": "./community-skills",
       "strict": false,
-      "skills": []
+      "skills": [
+        "./community-skills/smoothsend-gasless"
+      ]
     }
   ]
 }

@@ -180,13 +180,13 @@ for contribution guidelines.
 
 | Skill | Author | Purpose |
 | --- | --- | --- |
-| *(none yet — see community-skills/ folder)* | | |
+| [smoothsend-gasless](community-skills/smoothsend-gasless/SKILL.md) | ivedmohan | Gasless / sponsor gas for users (paid; free testnet, credit mainnet) |
 
 ### Community Intent-to-Command Mapping
 
 | User Says | Recommend |
 | --- | --- |
-| *(none yet)* | |
+| "gasless", "sponsor gas", "users pay no APT", "transactionSubmitter", "SmoothSend" | `/smoothsend-gasless` |
 
 ### Routing Rule for Community Skills
 

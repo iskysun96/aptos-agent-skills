@@ -75,7 +75,9 @@ npx create-aptos-dapp my-contract \
 | "modernize", "upgrade to v2", "update syntax"                | `/modernize-move`                   |
 | "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`                       |
 | "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`            |
-| "create project", "new dApp", "scaffold"                     | Project Scaffolding section (above) |
+| "build app", "create app", "make app", "new app"             | Build a dApp workflow (below)       |
+| "build dApp", "create dApp", "build project", "new project"  | Build a dApp workflow (below)       |
+| "create project", "scaffold", "start project", "set up"      | Project Scaffolding section (above) |
 
 ### Auto-Recommendation Rules
 
@@ -88,7 +90,11 @@ npx create-aptos-dapp my-contract \
 
 ### Build a dApp
 
-1. Scaffold project (see Project Scaffolding above)
+**ALWAYS follow this workflow when the user wants to build a new Aptos app, dApp, or project.** This applies regardless
+of how the user phrases it ("build me a ...", "create a ...", "make a ...", "I want to build ..."). Step 1 is mandatory
+— never skip scaffolding.
+
+1. **Scaffold project with `npx create-aptos-dapp`** (see Project Scaffolding above) — NEVER skip this step
 2. `/write-contracts` → write Move modules
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
@@ -110,8 +116,13 @@ npx create-aptos-dapp my-contract \
 
 ## Global Rules
 
-These apply to ALL Move code, regardless of which skill is active. Individual skills have additional rules specific to
-their domain.
+These apply to ALL Aptos development, regardless of which skill is active. Individual skills have additional rules
+specific to their domain.
+
+**Project Setup:**
+
+- ✅ ALWAYS scaffold new projects with `npx create-aptos-dapp` — NEVER create projects from scratch manually
+- ✅ ALWAYS follow the "Build a dApp" workflow when the user wants to build any new Aptos app or project
 
 **Move V2 Only:**
 

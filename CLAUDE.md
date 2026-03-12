@@ -4,76 +4,78 @@ Specialized skills for AI assistants to build secure, modern Aptos dApps.
 
 ## Project Scaffolding
 
-Use the `create-aptos-dapp` boilerplate template to start new projects. Download and extract directly into the current
-directory:
+Use `npx create-aptos-dapp` to start new projects. Ask the user which network (devnet, testnet, mainnet) before
+scaffolding, then use the same `<network>` value for both `create-aptos-dapp` and `aptos init`:
 
 ```bash
-# Fullstack dApp (frontend + contracts)
-curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main.tar.gz \
-  | tar xz --strip-components=3 "create-aptos-dapp-main/templates/boilerplate-template/"
+# Fullstack dApp with Vite (frontend + contracts)
+npx create-aptos-dapp my-dapp \
+  --project-type fullstack \
+  --template boilerplate-template \
+  --framework vite \
+  --network <network>
 
-# Contract-only
-curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main.tar.gz \
-  | tar xz --strip-components=3 "create-aptos-dapp-main/templates/contract-boilerplate-template/"
+# Fullstack dApp with Next.js
+npx create-aptos-dapp my-dapp \
+  --project-type fullstack \
+  --template boilerplate-template \
+  --framework nextjs \
+  --network <network>
+
+# Contract-only (Move project)
+npx create-aptos-dapp my-contract \
+  --project-type move \
+  --network <network>
 ```
+
+> **API Key:** If the user has a Geomi API key, pass `--api-key <key>` during scaffolding. It's optional for devnet but
+> recommended for testnet/mainnet to avoid rate limits. Get one at https://geomi.dev (create project → API Resource →
+> copy key).
 
 **Post-scaffold checklist:**
 
-1. `npm install`
-2. Create `.env` (NEVER commit this file):
-   ```
-   PROJECT_NAME=my_dapp
-   VITE_APP_NETWORK=devnet
-   VITE_APTOS_API_KEY=              # Optional for devnet — get one at https://geomi.dev for higher rate limits
-   VITE_MODULE_PUBLISHER_ACCOUNT_ADDRESS=
-   # This is the module publisher account's private key.
-   # Be cautious about who you share it with, and ensure it is not exposed when deploying your dApp.
-   VITE_MODULE_PUBLISHER_ACCOUNT_PRIVATE_KEY=
-   ```
-   > **API Key:** Ask the user if they have a Geomi API key. It's optional for devnet but recommended for
-   > testnet/mainnet to avoid rate limits. Get one at https://geomi.dev (create project → API Resource → copy key).
-3. Verify `.env` is in `.gitignore` before any git operations
-4. Update `contract/Move.toml` with project name and `my_addr = "_"`
-5. Ask the user which network (devnet, testnet, mainnet), then run `aptos init --network <network> --assume-yes`
-6. Verify: `npm run move:compile && npm run move:test`
-7. `git init && git add . && git commit -m "Initial commit"`
+1. `cd <project-name>`
+2. Verify `.env` is in `.gitignore` before any git operations
+3. Run `aptos init --network <network> --assume-yes` (use the **same network** as the `create-aptos-dapp` command above)
+4. Verify: `npm run move:compile && npm run move:test`
+5. `git init && git add . && git commit -m "Initial commit"`
 
 ## Skills
 
-| Slash Command               | Skill                                                                                     | Purpose                          |
-| --------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------- |
-| `/write-contracts`          | [write-contracts](skills/move/write-contracts/SKILL.md)                                   | Generate secure Move contracts   |
-| `/generate-tests`           | [generate-tests](skills/move/generate-tests/SKILL.md)                                     | Create test suites (100% cov)    |
-| `/security-audit`           | [security-audit](skills/move/security-audit/SKILL.md)                                     | Audit contracts before deploy    |
-| `/deploy-contracts`         | [deploy-contracts](skills/move/deploy-contracts/SKILL.md)                                 | Deploy to devnet/testnet/mainnet |
-| `/search-aptos-examples`    | [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)                       | Find patterns from aptos-core    |
-| `/analyze-gas-optimization` | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)                 | Optimize gas usage               |
-| `/modernize-move`           | [modernize-move](skills/move/modernize-move/SKILL.md)                                     | Modernize V1 contracts to V2     |
-| `/use-ts-sdk`               | [use-ts-sdk](skills/sdk/typescript/use-ts-sdk/SKILL.md)                                   | TypeScript SDK orchestrator      |
-| `/ts-sdk-client`            | [ts-sdk-client](skills/sdk/typescript/ts-sdk-client/SKILL.md)                             | SDK client setup                 |
-| `/ts-sdk-account`           | [ts-sdk-account](skills/sdk/typescript/ts-sdk-account/SKILL.md)                           | Account/signer creation          |
-| `/ts-sdk-address`           | [ts-sdk-address](skills/sdk/typescript/ts-sdk-address/SKILL.md)                           | Address parsing & derivation     |
-| `/ts-sdk-transactions`      | [ts-sdk-transactions](skills/sdk/typescript/ts-sdk-transactions/SKILL.md)                 | Build, sign, submit txns         |
-| `/ts-sdk-view-and-query`    | [ts-sdk-view-and-query](skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md)             | View functions & queries         |
-| `/ts-sdk-types`             | [ts-sdk-types](skills/sdk/typescript/ts-sdk-types/SKILL.md)                               | Move-to-TS type mapping          |
-| `/ts-sdk-wallet-adapter`    | [ts-sdk-wallet-adapter](skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md)             | React wallet integration         |
+| Slash Command               | Skill                                                                         | Purpose                          |
+| --------------------------- | ----------------------------------------------------------------------------- | -------------------------------- |
+| `/write-contracts`          | [write-contracts](skills/move/write-contracts/SKILL.md)                       | Generate secure Move contracts   |
+| `/generate-tests`           | [generate-tests](skills/move/generate-tests/SKILL.md)                         | Create test suites (100% cov)    |
+| `/security-audit`           | [security-audit](skills/move/security-audit/SKILL.md)                         | Audit contracts before deploy    |
+| `/deploy-contracts`         | [deploy-contracts](skills/move/deploy-contracts/SKILL.md)                     | Deploy to devnet/testnet/mainnet |
+| `/search-aptos-examples`    | [search-aptos-examples](skills/move/search-aptos-examples/SKILL.md)           | Find patterns from aptos-core    |
+| `/analyze-gas-optimization` | [analyze-gas-optimization](skills/move/analyze-gas-optimization/SKILL.md)     | Optimize gas usage               |
+| `/modernize-move`           | [modernize-move](skills/move/modernize-move/SKILL.md)                         | Modernize V1 contracts to V2     |
+| `/use-ts-sdk`               | [use-ts-sdk](skills/sdk/typescript/use-ts-sdk/SKILL.md)                       | TypeScript SDK orchestrator      |
+| `/ts-sdk-client`            | [ts-sdk-client](skills/sdk/typescript/ts-sdk-client/SKILL.md)                 | SDK client setup                 |
+| `/ts-sdk-account`           | [ts-sdk-account](skills/sdk/typescript/ts-sdk-account/SKILL.md)               | Account/signer creation          |
+| `/ts-sdk-address`           | [ts-sdk-address](skills/sdk/typescript/ts-sdk-address/SKILL.md)               | Address parsing & derivation     |
+| `/ts-sdk-transactions`      | [ts-sdk-transactions](skills/sdk/typescript/ts-sdk-transactions/SKILL.md)     | Build, sign, submit txns         |
+| `/ts-sdk-view-and-query`    | [ts-sdk-view-and-query](skills/sdk/typescript/ts-sdk-view-and-query/SKILL.md) | View functions & queries         |
+| `/ts-sdk-types`             | [ts-sdk-types](skills/sdk/typescript/ts-sdk-types/SKILL.md)                   | Move-to-TS type mapping          |
+| `/ts-sdk-wallet-adapter`    | [ts-sdk-wallet-adapter](skills/sdk/typescript/ts-sdk-wallet-adapter/SKILL.md) | React wallet integration         |
 
 ## When to Recommend Skills
 
 ### Intent-to-Command Mapping
 
-| User Says                                                 | Recommend                           |
-| --------------------------------------------------------- | ----------------------------------- |
-| "write contract", "build module", "create smart contract" | `/write-contracts`                  |
-| "write tests", "add coverage", "test this"                | `/generate-tests`                   |
-| "audit", "check security", "review for vulnerabilities"   | `/security-audit`                   |
-| "deploy", "publish", "put on testnet/mainnet"             | `/deploy-contracts`                 |
-| "find example", "search aptos", "how does X work"         | `/search-aptos-examples`            |
-| "optimize gas", "reduce costs", "make cheaper"            | `/analyze-gas-optimization`         |
-| "modernize", "upgrade to v2", "update syntax"             | `/modernize-move`                   |
+| User Says                                                    | Recommend                           |
+| ------------------------------------------------------------ | ----------------------------------- |
+| "write contract", "build module", "create smart contract"    | `/write-contracts`                  |
+| "write tests", "add coverage", "test this"                   | `/generate-tests`                   |
+| "audit", "check security", "review for vulnerabilities"      | `/security-audit`                   |
+| "deploy", "publish", "put on testnet/mainnet"                | `/deploy-contracts`                 |
+| "find example", "search aptos", "how does X work"            | `/search-aptos-examples`            |
+| "optimize gas", "reduce costs", "make cheaper"               | `/analyze-gas-optimization`         |
+| "modernize", "upgrade to v2", "update syntax"                | `/modernize-move`                   |
 | "typescript", "frontend", "call from JS", "SDK", "fullstack" | `/use-ts-sdk`                       |
 | "wallet adapter", "connect wallet", "useWallet"              | `/ts-sdk-wallet-adapter`            |
-| "create project", "new dApp", "scaffold"                  | Project Scaffolding section (above) |
+| "create project", "new dApp", "scaffold"                     | Project Scaffolding section (above) |
 
 ### Auto-Recommendation Rules
 
@@ -91,7 +93,8 @@ curl -sL https://github.com/aptos-labs/create-aptos-dapp/archive/refs/heads/main
 3. `/generate-tests` → create test suite, verify 100% coverage
 4. `/security-audit` → audit before deployment
 5. `/deploy-contracts` → deploy contract to specified network
-6. `/use-ts-sdk` → orchestrates frontend integration (routes to ts-sdk-client, ts-sdk-transactions, ts-sdk-view-and-query, ts-sdk-wallet-adapter as needed)
+6. `/use-ts-sdk` → orchestrates frontend integration (routes to ts-sdk-client, ts-sdk-transactions,
+   ts-sdk-view-and-query, ts-sdk-wallet-adapter as needed)
 
 ### Frontend Integration (Existing Project)
 
@@ -172,15 +175,13 @@ total loss of funds.
 
 ## Community Skills
 
-Community skills are built by developers across the Aptos ecosystem. They
-showcase third-party tools, integrations, and patterns. These skills are
-independently maintained by their authors and have not been reviewed or
-audited by Aptos Labs. See [community-skills/README.md](community-skills/README.md)
-for contribution guidelines.
+Community skills are built by developers across the Aptos ecosystem. They showcase third-party tools, integrations, and
+patterns. These skills are independently maintained by their authors and have not been reviewed or audited by Aptos
+Labs. See [community-skills/README.md](community-skills/README.md) for contribution guidelines.
 
-| Skill | Author | Purpose |
-| --- | --- | --- |
-| *(none yet — see community-skills/ folder)* | | |
+| Skill                                       | Author | Purpose |
+| ------------------------------------------- | ------ | ------- |
+| _(none yet — see community-skills/ folder)_ |        |         |
 
 ## Integration
 

@@ -190,7 +190,7 @@ const [count] = await aptos.view({
 
 ### Workflow: Build Move Contracts
 
-1. Scaffold project with `create-aptos-dapp` (see CLAUDE.md)
+1. Scaffold project with `npx create-aptos-dapp` (see CLAUDE.md)
 2. `/write-contracts` → Write Move modules
 3. `/generate-tests` → Create Move tests
 4. `/security-audit` → Audit before deployment
@@ -241,7 +241,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [x] Core Move skills (8 skills)
 - [x] Agent Skills Open Standard compliance
-- [x] TypeScript SDK skills (8 granular skills: client, account, address, transactions, view/query, types, wallet adapter + orchestrator)
+- [x] TypeScript SDK skills (8 granular skills: client, account, address, transactions, view/query, types, wallet
+      adapter + orchestrator)
 - [x] Wallet integration skill (ts-sdk-wallet-adapter)
 - [ ] E2E testing skills (Coming Soon)
 - [ ] Example projects

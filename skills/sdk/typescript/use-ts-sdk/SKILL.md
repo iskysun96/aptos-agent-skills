@@ -1,11 +1,10 @@
 ---
 name: use-ts-sdk
 description:
-  "Orchestrates TypeScript SDK integration for Aptos dApps. Routes to granular skills for specific tasks
-  (client setup, accounts, transactions, view functions, types, wallet adapter). Use this skill for
-  fullstack dApp integration or when multiple SDK concerns are involved. Triggers on: 'typescript sdk',
-  'ts-sdk', 'aptos sdk', 'SDK setup', 'interact with contract', 'call aptos', 'aptos javascript',
-  'frontend integration', 'fullstack'."
+  "Orchestrates TypeScript SDK integration for Aptos dApps. Routes to granular skills for specific tasks (client setup,
+  accounts, transactions, view functions, types, wallet adapter). Use this skill for fullstack dApp integration or when
+  multiple SDK concerns are involved. Triggers on: 'typescript sdk', 'ts-sdk', 'aptos sdk', 'SDK setup', 'interact with
+  contract', 'call aptos', 'aptos javascript', 'frontend integration', 'fullstack'."
 metadata:
   category: sdk
   tags: ["typescript", "sdk", "frontend", "orchestrator", "fullstack"]
@@ -16,40 +15,44 @@ metadata:
 
 ## Purpose
 
-Orchestrates `@aptos-labs/ts-sdk` integration for Aptos dApps. For specific tasks, route to the appropriate granular skill. For composite tasks (e.g., "build me a fullstack dApp"), follow the workflow below.
+Orchestrates `@aptos-labs/ts-sdk` integration for Aptos dApps. For specific tasks, route to the appropriate granular
+skill. For composite tasks (e.g., "build me a fullstack dApp"), follow the workflow below.
 
 ## Core Rules
 
 1. **ALWAYS use `@aptos-labs/ts-sdk`** (the current official SDK, NOT the deprecated `aptos` package)
 2. **NEVER hardcode private keys** in source code or frontend bundles
 3. **NEVER expose private keys** in client-side code or logs
-4. **NEVER store private keys** in environment variables accessible to the browser (use `VITE_` prefix only for public config)
+4. **NEVER store private keys** in environment variables accessible to the browser (use `VITE_` prefix only for public
+   config)
 5. **ALWAYS load private keys from environment variables** in server-side scripts only, using `process.env`
 
 ## Important: Boilerplate Template
 
-If the project was scaffolded with `create-aptos-dapp` (boilerplate template), **wallet adapter and SDK setup are already done.** Before writing new code, check what already exists:
+If the project was scaffolded with `npx create-aptos-dapp` (boilerplate template), **wallet adapter and SDK setup are
+already done.** Before writing new code, check what already exists:
 
 - `frontend/components/WalletProvider.tsx` — wallet adapter setup with auto-connect
 - `frontend/constants.ts` — `NETWORK`, `MODULE_ADDRESS`, `APTOS_API_KEY` from env vars
 - `frontend/entry-functions/` — existing entry function patterns (follow these for new ones)
 - `frontend/view-functions/` — existing view function patterns (follow these for new ones)
 
-**Do NOT recreate** wallet provider, client setup, or constants if they already exist. Instead, **follow the existing patterns** to add new entry/view functions for your Move contracts.
+**Do NOT recreate** wallet provider, client setup, or constants if they already exist. Instead, **follow the existing
+patterns** to add new entry/view functions for your Move contracts.
 
 ## Skill Routing
 
 Route to the appropriate granular skill based on the task:
 
-| Task                                              | Skill                                                         |
-|---------------------------------------------------|---------------------------------------------------------------|
-| Set up Aptos client / configure network           | [ts-sdk-client](../ts-sdk-client/SKILL.md)                    |
-| Create accounts/signers (server-side)             | [ts-sdk-account](../ts-sdk-account/SKILL.md)                  |
-| Parse, format, or derive addresses                | [ts-sdk-address](../ts-sdk-address/SKILL.md)                  |
-| Build, sign, submit, simulate transactions        | [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md)        |
-| Read on-chain data (view, balances, resources)    | [ts-sdk-view-and-query](../ts-sdk-view-and-query/SKILL.md)    |
-| Map Move types to TypeScript types                | [ts-sdk-types](../ts-sdk-types/SKILL.md)                      |
-| Connect wallet in React frontend                  | [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md)    |
+| Task                                           | Skill                                                      |
+| ---------------------------------------------- | ---------------------------------------------------------- |
+| Set up Aptos client / configure network        | [ts-sdk-client](../ts-sdk-client/SKILL.md)                 |
+| Create accounts/signers (server-side)          | [ts-sdk-account](../ts-sdk-account/SKILL.md)               |
+| Parse, format, or derive addresses             | [ts-sdk-address](../ts-sdk-address/SKILL.md)               |
+| Build, sign, submit, simulate transactions     | [ts-sdk-transactions](../ts-sdk-transactions/SKILL.md)     |
+| Read on-chain data (view, balances, resources) | [ts-sdk-view-and-query](../ts-sdk-view-and-query/SKILL.md) |
+| Map Move types to TypeScript types             | [ts-sdk-types](../ts-sdk-types/SKILL.md)                   |
+| Connect wallet in React frontend               | [ts-sdk-wallet-adapter](../ts-sdk-wallet-adapter/SKILL.md) |
 
 ## Fullstack dApp Workflow
 

@@ -3,7 +3,7 @@
 ## Quick Install (All Skills)
 
 ```bash
-npx skills add iskysun96/aptos-agent-skills
+npx skills add aptos-labs/aptos-agent-skills
 ```
 
 ## Selective Installation
@@ -11,7 +11,7 @@ npx skills add iskysun96/aptos-agent-skills
 ### Core Move Skills (Recommended)
 
 ```bash
-npx skills add iskysun96/aptos-agent-skills \
+npx skills add aptos-labs/aptos-agent-skills \
   --skill write-contracts \
   --skill generate-tests \
   --skill security-audit \
@@ -21,7 +21,7 @@ npx skills add iskysun96/aptos-agent-skills \
 ### Full Move Development
 
 ```bash
-npx skills add iskysun96/aptos-agent-skills \
+npx skills add aptos-labs/aptos-agent-skills \
   --skill write-contracts \
   --skill generate-tests \
   --skill security-audit \
@@ -35,19 +35,19 @@ npx skills add iskysun96/aptos-agent-skills \
 
 ```bash
 # For Claude Code
-npx skills add iskysun96/aptos-agent-skills -a claude-code
+npx skills add aptos-labs/aptos-agent-skills -a claude-code
 
 # For Cursor
-npx skills add iskysun96/aptos-agent-skills -a cursor
+npx skills add aptos-labs/aptos-agent-skills -a cursor
 
 # For GitHub Copilot
-npx skills add iskysun96/aptos-agent-skills -a copilot
+npx skills add aptos-labs/aptos-agent-skills -a copilot
 ```
 
 ## Claude Code Plugin
 
 ```bash
-/plugin marketplace add iskysun96/aptos-agent-skills
+/plugin marketplace add aptos-labs/aptos-agent-skills
 ```
 
 ## Available Skills
@@ -78,7 +78,7 @@ ls ~/.cursor/skills/
 ## Uninstalling
 
 ```bash
-npx skills remove iskysun96/aptos-agent-skills
+npx skills remove aptos-labs/aptos-agent-skills
 ```
 
 ## Manual Installation
@@ -88,7 +88,7 @@ If you prefer manual installation:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/iskysun96/aptos-agent-skills.git
+   git clone https://github.com/aptos-labs/aptos-agent-skills.git
    ```
 
 2. Copy to your agent's skills directory:

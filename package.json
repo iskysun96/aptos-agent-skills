@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "AI skills for building fullstack Aptos dApps - Move smart contracts and frontend integration",
   "keywords": ["aptos", "move", "smart-contracts", "agent-skills", "ai", "claude", "cursor", "web3"],
-  "author": "iskysun96",
+  "author": "aptos-labs",
   "license": "MIT",
-  "homepage": "https://github.com/iskysun96/aptos-agent-skills",
+  "homepage": "https://github.com/aptos-labs/aptos-agent-skills",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iskysun96/aptos-agent-skills.git"
+    "url": "git+https://github.com/aptos-labs/aptos-agent-skills.git"
   },
   "scripts": {
     "format": "prettier --write \"**/*.md\"",

@@ -1,8 +1,7 @@
 {
   "name": "aptos-agent-skills",
   "owner": {
-    "name": "iskysun96",
-    "email": "iskysun96@gmail.com"
+    "name": "aptos-labs"
   },
   "metadata": {
     "description": "AI skills for building fullstack Aptos dApps - from Move smart contracts to wallet connection and frontend integration",

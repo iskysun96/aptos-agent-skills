@@ -1,0 +1,25 @@
+- description: "Submit Entry Function Transaction"
+  vars:
+    task: "Show me how to build and submit a transaction that calls an entry function on an Aptos Move module using the TypeScript SDK. The function is my_module::transfer_tokens(recipient: address, amount: u64)."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "build"
+    - type: icontains
+      value: "submit"
+    - type: icontains
+      value: "waitForTransaction"
+
+- description: "Simulate Transaction"
+  vars:
+    task: "Show how to simulate a transaction before submitting it on Aptos using the TypeScript SDK. I want to check gas costs and potential errors before committing."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "simulate"

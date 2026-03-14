@@ -1,3 +1,7 @@
+# Claude Code / local working files
+.claude/
+.planning/
+
 # Aptos Move Build Artifacts
 build/
 .aptos/
@@ -95,3 +99,10 @@ testing/
 experiments/
 scratch/
 drafts/
+
+# Bench eval results and build artifacts
+bench/results/
+bench/node_modules/
+bench/skills/**/prompt.json
+bench/skills/**/prompt.js
+bench/skills/**/system-prompt.txt

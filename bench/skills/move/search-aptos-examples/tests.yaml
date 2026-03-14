@@ -1,0 +1,21 @@
+- description: "Find FA Creation Example"
+  vars:
+    task: "Find me an example of creating a Fungible Asset on Aptos using the V2 standard. I need to see how to use primary_fungible_store and the MintRef/BurnRef/TransferRef pattern."
+  assert:
+    - type: icontains
+      value: "fungible_asset"
+    - type: icontains
+      value: "fungible"
+    - type: llm-rubric
+      value: "The response should contain Move V2 code examples showing fungible asset creation with proper ref management. Must not use deprecated coin module patterns."
+
+- description: "Find NFT Collection Example"
+  vars:
+    task: "Show me how to create an NFT collection on Aptos using the Digital Asset standard. I need the collection creation and token minting pattern."
+  assert:
+    - type: icontains
+      value: "collection"
+    - type: icontains
+      value: "token"
+    - type: llm-rubric
+      value: "The response should contain Move V2 code examples using aptos_token_objects for collection creation and token minting. Must use Object<AptosToken> pattern, not legacy TokenV1."

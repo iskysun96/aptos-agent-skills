@@ -1,0 +1,10 @@
+- description: "Fullstack Feature Routing"
+  vars:
+    task: "I want to build a fullstack feature: mint an NFT from my Move contract and display it in a React frontend. How should I approach this with the Aptos TypeScript SDK?"
+  assert:
+    - type: icontains
+      value: "transaction"
+    - type: icontains
+      value: "wallet"
+    - type: llm-rubric
+      value: "The response should provide a structured approach covering: 1) SDK client setup, 2) transaction building for minting, 3) wallet adapter integration for the frontend, 4) view functions for reading NFT data. It should reference or explain patterns for at least 3 of these areas."

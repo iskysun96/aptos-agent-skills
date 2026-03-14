@@ -1,0 +1,43 @@
+- description: "Fungible Asset Token"
+  vars:
+    task: "Write a Move V2 smart contract for a fungible asset token called 'MyToken' with symbol 'MTK' and 8 decimals. Include mint, burn, and transfer functions with proper access control. Use the Fungible Asset standard with primary_fungible_store."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/compile-check.js
+    - type: javascript
+      value: file://../../../assertions/security-pattern-check.js
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js
+
+- description: "NFT Collection + Minting"
+  vars:
+    task: "Write a Move V2 smart contract for an NFT collection called 'ArtCollection' using the Digital Asset standard. Include functions to create the collection in init_module, mint NFTs with metadata (name, description, uri), and transfer NFTs. Use Object<AptosToken> for token references."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/compile-check.js
+    - type: javascript
+      value: file://../../../assertions/security-pattern-check.js
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js
+
+- description: "DeFi Staking Vault"
+  vars:
+    task: "Write a Move V2 smart contract for a staking vault where users can stake APT tokens and earn rewards over time. Use Objects for the vault, SmartTable for user stakes, and timestamp::now_seconds() for time-based reward calculation. Include stake, unstake, and claim_rewards entry functions."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/compile-check.js
+    - type: javascript
+      value: file://../../../assertions/security-pattern-check.js
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js
+
+- description: "DAO Governance"
+  vars:
+    task: "Write a Move V2 smart contract for a DAO governance system. Include proposal creation, voting (for/against/abstain), execution after voting period, and quorum requirements. Use Objects for proposals and SmartTable for vote tracking. Include proper time-based voting periods using timestamp."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/compile-check.js
+    - type: javascript
+      value: file://../../../assertions/security-pattern-check.js
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js

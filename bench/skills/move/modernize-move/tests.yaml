@@ -1,0 +1,48 @@
+- description: "Full V1 Contract Modernization"
+  vars:
+    task: "Modernize this Move V1 contract to V2 syntax and patterns. Replace resource accounts with Objects, update to fungible_asset from coin, use modern syntax (receiver style, vector indexing, inline functions), add #[event] and #[view] annotations."
+    contractCode: file://../../../fixtures/contracts/v1-legacy-contract.move
+  assert:
+    - type: javascript
+      value: file://../../../assertions/compile-check.js
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js
+
+- description: "Mixed V1/V2 Partial Modernization"
+  vars:
+    task: "Modernize only the V1 patterns in this contract while preserving the V2 patterns already in use. The contract uses some V2 features (Objects) but still has V1 patterns (old syntax, no events). Update the V1 parts without breaking the V2 parts."
+    contractCode: |
+      module my_addr::mixed_contract {
+          use std::signer;
+          use aptos_framework::object::{Self, Object, ConstructorRef};
+          use std::string::String;
+          use std::vector;
+
+          struct Item has key {
+              name: String,
+              value: u64,
+          }
+
+          // V2: Uses objects (good)
+          public entry fun create_item(creator: &signer, name: String, value: u64) {
+              let constructor_ref = object::create_object(signer::address_of(creator));
+              let obj_signer = object::generate_signer(&constructor_ref);
+              move_to(&obj_signer, Item { name, value });
+          }
+
+          // V1: Old vector syntax (should modernize)
+          public fun find_max(items: &vector<u64>): u64 {
+              let len = vector::length(items);
+              let i = 0;
+              let max = 0;
+              while (i < len) {
+                  let val = *vector::borrow(items, i);
+                  if (val > max) { max = val; };
+                  i = i + 1;
+              };
+              max
+          }
+      }
+  assert:
+    - type: javascript
+      value: file://../../../assertions/v2-syntax-check.js

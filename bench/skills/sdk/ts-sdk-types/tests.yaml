@@ -1,0 +1,19 @@
+- description: "Move to TypeScript Type Mapping"
+  vars:
+    task: "Show me how to map Move types to TypeScript types for an Aptos module. The module has these types: u8, u64, u128, address, vector<u8>, String, bool, Object<T>. What TypeScript types should I use for each?"
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "bigint"
+
+- description: "Parse View Function Response"
+  vars:
+    task: "Show me how to parse a view function response from Aptos in TypeScript. The view function returns a struct with fields: name (String), balance (u64), is_active (bool), items (vector<address>). How do I properly type and parse this?"
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js

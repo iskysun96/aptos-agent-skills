@@ -1,0 +1,23 @@
+- description: "Wallet Adapter Setup in React"
+  vars:
+    task: "Show me how to set up the Aptos wallet adapter in a React application. Include the provider setup and how to access wallet functions in components."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "AptosWalletAdapterProvider"
+    - type: icontains
+      value: "useWallet"
+
+- description: "Submit Transaction via Wallet"
+  vars:
+    task: "Show me how to submit a transaction through the Aptos wallet adapter in React. I want to call my_module::mint_nft(name: String, uri: String) through the connected wallet."
+  assert:
+    - type: javascript
+      value: file://../../../assertions/ts-syntax-check.js
+    - type: javascript
+      value: file://../../../assertions/ts-sdk-pattern-check.js
+    - type: icontains
+      value: "signAndSubmitTransaction"

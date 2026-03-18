@@ -43,7 +43,7 @@
     "prettier": "^3.8.1"
   },
   "agentSkills": {
-    "version": "1.0",
+    "version": "1.0.0",
     "skillsDir": "skills",
     "patternsDir": "patterns"
   }

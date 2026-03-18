@@ -67,7 +67,7 @@ jobs:
             fi
 
             # Check allowed-tools is a string if present
-            tools_type=$(echo "$frontmatter" | yq 'type_of(.["allowed-tools"] // null)')
+            tools_type=$(echo "$frontmatter" | yq '(.["allowed-tools"] // null) | type')
             if [ "$tools_type" = "!!seq" ]; then
               echo "  ERROR: allowed-tools must be a space-delimited string, not a list"
               errors=$((errors + 1))

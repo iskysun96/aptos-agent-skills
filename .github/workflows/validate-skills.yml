@@ -25,8 +25,8 @@ jobs:
             dir_name=$(basename "$(dirname "$skill_file")")
             echo "Validating: $skill_file"
 
-            # Extract YAML frontmatter (between --- delimiters)
-            frontmatter=$(sed -n '/^---$/,/^---$/p' "$skill_file" | sed '1d;$d')
+            # Extract YAML frontmatter (between first two --- delimiters only)
+            frontmatter=$(awk 'NR==1 && /^---$/{found=1;next} found && /^---$/{exit} found' "$skill_file")
 
             if [ -z "$frontmatter" ]; then
               echo "  ERROR: No YAML frontmatter found"

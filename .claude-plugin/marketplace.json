@@ -38,7 +38,7 @@
       "source": "./community-skills",
       "strict": false,
       "skills": [
-        "./community-skills/smoothsend-gasless"
+        "./smoothsend-gasless"
       ]
     }
   ]

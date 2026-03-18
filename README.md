@@ -1,5 +1,6 @@
 # Aptos Agent Skills
 
+[![Agent Skills](https://img.shields.io/badge/Agent%20Skills-Compatible-green.svg)](https://agentskills.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Skills: 17](https://img.shields.io/badge/Skills-17-green.svg)](#aptos-development-skills)
 [![Patterns: 9](https://img.shields.io/badge/Patterns-9-orange.svg)](patterns/)

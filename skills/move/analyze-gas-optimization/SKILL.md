@@ -4,7 +4,10 @@ description:
   "Analyze and optimize Aptos Move contracts for gas efficiency, identifying expensive operations and suggesting
   optimizations. Triggers on: 'optimize gas', 'reduce gas costs', 'gas analysis', 'make contract cheaper', 'gas
   efficiency', 'analyze gas usage', 'reduce transaction costs'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: move
   tags: ["gas", "optimization", "performance", "costs"]
   priority: high

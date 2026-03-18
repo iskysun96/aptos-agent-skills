@@ -5,7 +5,10 @@ description:
   fromDerivationPath(), Ed25519 vs SingleKey vs MultiKey vs Keyless, serialization (fromHex/toHex). Triggers on:
   'Account.generate', 'Account.fromPrivateKey', 'Ed25519PrivateKey', 'SDK account', 'mnemonic', 'SingleKeyAccount',
   'KeylessAccount'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "account", "signer", "private-key", "ed25519", "keyless"]
   priority: high

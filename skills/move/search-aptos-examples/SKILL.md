@@ -4,7 +4,10 @@ description:
   "Searches aptos-core and daily-move for reference implementations before writing contracts. Triggers on: 'search
   examples', 'find example', 'check aptos-core', 'is there an example', 'reference implementation', 'how does aptos
   implement', 'similar contract', 'daily-move'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: move
   tags: ["examples", "reference", "patterns", "aptos-core", "daily-move"]
   priority: high

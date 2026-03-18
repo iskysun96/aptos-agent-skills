@@ -5,7 +5,10 @@ description:
   from/fromString/fromStrict, special addresses, LONG vs SHORT form, and derived addresses (object, resource, token,
   user-derived). Triggers on: 'AccountAddress', 'AccountAddress.from', 'AIP-40', 'derived address',
   'createObjectAddress', 'createResourceAddress', 'createTokenAddress'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "address", "account-address", "aip-40"]
   priority: high

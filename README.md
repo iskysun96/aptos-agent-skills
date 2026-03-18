@@ -4,6 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Skills: 17](https://img.shields.io/badge/Skills-17-green.svg)](#aptos-development-skills)
 [![Patterns: 9](https://img.shields.io/badge/Patterns-9-orange.svg)](patterns/)
+[![SkillsMP](https://img.shields.io/badge/SkillsMP-Browse-purple.svg)](https://skillsmp.com/search?q=aptos)
+[![Skills.sh](https://img.shields.io/badge/Skills.sh-Install-blue.svg)](https://skills.sh/search?q=aptos)
 
 AI-assisted Aptos blockchain development with **Claude Code**, **Cursor**, and **GitHub Copilot**. These skills give
 your AI coding assistant deep knowledge of Move smart contract development, the Aptos TypeScript SDK, and the full dApp
@@ -110,13 +112,15 @@ See [CLAUDE.md](CLAUDE.md) for all workflows, global rules, and pattern referenc
 
 ## Learn More
 
-| Resource                               | Description                                                                     |
-| -------------------------------------- | ------------------------------------------------------------------------------- |
-| [CLAUDE.md](CLAUDE.md)                 | Full guide for AI assistants — workflows, rules, skill routing                  |
-| [INSTALL.md](INSTALL.md)               | Installation options and selective skill setup                                  |
-| [patterns/](patterns/)                 | Reference docs for objects, digital assets, fungible assets, security, and more |
-| [community-skills/](community-skills/) | Community-contributed skills and contribution guidelines                        |
-| [aptos.dev](https://aptos.dev)         | Official Aptos documentation                                                    |
+| Resource                                        | Description                                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------------------- |
+| [CLAUDE.md](CLAUDE.md)                          | Full guide for AI assistants — workflows, rules, skill routing                  |
+| [INSTALL.md](INSTALL.md)                        | Installation options and selective skill setup                                  |
+| [patterns/](patterns/)                          | Reference docs for objects, digital assets, fungible assets, security, and more |
+| [community-skills/](community-skills/)          | Community-contributed skills and contribution guidelines                        |
+| [aptos.dev](https://aptos.dev)                  | Official Aptos documentation                                                    |
+| [SkillsMP](https://skillsmp.com/search?q=aptos) | Browse Aptos skills on SkillsMP                                                 |
+| [Skills.sh](https://skills.sh/search?q=aptos)   | Browse and install via Skills.sh                                                |
 
 ## Contributing
 

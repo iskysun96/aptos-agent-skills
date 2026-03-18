@@ -4,18 +4,14 @@ description: >-
   Detects and modernizes outdated Move V1 syntax, patterns, and APIs to Move V2+. Use when upgrading legacy contracts,
   migrating to modern syntax, or converting old patterns to current best practices. NOT for writing new contracts (use
   write-contracts) or fixing bugs.
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: move
   tags: ["modernization", "migration", "v2", "refactoring", "syntax"]
   priority: high
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Edit
-  - Bash
-  - AskUserQuestion
+allowed-tools: Read Glob Grep Write Edit Bash AskUserQuestion
 ---
 
 # Skill: modernize-move

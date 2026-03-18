@@ -5,7 +5,10 @@ description:
   signAndSubmitTransaction(), waitForTransaction(), simulate, sponsored (fee payer), and multi-agent. Triggers on:
   'build.simple', 'signAndSubmitTransaction', 'transaction.build', 'waitForTransaction', 'signAsFeePayer', 'SDK
   transaction', 'sponsored transaction', 'multi-agent transaction'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "transaction", "submit", "simulate", "sponsored", "multi-agent"]
   priority: high

@@ -10,7 +10,17 @@
     "ai",
     "claude",
     "cursor",
-    "web3"
+    "codex",
+    "copilot",
+    "web3",
+    "blockchain",
+    "nft",
+    "defi",
+    "typescript-sdk",
+    "wallet-adapter",
+    "move-v2",
+    "digital-assets",
+    "fungible-assets"
   ],
   "author": "aptos-labs",
   "license": "MIT",

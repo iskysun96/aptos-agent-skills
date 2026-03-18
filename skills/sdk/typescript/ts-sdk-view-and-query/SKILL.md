@@ -4,7 +4,10 @@ description:
   "How to read on-chain data in @aptos-labs/ts-sdk: view(), getBalance(), getAccountInfo(), getAccountResources(),
   getAccountModules(), getResource(). Triggers on: 'aptos.view', 'getBalance', 'getAccountInfo', 'getAccountResources',
   'SDK query', 'view function TypeScript'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "view", "balance", "account", "resources", "query"]
   priority: high

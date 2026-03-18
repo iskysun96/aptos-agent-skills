@@ -4,7 +4,10 @@ description:
   "How to create and configure the Aptos client (Aptos, AptosConfig) in @aptos-labs/ts-sdk. Covers Network,
   fullnode/indexer/faucet URLs, singleton pattern, and Bun compatibility. Triggers on: 'Aptos client', 'AptosConfig',
   'SDK client', 'client setup', 'new Aptos(', 'Network.TESTNET', 'Network.MAINNET'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "client", "aptos", "config", "network"]
   priority: high

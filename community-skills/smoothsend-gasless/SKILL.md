@@ -7,6 +7,7 @@ description:
   'fee payer', 'pay gas for users', 'no gas required'."
 metadata:
   author: ivedmohan
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "wallet", "gasless", "sponsored", "smoothsend", "transactionSubmitter"]
 ---

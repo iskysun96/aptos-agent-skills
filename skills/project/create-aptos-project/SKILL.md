@@ -5,7 +5,10 @@ description:
   templates with network selection and optional API key. Triggers on: 'build app', 'create app', 'make app', 'new app',
   'build dApp', 'create dApp', 'new dApp', 'build project', 'new project', 'create project', 'scaffold', 'start
   project', 'set up project', 'build me a', 'I want to build', 'make me a', 'help me build'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: project
   tags: ["scaffold", "create-aptos-dapp", "boilerplate", "project-setup", "fullstack", "vite", "nextjs"]
   priority: critical

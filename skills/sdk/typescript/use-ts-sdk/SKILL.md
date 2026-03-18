@@ -5,7 +5,10 @@ description:
   accounts, transactions, view functions, types, wallet adapter). Use this skill for fullstack dApp integration or when
   multiple SDK concerns are involved. Triggers on: 'typescript sdk', 'ts-sdk', 'aptos sdk', 'SDK setup', 'interact with
   contract', 'call aptos', 'aptos javascript', 'frontend integration', 'fullstack'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "frontend", "orchestrator", "fullstack"]
   priority: high

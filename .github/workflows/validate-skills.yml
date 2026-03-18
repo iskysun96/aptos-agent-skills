@@ -1,0 +1,94 @@
+name: Validate SKILL.md files
+
+on:
+  pull_request:
+    paths:
+      - "skills/**"
+      - "community-skills/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          YQ_VERSION="v4.52.4"
+          YQ_CHECKSUM="0c4d965ea944b64b8fddaf7f27779ee3034e5693263786506ccd1c120f184e8c"
+          sudo wget -qO /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          echo "${YQ_CHECKSUM}  /usr/local/bin/yq" | sha256sum -c -
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Validate SKILL.md frontmatter
+        run: |
+          errors=0
+
+          for skill_file in $(find skills community-skills -name "SKILL.md" 2>/dev/null); do
+            dir_name=$(basename "$(dirname "$skill_file")")
+            echo "Validating: $skill_file"
+
+            # Extract YAML frontmatter (between first two --- delimiters only)
+            frontmatter=$(awk 'NR==1 && /^---$/{found=1;next} found && /^---$/{exit} found' "$skill_file")
+
+            if [ -z "$frontmatter" ]; then
+              echo "  ERROR: No YAML frontmatter found"
+              errors=$((errors + 1))
+              continue
+            fi
+
+            file_errors=0
+
+            # Check required field: name
+            name=$(echo "$frontmatter" | yq -r '.name // ""')
+            if [ -z "$name" ] || [ "$name" = "null" ]; then
+              echo "  ERROR: Missing required field 'name'"
+              file_errors=$((file_errors + 1))
+            elif [ ${#name} -gt 64 ]; then
+              echo "  ERROR: name exceeds 64 characters: '$name'"
+              file_errors=$((file_errors + 1))
+            elif ! echo "$name" | grep -qE '^[a-z0-9]([a-z0-9-]*[a-z0-9])?$'; then
+              echo "  ERROR: name must be lowercase alphanumeric + hyphens, no leading/trailing hyphens: '$name'"
+              file_errors=$((file_errors + 1))
+            elif echo "$name" | grep -q -- '--'; then
+              echo "  ERROR: name must not contain consecutive hyphens: '$name'"
+              file_errors=$((file_errors + 1))
+            fi
+
+            # Check name matches directory
+            if [ "$name" != "$dir_name" ]; then
+              echo "  ERROR: name '$name' does not match directory '$dir_name'"
+              file_errors=$((file_errors + 1))
+            fi
+
+            # Check required field: description
+            desc=$(echo "$frontmatter" | yq -r '.description // ""')
+            if [ -z "$desc" ] || [ "$desc" = "null" ]; then
+              echo "  ERROR: Missing required field 'description'"
+              file_errors=$((file_errors + 1))
+            elif [ ${#desc} -gt 1024 ]; then
+              echo "  ERROR: description exceeds 1024 characters"
+              file_errors=$((file_errors + 1))
+            fi
+
+            # Check allowed-tools is a string if present
+            tools_type=$(echo "$frontmatter" | yq '(.["allowed-tools"] // null) | type')
+            if [ "$tools_type" = "!!seq" ]; then
+              echo "  ERROR: allowed-tools must be a space-delimited string, not a list"
+              file_errors=$((file_errors + 1))
+            fi
+
+            if [ $file_errors -eq 0 ]; then
+              echo "  OK"
+            fi
+            errors=$((errors + file_errors))
+          done
+
+          if [ $errors -gt 0 ]; then
+            echo ""
+            echo "FAILED: $errors validation error(s) found"
+            exit 1
+          fi
+
+          echo ""
+          echo "All SKILL.md files passed validation"

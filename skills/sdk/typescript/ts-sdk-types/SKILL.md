@@ -4,7 +4,10 @@ description:
   "Move to TypeScript type mapping in @aptos-labs/ts-sdk: u64/u128/u256 as bigint, address as string, TypeTag,
   functionArguments and typeArguments. Triggers on: 'typeArguments', 'functionArguments', 'Move to TypeScript', 'type
   mapping', 'TypeTag', 'bigint u128'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "types", "typetag", "bigint", "move"]
   priority: high

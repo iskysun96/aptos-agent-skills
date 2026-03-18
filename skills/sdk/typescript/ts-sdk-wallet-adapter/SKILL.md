@@ -5,7 +5,10 @@ description:
   AptosWalletAdapterProvider setup, useWallet() hook, frontend transaction submission, and wallet connection UI.
   Triggers on: 'wallet adapter', 'connect wallet', 'useWallet', 'AptosWalletAdapterProvider', 'wallet-adapter-react',
   'wallet connection'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: sdk
   tags: ["typescript", "sdk", "wallet", "react", "frontend", "adapter"]
   priority: high

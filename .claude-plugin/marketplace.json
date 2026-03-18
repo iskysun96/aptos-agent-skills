@@ -13,6 +13,8 @@
       "description": "A collection of skills to build fullstack Aptos dApps including Move smart contract development, wallet integration, and frontend patterns",
       "source": "./",
       "strict": false,
+      "category": "blockchain",
+      "tags": ["aptos", "move", "smart-contracts", "web3", "defi", "nft", "typescript-sdk"],
       "skills": [
         "./skills/move/write-contracts",
         "./skills/move/generate-tests",
@@ -37,6 +39,8 @@
       "description": "Community-built skills showcasing third-party tools and integrations. Independently maintained by their authors.",
       "source": "./community-skills",
       "strict": false,
+      "category": "blockchain",
+      "tags": ["aptos", "community", "gasless"],
       "skills": ["./smoothsend-gasless"]
     }
   ]

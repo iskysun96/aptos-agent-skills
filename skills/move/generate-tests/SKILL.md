@@ -3,7 +3,10 @@ name: generate-tests
 description:
   "Creates comprehensive test suites for Move contracts with 100% coverage requirement. Triggers on: 'generate tests',
   'create tests', 'write test suite', 'test this contract', 'how to test', 'add test coverage', 'write unit tests'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: move
   tags: ["testing", "unit-tests", "coverage", "quality"]
   priority: critical

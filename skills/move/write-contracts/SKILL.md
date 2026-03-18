@@ -6,7 +6,10 @@ description:
   Triggers on: 'write contract', 'create NFT collection', 'build marketplace', 'implement minting', 'generate Move
   module', 'create token contract', 'build DAO', 'implement staking'. Ask storage questions when: 'store', 'track',
   'registry', 'mapping', 'list', 'collection'."
+license: MIT
 metadata:
+  author: aptos-labs
+  version: "1.0"
   category: move
   tags: ["smart-contracts", "move", "nft", "defi", "objects"]
   priority: critical
